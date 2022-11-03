@@ -202,7 +202,7 @@ def edit_filter(filter_name="", attempts=0):
         if filter_edit=="":
             return add_purchase_price
         else:
-            db.execute("UPDATE snipe_list SET filter=? WHERE name =?",filter_edit,filter_index)
+            db.execute("UPDATE snipe_list SET filter=? WHERE name =?",str(filter_edit),filter_index)
             db.commit()           
             print(f"{filter_edit} is the new filter!")
             return main_menu()
@@ -262,5 +262,3 @@ def main_menu(attempts=0):
     else:
         return main_menu(attempts + 1)
 
-
-main_menu()

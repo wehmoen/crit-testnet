@@ -4,6 +4,8 @@ from sqlite3 import connect
 # tables
 # snipe_list - table for sniping list 
 #    fields - name,pur_price,filter,num_asset
+# keys - table for private keys
+# 	 fields- pvt_key,ron_add,gas,fernet_key
 
 DB_PATH = "./sniperbot.db"
 
@@ -25,7 +27,11 @@ def records(command, *values):
 
 	return cur.fetchall()
 
-# cur.execute("SELECT * FROM snipe_list")
+# cur.execute("""
+# 		DELETE FROM keys
+# """)
+
+# cur.execute("SELECT * FROM keys")
 
 # print(cur.fetchall())
 # cxn.commit()
