@@ -1,0 +1,44 @@
+
+from utils import db
+from cryptography.fernet import Fernet
+
+def pvtkey():
+    # Adding users private key
+    pvt_key = input(
+        "Please enter your private key. Or leave it blank to go back to main menu.\n")
+    
+    # Encrypt Private Key
+    # fernet_key should also be saved somewhere to be able to decrypt the data
+    fernet_key = Fernet.generate_key()
+    f = Fernet(fernet_key)
+    fernet_token = f.encrypt(bytes(pvt_key, 'utf-8'))
+    return fernet_token,fernet_key
+
+
+
+def ronin_add():
+    #Adding users ronin address
+    ron_add = input(
+        "Please enter your ronin address.\n")
+    return ron_add
+
+def add_gas():
+    # Adding Gas Price for the buy
+    gas= input("Please enter your desired gas price. Or leave blank for default price.\n")
+    return gas
+
+def add_key_address():
+    #Save ronin address and private key
+    pvt_key=pvtkey()
+    ron_add =ronin_add()
+    gas_price = add_gas()
+    if pvtkey=="":
+        return pvt_key()
+    
+    if ron_add=="":
+        return ronin_add()
+    else:
+    #  Save Data to DB
+        db.execute("INSERT INTO keys(pvt_key,ron_add,gas,fernet_key) VALUES(?,?,?,?)",pvt_key[0],ron_add,gas_price,pvt_key[1])
+        db.commit()
+        print("Save Successfully!")
