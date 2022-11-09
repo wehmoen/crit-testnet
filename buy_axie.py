@@ -1,6 +1,7 @@
-import tkinter
+import tkinter as tk
 import tkinter.messagebox
 import customtkinter
+import asset_filter
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -20,6 +21,11 @@ class App(customtkinter.CTk):
 
         def save_file():
             print("File Saved!")
+            filter_name=self.entry_1.get()
+            buy_price = self.entry_3.get()
+            num_axie = self.entry_4.get()
+            axie_filter = self.entry_5.get()
+            print(filter_name,buy_price,num_axie,axie_filter)
 
         def add_key():
             print("Key added")
@@ -134,13 +140,25 @@ class App(customtkinter.CTk):
 
         self.label_info_1 = customtkinter.CTkLabel(master=self.frame_info,
                                                    text="Sniping List",
-                                                   height=100,
+                                                   height=35,
                                                    corner_radius=6,  # <- custom corner radius
                                                    fg_color=("white", "gray38"),  # <- custom tuple-color
                                                    justify=tkinter.LEFT)
         self.label_info_1.grid(column=0, row=0, sticky="nwe", padx=15, pady=15)
 
+
+        self.listbox =tk.Listbox(master=self.frame_info)
+        self.listbox.grid(column=0, row=1, sticky="nwe", padx=15, pady=15)
+
+        snipe_list = asset_filter.get_snipe_list()
+        x=0
+        for list in snipe_list:
+            self.listbox.insert(x+1,list[0])
+            x+=1
+
+
         self.optionmenu_1.set("Dark")
+
 
 
     def button_event(self):

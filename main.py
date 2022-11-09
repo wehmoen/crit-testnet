@@ -6,6 +6,7 @@ import access_token
 import txn_utils
 from asset_func import axie_functions
 from cryptography.fernet import Fernet
+import asset_filter
 
 
 if True:
@@ -27,12 +28,13 @@ if True:
 
         address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
         token = access_token.generate_access_token(pvt_key, address)
-        gas_price = key_data[0][2]
-
+        # gas_price = key_data[0][2]
+        gas_price = 1
     eth_contract = txn_utils.eth()
     mp_contract = txn_utils.marketplace()
 
 def approve():
+        """Approve ETH to Spend"""
         send_txn = eth_contract.functions.approve(
             Web3.toChecksumAddress(
                 '0xfff9ce5f71ca6178d3beecedb61e7eff1602950e'),
@@ -90,8 +92,11 @@ def buy_asset(asset):
     signedTx = txn_utils.w3.eth.account.sign_transaction(marketTx, private_key=pvt_key)
     return signedTx 
 
-def run_loop(axie_filter):
 
+    
+
+def run_loop(axie_filter):
+    """Runing Loop to check if the axie is available"""
     my_filter = eval(axie_filter[0][2])
     num_asset = axie_filter[0][3]
     price = Web3.toWei(axie_filter[0][1], 'ether')
@@ -130,8 +135,8 @@ def run_loop(axie_filter):
                     continue
 
                 spend_amount += int(asset['order']['currentPrice'])
-                # if spend_amount > balance:
-                #     break
+                if spend_amount > balance:
+                    break
                 tx = buy_asset(asset)
                 txs.append(tx)
                 if 'id' in asset:
@@ -145,6 +150,7 @@ def run_loop(axie_filter):
                 numToBuy -= 1
                 if numToBuy <= 0:
                     break
+
         if len(txs) > 0:
             txn_utils.sendTxThreads(txs)
             for tx in txs:
@@ -156,14 +162,16 @@ def run_loop(axie_filter):
                 else:
                     print(f"Buying asset {attemptedTxs[sentTx]} succeded.")
             txs = []
+
         if numToBuy <= 0:
             print(f"Bought {num_asset} assets. This is the limit. Exiting.")
             raise SystemExit
         balance = eth_contract.functions.balanceOf(address).call()
-        # if balance <= price:
-        #     print(f"You do not have enough ETH to buy anything. Current price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting.")
-        #     raise SystemExit
+        if balance <= price:
+            print(f"You do not have enough ETH to buy anything. Current price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting.")
+            raise SystemExit
         count += 1
+
         if count % 120 == 0:
             print("Still searching marketplace.")
         time.sleep(1)
@@ -194,6 +202,7 @@ def init():
 
     axie_filter = db.records("SELECT * FROM snipe_list")
     db.commit
+ 
     axie_price = Web3.toWei(axie_filter[0][1], 'ether')
 
     if axie_price < balance:
@@ -202,11 +211,11 @@ def init():
     if axie_price < cheapest_filter:
         cheapest_filter = axie_price
 
-    # if not can_afford:
-    #     print(
-    #         f"You do not have enough ETH to buy anything. Current cheapest filter price you have set is {cheapest_filter / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting.")
-    #     raise SystemExit
+    if not can_afford:
+        print(
+            f"You do not have enough ETH to buy anything. Current cheapest filter price you have set is {cheapest_filter / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting.")
+        raise SystemExit
     print("Searching for Axies...")
     run_loop(axie_filter)
 
-init()
+# asset_filter.main_menu()

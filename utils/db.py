@@ -28,11 +28,11 @@ def records(command, *values):
 	return cur.fetchall()
 
 # cur.execute("""
-# 		DELETE FROM snipe_list WHERE num_asset = 4
+# 		DELETE FROM keys
 # """)
 
-# cur.execute("SELECT * FROM snipe_list")
+# # cur.execute("SELECT * FROM keys")
 
-# print(cur.fetchall())
+# # print(cur.fetchall())
 # cxn.commit()
 # cxn.close()

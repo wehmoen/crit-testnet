@@ -1,8 +1,8 @@
 from utils import db
-from main import init
 
-def add_name():
-    # Adding Listing name
+
+def add_name(input_mode):
+    """Adding listing name"""
     filter_name = input(
         "Please name your filter. Leave blank to go back to main menu.\n")
     if filter_name == "":
@@ -10,14 +10,14 @@ def add_name():
     return filter_name
 
 
-def add_purchase_price():
-    # adding listing purchase price
+def add_purchase_price(input_mode):
+    """Adding purchase price"""
     purchase_price = input("Please enter the purchase price.\n")
     return purchase_price
 
 
-def add_num_asset():
-    # adding number of asset to buy
+def add_num_asset(input_mode):
+    """Adding Numner of asset to buy"""
     num_assets = input(
         "Please enter the number of assets to buy with this filter.\n")
     try:
@@ -28,8 +28,8 @@ def add_num_asset():
         return add_num_asset()
 
 
-def add_new_filter(asset_type=""):
-    # adding the filter using link
+def add_new_filter(input_mode,asset_type=""):
+    """Adding new filter to DB"""
     new_filter = {}
     url = input("Please paste marketplace url of your filter.\n")
     if asset_type == "":
@@ -92,12 +92,13 @@ def add_new_filter(asset_type=""):
         return add_new_filter()
 
 
-def create_filter():
-    # Main Create filter function
-    filter_name = add_name()
-    purchase_price = add_purchase_price()
-    num_assets = add_num_asset()
-    new_filter = add_new_filter()
+def create_filter(input_mode=0):
+
+    """Main create new filter"""
+    filter_name = add_name(input_mode)
+    purchase_price = add_purchase_price(input_mode)
+    num_assets = add_num_asset(input_mode)
+    new_filter = add_new_filter(input_mode)
 
     if filter_name == "":
         return add_name()
@@ -127,16 +128,17 @@ def create_filter():
 
 
 def get_snipe_list_name():
-    # get snipe filter names from db 
+    """Get snipe filter names from db """
     snipe_filters = db.records("SELECT name FROM snipe_list")
     return snipe_filters
 
 def get_snipe_list():
+    """Get the list of snipe filter from DB"""
     snipe_filters = db.records("SELECT * FROM snipe_list")
     return snipe_filters   
 
 def edit_filter(filter_name="", attempts=0):
-    # editing snipe filter
+    """Edit Snipe filter"""
     if filter_name == "":
         snipe_filters = get_snipe_list_name()
         counter = 0
@@ -218,6 +220,7 @@ def edit_filter(filter_name="", attempts=0):
             return main_menu()
 
 def view_filter():
+    """View List of filter"""
     filter_list=get_snipe_list()
     counter=0
     print("****************************")
@@ -232,6 +235,7 @@ def view_filter():
         return main_menu()
 
 def main_menu(attempts=0):
+    """This is the main menu for the general input"""
     print("Main Menu")
     print("****************************")
     print("1. Create new filter")
@@ -259,9 +263,11 @@ def main_menu(attempts=0):
     elif choice == "4":
         print("4")
     elif choice == "5":
-        print("")
+        print("5")
+        # return init()
     elif choice == "6":
         raise SystemExit
     else:
         return main_menu(attempts + 1)
+
 
