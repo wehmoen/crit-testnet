@@ -5,7 +5,7 @@ from web3 import Web3
 
 
 def signRoninMessage(message, key, attempts2=0):
-    # for singning ronin message
+    """This is for signing message"""
     try:
         mes = encode_defunct(text=message)
         ronweb3 = Web3(Web3.HTTPProvider('https://api.roninchain.com/rpc'))
@@ -23,7 +23,7 @@ def signRoninMessage(message, key, attempts2=0):
 
 
 def generate_access_token(key, address, attempts=0):
-    # for generating access token
+    """Generate access token"""
     def getRandomMessage(attempts2=0):
         try:
             url = "https://graphql-gateway.axieinfinity.com/graphql"
@@ -46,6 +46,7 @@ def generate_access_token(key, address, attempts=0):
 
 
     def signRoninMessage(message, key, attempts2=0):
+        """Signing Ronin Message"""
         try:
             mes = encode_defunct(text=message)
             ronweb3 = Web3(Web3.HTTPProvider('https://api.roninchain.com/rpc'))
@@ -62,6 +63,7 @@ def generate_access_token(key, address, attempts=0):
                 return signRoninMessage(message, key, attempts2 + 1)
 
     def CreateAccessToken(message, signature, address, attempts2=0):
+        """Creating Access token"""
         try:
             url = "https://graphql-gateway.axieinfinity.com/graphql"
             payload = '{"query":"mutation CreateAccessTokenWithSignature($input:SignatureInput!){createAccessTokenWithSignature(input:$input){newAccount,result,accessToken,__typename}}","variables":{"input":{"mainnet":"ronin","owner":"' + address + '","message":"' + message + '","signature":"' + signature + '"}}}'
