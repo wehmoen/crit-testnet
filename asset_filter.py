@@ -92,45 +92,57 @@ def add_new_filter(input_mode,asset_type=""):
         return add_new_filter()
 
 
-def create_filter(input_mode=0):
+def create_filter(input_mode=0,guiftname="",guibuyprice=int(0),guinum_axie=int(0),gui_filter=""):
 
     """Main create new filter"""
-    filter_name = add_name(input_mode)
-    purchase_price = add_purchase_price(input_mode)
-    num_assets = add_num_asset(input_mode)
-    new_filter = add_new_filter(input_mode)
+    if input_mode==0:
+        filter_name = add_name(input_mode)
+        purchase_price = add_purchase_price(input_mode)
+        num_assets = add_num_asset(input_mode)
+        new_filter = add_new_filter(input_mode)
 
-    if filter_name == "":
-        return add_name()
-    if purchase_price == 0:
-        return add_purchase_price()
-    if num_assets == 0:
-        return add_num_asset()
-    if new_filter is None:
-        return add_new_filter()
-    else:
-        print("Added filter successfully!")
-        print("**************************")
-        print(f"Name:{filter_name}")
-        print(f"Purchase Price:{purchase_price}")
-        print(f"Filter:{new_filter}")
-        print(f"Number of asset:{num_assets}")
-        print("**************************\n")
-        db.execute("INSERT INTO snipe_list(name,pur_price,filter,num_asset) VALUES(?,?,?,?)",
-                   filter_name, purchase_price, str(new_filter), num_assets)
-        db.commit()
-
-        choice = input("Would you like to continue?(Y/N)\n")
-        if not choice.lower() == "n":
-            return main_menu()
+        if filter_name == "":
+            return add_name()
+        if purchase_price == 0:
+            return add_purchase_price()
+        if num_assets == 0:
+            return add_num_asset()
+        if new_filter is None:
+            return add_new_filter()
         else:
-            raise SystemExit
+            print("Added filter successfully!")
+            print("**************************")
+            print(f"Name:{filter_name}")
+            print(f"Purchase Price:{purchase_price}")
+            print(f"Filter:{new_filter}")
+            print(f"Number of asset:{num_assets}")
+            print("**************************\n")
+            db.execute("INSERT INTO snipe_list(name,pur_price,filter,num_asset) VALUES(?,?,?,?)",
+                    filter_name, purchase_price, str(new_filter), num_assets)
+            db.commit()
+
+            choice = input("Would you like to continue?(Y/N)\n")
+            if not choice.lower() == "n":
+                return main_menu()
+            else:
+                raise SystemExit
+    
+    else:
+        print("GUI Saved")
+        db.execute("INSERT INTO snipe_list(name,pur_price,filter,num_asset) VALUES(?,?,?,?)",
+                    guiftname, guibuyprice, str(gui_filter), guinum_axie)
+        db.commit()
 
 
 def get_snipe_list_name():
     """Get snipe filter names from db """
     snipe_filters = db.records("SELECT name FROM snipe_list")
     return snipe_filters
+
+def get_filter_by_name(ft_name):
+     """Get snipe filter by Listing name """
+     filter_data = db.records("SELECT * FROM snipe_list WHERE name=?",ft_name)
+     return filter_data
 
 def get_snipe_list():
     """Get the list of snipe filter from DB"""
@@ -228,11 +240,11 @@ def view_filter():
         counter+=1
         print(f"#{counter}-Name:{flist[0]}\n   Purchase price:{flist[1]}\n   Filter:{flist[2]}\n   Number of asset:{flist[3]}\n")
     print("****************************\n")
-    choice=input("Would you like to continue?(Y/N)\n")
-    if not choice.lower() == "y":
-        raise SystemExit
-    else:
-        return main_menu()
+
+def delete_filter(filter_name):
+     """Deleting Filter"""
+     db.execute("DELETE FROM snipe_list WHERE name=?",filter_name)
+     db.commit()
 
 def main_menu(attempts=0):
     """This is the main menu for the general input"""
@@ -258,10 +270,21 @@ def main_menu(attempts=0):
     elif choice == "2":
         return edit_filter()
     elif choice == "3":
-        return view_filter()
+        view_filter()
+        choice=input("Would you like to continue?(Y/N)\n")
+        if not choice.lower() == "y":
+            raise SystemExit
+        else:
+            return main_menu()
 
     elif choice == "4":
-        print("4")
+       view_filter()
+       choice = int(input("\nWhat would you like to delete?\n"))
+       snipe_filter = get_snipe_list()
+       ft_name = snipe_filter[choice-1][0]
+       delete_filter(ft_name)
+       print(f"Filter {ft_name} is sucessfully deleted!")
+
     elif choice == "5":
         print("5")
         # return init()

@@ -20,12 +20,30 @@ class App(customtkinter.CTk):
         self.protocol("WM_DELETE_WINDOW", self.on_closing)  # call .on_closing() when app gets closed
 
         def save_file():
+            """Saving Filter Using GUI"""
             print("File Saved!")
             filter_name=self.entry_1.get()
             buy_price = self.entry_3.get()
             num_axie = self.entry_4.get()
             axie_filter = self.entry_5.get()
-            print(filter_name,buy_price,num_axie,axie_filter)
+            return asset_filter.create_filter(1,filter_name,buy_price,num_axie,axie_filter),get_list()
+            
+        def edit_filter():
+            """Editing filter on GUI"""
+            listing_name=self.listbox.get(self.listbox.curselection())
+            filter_data=asset_filter.get_filter_by_name(listing_name)
+            self.entry_1.delete(0,tk.END)
+            self.entry_1.insert(0,filter_data[0][0])
+            self.entry_3.delete(0,tk.END)
+            self.entry_3.insert(0,filter_data[0][1])
+            self.entry_4.delete(0,tk.END)
+            self.entry_4.insert(0,filter_data[0][3])
+
+        def delete_filter():
+            """Delete Filter on GUI"""
+            listing_name=self.listbox.get(self.listbox.curselection())
+            asset_filter.delete_filter(listing_name)
+            print("Filter Deleted.")
 
         def add_key():
             print("Key added")
@@ -149,13 +167,19 @@ class App(customtkinter.CTk):
 
         self.listbox =tk.Listbox(master=self.frame_info)
         self.listbox.grid(column=0, row=1, sticky="nwe", padx=15, pady=15)
+        def get_list():
+            snipe_list = asset_filter.get_snipe_list()
+            x=0
+            for list in snipe_list:
+                self.listbox.insert(x+1,list[0])
+                x+=1
+        get_list()
 
-        snipe_list = asset_filter.get_snipe_list()
-        x=0
-        for list in snipe_list:
-            self.listbox.insert(x+1,list[0])
-            x+=1
+        self.edit_filter = customtkinter.CTkButton(master=self.frame_info,text="Edit",command=edit_filter)
+        self.edit_filter.grid(column=0, row=2, sticky="nwe", padx=5, pady=5)
 
+        self.delete_filter = customtkinter.CTkButton(master=self.frame_info,text="Delete",command=delete_filter)
+        self.delete_filter.grid(column=0, row=3, sticky="nwe", padx=5, pady=5)
 
         self.optionmenu_1.set("Dark")
 
