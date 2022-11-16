@@ -28,11 +28,11 @@ def records(command, *values):
 	return cur.fetchall()
 
 # cur.execute("""
-# 		DELETE FROM keys
+# 		DELETE FROM keys WHERE ron_add = "Test"
 # """)
 
-# # cur.execute("SELECT * FROM keys")
+# cur.execute("SELECT * FROM keys")
 
-# # print(cur.fetchall())
+# print(cur.fetchall())
 # cxn.commit()
 # cxn.close()

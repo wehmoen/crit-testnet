@@ -7,7 +7,7 @@ import txn_utils
 from asset_func import axie_functions
 from cryptography.fernet import Fernet
 import asset_filter
-
+import tkinter.messagebox
 
 if True:
     """Get the list of keys"""
@@ -95,11 +95,11 @@ def buy_asset(asset):
 
     
 
-def run_loop(axie_filter):
+def run_loop(axie_filter,filter_index=0):
     """Runing Loop to check if the axie is available"""
-    my_filter = eval(axie_filter[0][2])
-    num_asset = axie_filter[0][3]
-    price = Web3.toWei(axie_filter[0][1], 'ether')
+    my_filter = eval(axie_filter[filter_index][2])
+    num_asset = axie_filter[filter_index][3]
+    price = Web3.toWei(axie_filter[filter_index][1], 'ether')
     txs = []
     attemptedAssets = []
     attemptedTxs = {}
@@ -109,7 +109,7 @@ def run_loop(axie_filter):
     while True:
         spend_amount = 0
         
-        market = axie_functions.fetchMarket(token, my_filter)
+        market = axie_functions.fetch_market(token, my_filter)
         
         for asset in market['data']['axies']['results']:
             print(asset)
@@ -143,6 +143,7 @@ def run_loop(axie_filter):
                     print(f"Attempting to buy Asset #{asset['id']}.")
                     attemptedTxs[Web3.toHex(Web3.keccak(tx.rawTransaction))] = asset['id']
                     attemptedAssets.append(asset['id'])
+
                 else:
                     print(f"Attempting to buy Asset #{asset['tokenId']}.")
                     attemptedTxs[Web3.toHex(Web3.keccak(tx.rawTransaction))] = asset['tokenId']
@@ -161,11 +162,14 @@ def run_loop(axie_filter):
                     print(f"Buying asset {attemptedTxs[sentTx]} failed.")
                 else:
                     print(f"Buying asset {attemptedTxs[sentTx]} succeded.")
+
             txs = []
 
         if numToBuy <= 0:
             print(f"Bought {num_asset} assets. This is the limit. Exiting.")
-            raise SystemExit
+            tkinter.messagebox.showinfo("Bloodmoon Sniper Bot",f"Bought {num_asset} assets. This is the limit. Returning to main menu")
+            return run_loop(axie_filter,filter_index+1)
+
         balance = eth_contract.functions.balanceOf(address).call()
         if balance <= price:
             print(f"You do not have enough ETH to buy anything. Current price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting.")
@@ -217,5 +221,7 @@ def init():
         raise SystemExit
     print("Searching for Axies...")
     run_loop(axie_filter)
+
+
 
 # asset_filter.main_menu()

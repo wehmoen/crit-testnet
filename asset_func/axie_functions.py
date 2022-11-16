@@ -3,7 +3,7 @@ import json
 import traceback
 
 
-def fetchMarket(accessToken, myFilter, attempts=0):
+def fetch_market(accessToken, myFilter, attempts=0):
     url = "https://graphql-gateway.axieinfinity.com/graphql"
 
     payload = {
@@ -30,7 +30,7 @@ def fetchMarket(accessToken, myFilter, attempts=0):
             print("something is wrong. exiting the program.")
             print(traceback.format_exc())
             raise SystemExit
-        return fetchMarket(accessToken, myFilter, attempts + 1)
+        return fetch_market(accessToken, myFilter, attempts + 1)
     try:
         temp = json.loads(response.text)['data']['axies']['total']
         if temp >= 0:
@@ -43,11 +43,11 @@ def fetchMarket(accessToken, myFilter, attempts=0):
             print("response:\t" + response.text)
             print(traceback.format_exc())
             raise SystemExit
-        return fetchMarket(accessToken, myFilter, attempts + 1)
+        return fetch_market(accessToken, myFilter, attempts + 1)
 
 
 def checkFilter(accessToken, myFilter, attempts=0):
-    url = "https://graphql-gateway.axieinfinity.com/graphql?r=maxbrand99"
+    url = "https://graphql-gateway.axieinfinity.com/graphql"
 
     payload = {
         "query": "query GetAxieBriefList($auctionType:AuctionType,$criteria:AxieSearchCriteria,$from:Int,$sort:SortBy,$size:Int,$owner:String){axies(auctionType:$auctionType,criteria:$criteria,from:$from,sort:$sort,size:$size,owner:$owner){total}}",

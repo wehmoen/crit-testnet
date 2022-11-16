@@ -2,6 +2,8 @@ import tkinter as tk
 import tkinter.messagebox
 import customtkinter
 import asset_filter
+import key_ronin
+import main
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -23,10 +25,23 @@ class App(customtkinter.CTk):
             """Saving Filter Using GUI"""
             print("File Saved!")
             filter_name=self.entry_1.get()
-            buy_price = self.entry_3.get()
-            num_axie = self.entry_4.get()
-            axie_filter = self.entry_5.get()
-            return asset_filter.create_filter(1,filter_name,buy_price,num_axie,axie_filter),get_list()
+            check_name = asset_filter.get_filter_by_name(filter_name)
+            if len(check_name)>=1:
+                print("Filtername Exists!")
+
+            else:
+                buy_price = self.entry_3.get()
+                num_axie = self.entry_4.get()
+                axie_filter = self.entry_5.get()
+                self.entry_1.delete(0,tk.END)
+                self.entry_3.delete(0,tk.END)
+                self.entry_4.delete(0,tk.END)
+                self.entry_5.delete(0,tk.END)
+                tkinter.messagebox.showinfo("Bloodmoon Sniper Bot",f"Filter {filter_name} is successfully saved!")
+                return asset_filter.create_filter(1,filter_name,buy_price,num_axie,axie_filter),get_list()
+
+            
+                
             
         def edit_filter():
             """Editing filter on GUI"""
@@ -44,6 +59,9 @@ class App(customtkinter.CTk):
             listing_name=self.listbox.get(self.listbox.curselection())
             asset_filter.delete_filter(listing_name)
             print("Filter Deleted.")
+            self.label_info_2.config(text=f"Filter {listing_name} is successfully deleted!")
+            tkinter.messagebox.showinfo("Bloodmoon Sniper Bot",f"Filter {listing_name} is successfully deleted!")
+            get_list()
 
         def add_key():
             print("Key added")
@@ -52,6 +70,11 @@ class App(customtkinter.CTk):
             
             def button_callback():
                 print("Button click")
+                pvt_key = entry_1.get()
+                ronin_add = entry_2.get()
+                gas_price = entry_3.get()
+                key_ronin.add_key_address(1,pvt_key,ronin_add,gas_price)
+
                 key_add.destroy()
 
             frame_1 = customtkinter.CTkFrame(master=key_add)
@@ -67,9 +90,18 @@ class App(customtkinter.CTk):
             entry_2 = customtkinter.CTkEntry(master=frame_1, placeholder_text="Enter your Ronin Address",width=200)
             entry_2.pack(pady=12, padx=10)
 
+            entry_3 = customtkinter.CTkEntry(master=frame_1, placeholder_text="Gas Price",width=200)
+            entry_3.pack(pady=12, padx=10)
+
             button_1 = customtkinter.CTkButton(master=frame_1, command=button_callback,text="Save")
             button_1.pack(pady=12, padx=10)
 
+        def start_bot():
+            self.label_info_2.config(text=f"Searching Marketplace")
+            main.init()
+
+        def user_quit():
+            raise SystemExit
 
         menu_bar = tkinter.Menu(self)
         self.config(menu=menu_bar)
@@ -78,8 +110,9 @@ class App(customtkinter.CTk):
         menu_bar.add_cascade(label="File",menu=file_menu)
         file_menu.add_command(label="Save",command=save_file)
         file_menu.add_command(label="Add Key & Address",command=add_key)
+        file_menu.add_command(label="Start the bot",command=start_bot)
         file_menu.add_separator()
-        file_menu.add_command(label="Exit",command=quit)
+        file_menu.add_command(label="Exit",command=user_quit)
 
         help_menu = tkinter.Menu(menu_bar,tearoff=0)
         menu_bar.add_cascade(label="Help",menu=help_menu)
@@ -115,10 +148,6 @@ class App(customtkinter.CTk):
                                                 placeholder_text="Name Axie Sniper")
         self.entry_1.grid(row=2, column=0, pady=10, padx=20)
 
-        self.entry_2 = customtkinter.CTkEntry(master=self.frame_left,
-                                                placeholder_text="Gas Price")
-        self.entry_2.grid(row=3, column=0, pady=10, padx=20)
-
         self.entry_3 = customtkinter.CTkEntry(master=self.frame_left,
                                                 placeholder_text="Buy Price")
         self.entry_3.grid(row=4, column=0, pady=10, padx=20)
@@ -153,7 +182,10 @@ class App(customtkinter.CTk):
         # ============ frame_info ============
 
         # configure grid layout (1x1)
-        self.frame_info.rowconfigure(0, weight=1)
+        self.frame_info.rowconfigure(0, weight=0)
+        self.frame_info.rowconfigure(1, weight=1)
+        self.frame_info.rowconfigure(2, weight=1)
+        self.frame_info.rowconfigure(3, weight=1)
         self.frame_info.columnconfigure(0, weight=1)
 
         self.label_info_1 = customtkinter.CTkLabel(master=self.frame_info,
@@ -162,31 +194,33 @@ class App(customtkinter.CTk):
                                                    corner_radius=6,  # <- custom corner radius
                                                    fg_color=("white", "gray38"),  # <- custom tuple-color
                                                    justify=tkinter.LEFT)
-        self.label_info_1.grid(column=0, row=0, sticky="nwe", padx=15, pady=15)
-
+        self.label_info_1.grid(column=0, row=0, sticky="nwe", padx=15, pady=15,columnspan = 2)
 
         self.listbox =tk.Listbox(master=self.frame_info)
-        self.listbox.grid(column=0, row=1, sticky="nwe", padx=15, pady=15)
+        self.listbox.grid(column=0, row=1, sticky="nwe", padx=15, pady=15,columnspan = 2)
         def get_list():
             snipe_list = asset_filter.get_snipe_list()
             x=0
+            self.listbox.delete(0,customtkinter.END)
             for list in snipe_list:
                 self.listbox.insert(x+1,list[0])
                 x+=1
         get_list()
 
         self.edit_filter = customtkinter.CTkButton(master=self.frame_info,text="Edit",command=edit_filter)
-        self.edit_filter.grid(column=0, row=2, sticky="nwe", padx=5, pady=5)
+        self.edit_filter.grid(column=0, row=2, padx=5, pady=5,sticky ="e")
 
         self.delete_filter = customtkinter.CTkButton(master=self.frame_info,text="Delete",command=delete_filter)
-        self.delete_filter.grid(column=0, row=3, sticky="nwe", padx=5, pady=5)
+        self.delete_filter.grid(column=1, row=2, padx=15, pady=5,sticky ="w")
 
         self.optionmenu_1.set("Dark")
 
-
-
-    def button_event(self):
-        print("Button pressed")
+        self.label_info_2 = customtkinter.CTkLabel(master=self.frame_info,
+                                                   text="",
+                                                   height=35,
+                                                   corner_radius=6,  # <- custom corner radius
+                                                   justify=tkinter.LEFT)
+        self.label_info_2.grid(column=0, row=3, sticky="nwe", padx=15, pady=15,columnspan = 2)     
 
     def change_appearance_mode(self, new_appearance_mode):
         customtkinter.set_appearance_mode(new_appearance_mode)
