@@ -15,7 +15,8 @@ if True:
     db.commit
 
     if len(key_data) <= 0:
-        key_ronin.add_key_address()
+        # key_ronin.add_key_address()
+        print("No data")
     else:
         """Decrypt the private key"""
         fernet_key = key_data[0][3]
@@ -173,6 +174,7 @@ def run_loop(axie_filter,filter_index=0):
         balance = eth_contract.functions.balanceOf(address).call()
         if balance <= price:
             print(f"You do not have enough ETH to buy anything. Current price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting.")
+            tkinter.messagebox.showinfo("Bloodmoon Sniper Bot",f"You do not have enough ETH to buy anything. Current price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting.")
             raise SystemExit
         count += 1
 

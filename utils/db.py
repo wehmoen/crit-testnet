@@ -28,7 +28,7 @@ def records(command, *values):
 	return cur.fetchall()
 
 # cur.execute("""
-# 		DELETE FROM keys WHERE ron_add = "Test"
+# 		DELETE FROM keys 
 # """)
 
 # cur.execute("SELECT * FROM keys")

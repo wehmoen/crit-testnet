@@ -209,10 +209,21 @@ def get_filter_by_name(ft_name):
      filter_data = db.records("SELECT * FROM snipe_list WHERE name=?",ft_name)
      return filter_data
 
+
 def get_snipe_list():
     """Get the list of snipe filter from DB"""
     snipe_filters = db.records("SELECT * FROM snipe_list")
     return snipe_filters   
+
+def ron_list():
+    """Get the list of Ronin Address from DB"""
+    ron_add = db.records("SELECT * FROM keys")
+    return ron_add 
+    
+def get_ron_by_add(address):
+    """Get the ronin address data by address"""
+    ron_data = db.records("SELECT * FROM keys WHERE ron_add=?",address)
+    return ron_data
 
 def gui_update(gui_name,pur_price,gui_filt,num):
     """Update Filter From GUI"""
@@ -317,6 +328,11 @@ def view_filter():
 def delete_filter(filter_name):
      """Deleting Filter"""
      db.execute("DELETE FROM snipe_list WHERE name=?",filter_name)
+     db.commit()
+
+def delete_ronin(ronin_add):
+     """Deleting Filter"""
+     db.execute("DELETE FROM keys WHERE ron_add=?",ronin_add)
      db.commit()
 
 def main_menu(attempts=0):
