@@ -3,9 +3,10 @@ from sqlite3 import connect
 
 # tables
 # snipe_list - table for sniping list 
-#    fields - name,pur_price,filter,num_asset
+#    fields - name,pur_price,filter,num_asset,link,buy_count
 # keys - table for private keys
-# 	 fields- pvt_key,ron_add,gas,fernet_key
+# 	 fields- pvt_key,ron_add,gas,fernet_key,status
+
 
 DB_PATH = "./sniperbot.db"
 
@@ -28,8 +29,13 @@ def records(command, *values):
 	return cur.fetchall()
 
 # cur.execute("""
-# 		DELETE FROM keys 
+# 		DELETE FROM keys WHERE ron_add = "test1"
 # """)
+
+# cur.execute("""
+# 		ALTER TABLE keys ADD status text
+# """)
+
 
 # cur.execute("SELECT * FROM keys")
 

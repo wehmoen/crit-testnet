@@ -6,13 +6,23 @@ import sys
 
 
 def resource_path(relative_path):
-    if hasattr(sys, '_MEIPASS'):
+    if hasattr(sys, "_MEIPASS"):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
 
+
 with open(resource_path("abis.json")) as file:
-    w3 = Web3(Web3.HTTPProvider('https://api.roninchain.com/rpc', request_kwargs={"headers": {
-              "content-type": "application/json", "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"}}))
+    w3 = Web3(
+        Web3.HTTPProvider(
+            "https://api.roninchain.com/rpc",
+            request_kwargs={
+                "headers": {
+                    "content-type": "application/json",
+                    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36",
+                }
+            },
+        )
+    )
     # IF YOU HAVE YOUR OWN RPC URL, COMMENT OUT THE LINE ABOVE, UNCOMMENT THE LINE BELOW, AND ENTER IT ON THE LINE BELOW
     # w3 = Web3(Web3.HTTPProvider('https://ronin-testnet.skymavis.com/rpc'))
     abis = json.load(file)
@@ -21,19 +31,20 @@ with open(resource_path("abis.json")) as file:
 
 def eth():
     """Get the contrant module"""
-    ethAbi = abis['eth']
-    ethAddress = Web3.toChecksumAddress(
-        "0xc99a6a985ed2cac1ef41640596c5a5f9f4e19ef5")
+    ethAbi = abis["eth"]
+    ethAddress = Web3.toChecksumAddress("0xc99a6a985ed2cac1ef41640596c5a5f9f4e19ef5")
     ethContract = w3.eth.contract(address=ethAddress, abi=ethAbi)
     return ethContract
 
 
 def marketplace():
-    marketplaceAbi = abis['marketplace']
+    marketplaceAbi = abis["marketplace"]
     marketplaceAddress = Web3.toChecksumAddress(
-        "0xfff9ce5f71ca6178d3beecedb61e7eff1602950e")
+        "0xfff9ce5f71ca6178d3beecedb61e7eff1602950e"
+    )
     marketplaceContract = w3.eth.contract(
-        address=marketplaceAddress, abi=marketplaceAbi)
+        address=marketplaceAddress, abi=marketplaceAbi
+    )
     return marketplaceContract
 
 
@@ -43,7 +54,7 @@ def sendTx(signedTxn, timeout=10):
         w3.eth.send_raw_transaction(signedTxn.rawTransaction)
     except ValueError as e:
         print(e)
-        
+
     tries = 0
     success = False
     while tries < 3:
