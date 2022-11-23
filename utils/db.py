@@ -6,6 +6,8 @@ from sqlite3 import connect
 #    fields - name,pur_price,filter,num_asset,link,buy_count
 # keys - table for private keys
 # 	 fields- pvt_key,ron_add,gas,fernet_key,status
+# verify - table for verifying access to the app
+#	 fields- user_name,prod_stat
 
 
 DB_PATH = "./sniperbot.db"
@@ -29,7 +31,10 @@ def records(command, *values):
 	return cur.fetchall()
 
 # cur.execute("""
-# 		DELETE FROM keys WHERE ron_add = "test1"
+# 	 		CREATE TABLE verify(
+# 			user_name text,
+# 			prod_stat text
+# 			) 
 # """)
 
 # cur.execute("""
@@ -37,7 +42,7 @@ def records(command, *values):
 # """)
 
 
-# cur.execute("SELECT * FROM keys")
+# cur.execute("DELETE  FROM verify")
 
 # print(cur.fetchall())
 # cxn.commit()

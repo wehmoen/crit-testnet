@@ -275,18 +275,22 @@ class App(customtkinter.CTk):
 
             get_list()
 
-            active_ron = key_ronin.get_active()
-            label_info_2 = customtkinter.CTkLabel(
-                master=frame_info,
-                text=f"Active Account: {active_ron}",
-                height=35,
-                corner_radius=6,  # <- custom corner radius
-                fg_color=("white", "gray38"),  # <- custom tuple-color
-                justify=tkinter.LEFT,
-            )
-            label_info_2.grid(
-                column=0, row=2, sticky="nwe", padx=15, pady=15, columnspan=2
-            )
+            try:
+                active_ron = key_ronin.get_active()
+                label_info_2 = customtkinter.CTkLabel(
+                    master=frame_info,
+                    text=f"Active Account: {active_ron}",
+                    height=35,
+                    corner_radius=6,  # <- custom corner radius
+                    fg_color=("white", "gray38"),  # <- custom tuple-color
+                    justify=tkinter.LEFT,
+                )
+                label_info_2.grid(
+                    column=0, row=2, sticky="nwe", padx=15, pady=15, columnspan=2
+                )
+            
+            except:
+                print("No Data yet!")
 
             edit_ronin = customtkinter.CTkButton(
                 master=frame_info, text="Edit", command=edit_ron
