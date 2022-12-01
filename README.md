@@ -38,3 +38,10 @@ If you want to learn more about fernet crytography you can check out this [link]
 
 - On the landing page you’ll see a Run Bot Button. Click on it and the bot will start to loop and buy the axies on you filters list.
 
+### Contact
+
+John Paul Serdan(Ghost🤖#8342)
+
+### License
+
+All intellectual property is assigned to QU3ST and should remain confidential
