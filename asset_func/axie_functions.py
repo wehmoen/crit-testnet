@@ -4,6 +4,7 @@ import traceback
 
 
 def fetch_market(accessToken, myFilter, attempts=0):
+    """Fetch listing from marketplace with the desired filter"""
     url = "https://graphql-gateway.axieinfinity.com/graphql"
 
     payload = {
@@ -14,16 +15,18 @@ def fetch_market(accessToken, myFilter, attempts=0):
             "sort": "PriceAsc",
             "auctionType": "Sale",
             "owner": None,
-            "criteria": myFilter
-        }
+            "criteria": myFilter,
+        },
     }
     headers = {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + accessToken,
-        'User-Agent': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)',
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + accessToken,
+        "User-Agent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)",
     }
     try:
-        response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
+        response = requests.request(
+            "POST", url, headers=headers, data=json.dumps(payload)
+        )
     except:
         if attempts >= 3:
             print("fetchAxieMarket request")
@@ -32,7 +35,7 @@ def fetch_market(accessToken, myFilter, attempts=0):
             raise SystemExit
         return fetch_market(accessToken, myFilter, attempts + 1)
     try:
-        temp = json.loads(response.text)['data']['axies']['total']
+        temp = json.loads(response.text)["data"]["axies"]["total"]
         if temp >= 0:
             return json.loads(response.text)
     except:
@@ -47,6 +50,7 @@ def fetch_market(accessToken, myFilter, attempts=0):
 
 
 def checkFilter(accessToken, myFilter, attempts=0):
+    """Check if the filter exist"""
     url = "https://graphql-gateway.axieinfinity.com/graphql"
 
     payload = {
@@ -57,16 +61,18 @@ def checkFilter(accessToken, myFilter, attempts=0):
             "sort": "PriceAsc",
             "auctionType": "All",
             "owner": None,
-            "criteria": myFilter
-        }
+            "criteria": myFilter,
+        },
     }
     headers = {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + accessToken,
-        'User-Agent': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)',
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + accessToken,
+        "User-Agent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)",
     }
     try:
-        response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
+        response = requests.request(
+            "POST", url, headers=headers, data=json.dumps(payload)
+        )
     except:
         if attempts >= 3:
             print("checkAxieFilter request")
@@ -75,7 +81,7 @@ def checkFilter(accessToken, myFilter, attempts=0):
             raise SystemExit
         return checkFilter(accessToken, myFilter, attempts + 1)
     try:
-        return json.loads(response.text)['data']['axies']['total']
+        return json.loads(response.text)["data"]["axies"]["total"]
     except:
         if attempts >= 3:
             print("checkAxieFilter")

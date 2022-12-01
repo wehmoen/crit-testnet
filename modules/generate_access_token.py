@@ -9,7 +9,6 @@ def signRoninMessage(message, key, attempts2=0):
     try:
         mes = encode_defunct(text=message)
         ronweb3 = Web3(Web3.HTTPProvider("https://api.roninchain.com/rpc"))
-        # ronweb3 = Web3(Web3.HTTPProvider('https://ronin-testnet.skymavis.com/rpc'))
         sig = ronweb3.eth.account.sign_message(mes, private_key=key)
         signature = sig["signature"].hex()
         return signature
@@ -50,7 +49,6 @@ def generate_access_token(key, address, attempts=0):
         try:
             mes = encode_defunct(text=message)
             ronweb3 = Web3(Web3.HTTPProvider("https://api.roninchain.com/rpc"))
-            # ronweb3 = Web3(Web3.HTTPProvider('https://ronin-testnet.skymavis.com/rpc'))
             sig = ronweb3.eth.account.sign_message(mes, private_key=key)
             signature = sig["signature"].hex()
             return signature
@@ -108,6 +106,4 @@ def generate_access_token(key, address, attempts=0):
             return generate_access_token(key, address, attempts + 1)
 
 
-# pvtkey="0x759af3892a7222ac125161b990a8f8f177332297b5b493c515c5a59348ec5e55"
-# roninadd="ronin:1b8f7ff261ae5a10ab6918a86a2e508e7191aaec"
-# print(generate_access_token(pvtkey,roninadd))
+

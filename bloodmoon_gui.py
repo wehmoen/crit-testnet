@@ -1,13 +1,11 @@
 import tkinter as tk
 import tkinter.messagebox
 import customtkinter
-import asset_filter
-import key_ronin
+import modules.create_filter as create_filter
+import modules.save_key_ronin as save_key_ronin
 from main import init
 
-customtkinter.set_appearance_mode(
-    "Dark"
-)  # Modes: "System" (standard), "Dark", "Light"
+customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme(
     "blue"
 )  # Themes: "blue" (standard), "green", "dark-blue"
@@ -32,12 +30,12 @@ class App(customtkinter.CTk):
             print("File Saved!")
             filter_name = self.entry_1.get()
 
-            check_name = asset_filter.get_filter_by_name(filter_name)
+            check_name = create_filter.get_filter_by_name(filter_name)
             if len(check_name) >= 1:
                 buy_price = self.entry_3.get()
                 num_axie = self.entry_4.get()
                 axie_filter = self.entry_5.get()
-                asset_filter.gui_update(filter_name, buy_price, axie_filter, num_axie)
+                create_filter.gui_update(filter_name, buy_price, axie_filter, num_axie)
                 tkinter.messagebox.showinfo(
                     "Bloodmoon Sniper Bot", f"Filter {filter_name} is updated."
                 )
@@ -59,7 +57,7 @@ class App(customtkinter.CTk):
                     f"Filter {filter_name} is added!",
                 )
                 return (
-                    asset_filter.create_filter(
+                    create_filter.create_filter(
                         1, filter_name, buy_price, num_axie, axie_filter
                     ),
                     get_list(),
@@ -68,7 +66,7 @@ class App(customtkinter.CTk):
         def edit_filter():
             """Editing filter on GUI"""
             listing_name = self.listbox.get(self.listbox.curselection())
-            filter_data = asset_filter.get_filter_by_name(listing_name)
+            filter_data = create_filter.get_filter_by_name(listing_name)
             self.entry_1.delete(0, tk.END)
             self.entry_1.insert(0, filter_data[0][0])
             self.entry_3.delete(0, tk.END)
@@ -81,7 +79,7 @@ class App(customtkinter.CTk):
         def delete_filter():
             """Delete Filter on GUI"""
             listing_name = self.listbox.get(self.listbox.curselection())
-            asset_filter.delete_filter(listing_name)
+            create_filter.delete_filter(listing_name)
             print("Filter Deleted.")
 
             tkinter.messagebox.showinfo(
@@ -94,22 +92,24 @@ class App(customtkinter.CTk):
 
             key_add = tk.Tk()
             key_add.title("Bloodmoon")
-            key_add.configure(background="#212325",height=App.HEIGHT,width=App.WIDTH)
+            key_add.configure(background="#212325", height=App.HEIGHT, width=App.WIDTH)
 
             def save_account():
 
                 pvt_key = entry_1.get()
                 ronin_add = entry_2.get()
 
-                ronin_account = asset_filter.get_ron_by_add(ronin_add)
+                ronin_account = create_filter.get_ron_by_add(ronin_add)
 
                 if len(ronin_account) < 1:
                     gas_price = entry_3.get()
-                    key_ronin.add_key_address(1, pvt_key, ronin_add, gas_price)
+                    save_key_ronin.add_key_address(1, pvt_key, ronin_add, gas_price)
                     entry_1.delete(0, tk.END)
                     entry_2.delete(0, tk.END)
                     entry_3.delete(0, tk.END)
-                    tkinter.messagebox.showinfo("Bloodmoon Sniper Bot",f"Ronin account {ronin_add} is added!")
+                    tkinter.messagebox.showinfo(
+                        "Bloodmoon Sniper Bot", f"Ronin account {ronin_add} is added!"
+                    )
                     get_list()
                 else:
                     print("Account already setup.")
@@ -117,7 +117,7 @@ class App(customtkinter.CTk):
             def edit_ron():
                 """Editing Ronin Details on GUI"""
                 ronin = listbox.get(listbox.curselection())
-                ron_data = asset_filter.get_ron_by_add(ronin)
+                ron_data = create_filter.get_ron_by_add(ronin)
 
                 entry_1.delete(0, tk.END)
                 entry_1.insert(0, "Not Editable")
@@ -136,7 +136,7 @@ class App(customtkinter.CTk):
             def delete_ron():
                 """Deleting ronin account"""
                 ronin = listbox.get(listbox.curselection())
-                asset_filter.delete_ronin(ronin)
+                create_filter.delete_ronin(ronin)
                 tkinter.messagebox.showinfo(
                     "Bloodmoon Sniper Bot", f"Filter {ronin} is successfully deleted!"
                 )
@@ -145,9 +145,7 @@ class App(customtkinter.CTk):
             def active_account():
                 print("test")
                 active = listbox.get(listbox.curselection())
-                # label_info_2.configure(text=f"Active Account:\n{active}")
-                key_ronin.set_active(active)
-
+                save_key_ronin.set_active(active)
 
             # ============ create two frames ============
 
@@ -266,7 +264,7 @@ class App(customtkinter.CTk):
 
             def get_list():
                 """Get List of Ronin Accounts"""
-                account_list = asset_filter.ron_list()
+                account_list = create_filter.ron_list()
                 x = 0
                 listbox.delete(0, customtkinter.END)
                 for list in account_list:
@@ -276,7 +274,7 @@ class App(customtkinter.CTk):
             get_list()
 
             try:
-                active_ron = key_ronin.get_active()
+                active_ron = save_key_ronin.get_active()
                 label_info_2 = customtkinter.CTkLabel(
                     master=frame_info,
                     text=f"Active Account: {active_ron}",
@@ -288,7 +286,7 @@ class App(customtkinter.CTk):
                 label_info_2.grid(
                     column=0, row=2, sticky="nwe", padx=15, pady=15, columnspan=2
                 )
-            
+
             except:
                 print("No Data yet!")
 
@@ -455,7 +453,7 @@ class App(customtkinter.CTk):
         self.listbox.grid(column=0, row=1, sticky="nwe", padx=15, pady=15, columnspan=2)
 
         def get_list():
-            snipe_list = asset_filter.get_snipe_list()
+            snipe_list = create_filter.get_snipe_list()
             x = 0
             self.listbox.delete(0, customtkinter.END)
             for list in snipe_list:
@@ -492,7 +490,6 @@ class App(customtkinter.CTk):
 
     def on_closing(self, event=0):
         self.destroy()
-
 
 if __name__ == "__main__":
     app = App()

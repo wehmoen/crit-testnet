@@ -6,8 +6,8 @@ import customtkinter
 import os
 import sys
 from PIL import Image, ImageTk
-from buy_axie import App
-from utils import db
+from bloodmoon_gui import App
+from data import db
 
 
 verify_prod = db.records("SELECT * FROM verify")
@@ -92,7 +92,7 @@ else:
             self.frame_right = customtkinter.CTkFrame(master=self)
             self.frame_right.grid(row=0, column=1, sticky="nswe", padx=20, pady=20)
 
-            self.bg_image = Image.open(resource_path("q3logo.png"))
+            self.bg_image = Image.open(resource_path("src/q3logo.png"))
             self.resized_image = self.bg_image.resize((self.frame_left._current_width, 300))
 
             self.quest_img = ImageTk.PhotoImage(self.resized_image)

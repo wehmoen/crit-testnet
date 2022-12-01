@@ -1,21 +1,20 @@
 import time
-from utils import db
-import key_ronin
+from data import db
+import modules.save_key_ronin as save_key_ronin
 from web3 import Web3
-import access_token
-import txn_utils
+import modules.generate_access_token as generate_access_token
+import modules.txn_utils as txn_utils
 from asset_func import axie_functions
 from cryptography.fernet import Fernet
-import asset_filter
+import modules.create_filter as create_filter
 import tkinter.messagebox
 
 if True:
     """Get the list of keys"""
-    key_data = db.records("SELECT * FROM keys WHERE status =?","active")
+    key_data = db.records("SELECT * FROM keys WHERE status =?", "active")
     db.commit
 
     if len(key_data) <= 0:
-        # key_ronin.add_key_address()
         print("No data")
     else:
         """Decrypt the private key"""
@@ -28,8 +27,7 @@ if True:
         ron_add = key_data[0][1]
 
         address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
-        token = access_token.generate_access_token(pvt_key, address)
-        # gas_price = key_data[0][2]
+        token = generate_access_token.generate_access_token(pvt_key, address)
         gas_price = 1
     eth_contract = txn_utils.eth()
     mp_contract = txn_utils.marketplace()
@@ -107,10 +105,13 @@ def buy_asset(asset):
 
 def run_loop(axie_filter, filter_index=0):
     """Runing Loop to check if the axie is available"""
-    """If Statement to check if the filter num to buy is fulfilled. if yes, Skip"""    
+    """If Statement to check if the filter num to buy is fulfilled. if yes, Skip"""
     if axie_filter[filter_index][5] >= axie_filter[filter_index][3]:
         print("Filter buy limit reached.")
-        tkinter.messagebox.showinfo("Bloodmoon Sniper Bot",f"Filter Limit reached for {axie_filter[filter_index][0]}.")
+        tkinter.messagebox.showinfo(
+            "Bloodmoon Sniper Bot",
+            f"Filter Limit reached for {axie_filter[filter_index][0]}.",
+        )
         run_loop(axie_filter, filter_index + 1)
     else:
         my_filter = eval(axie_filter[filter_index][2])
@@ -270,4 +271,4 @@ def init():
     run_loop(axie_filter)
 
 
-# asset_filter.main_menu()
+

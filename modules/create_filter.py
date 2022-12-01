@@ -1,4 +1,4 @@
-from utils import db
+from data import db
 import os
 
 
@@ -30,7 +30,7 @@ def add_num_asset(input_mode):
 
 
 def add_new_filter(input_mode=0, asset_type="", gui_filter=""):
-    """Adding new filter to DB"""
+    """Adding new sniper filter to DB"""
     if input_mode == 0:
         new_filter = {}
         url = input("Please paste marketplace url of your filter.\n")
@@ -193,7 +193,7 @@ def create_filter(
     input_mode=0, guiftname="", guibuyprice=int(0), guinum_axie=int(0), gui_filter=""
 ):
 
-    """Main create new filter"""
+    """Main create new filter function"""
     if input_mode == 0:
         filter_name = add_name(input_mode)
         purchase_price = add_purchase_price(input_mode)
@@ -247,19 +247,19 @@ def create_filter(
 
 
 def get_snipe_list_name():
-    """Get snipe filter names from db"""
+    """Get sniper filter names from db"""
     snipe_filters = db.records("SELECT name FROM snipe_list")
     return snipe_filters
 
 
 def get_filter_by_name(ft_name):
-    """Get snipe filter by Listing name"""
+    """Get sniper filter by Listing name"""
     filter_data = db.records("SELECT * FROM snipe_list WHERE name=?", ft_name)
     return filter_data
 
 
 def get_snipe_list():
-    """Get the list of snipe filter from DB"""
+    """Get the list of sniper filter from DB"""
     snipe_filters = db.records("SELECT * FROM snipe_list")
     return snipe_filters
 
@@ -411,7 +411,7 @@ def delete_filter(filter_name):
 
 
 def delete_ronin(ronin_add):
-    """Deleting Filter"""
+    """Deleting Ronin"""
     db.execute("DELETE FROM keys WHERE ron_add=?", ronin_add)
     db.commit()
 
@@ -455,9 +455,6 @@ def main_menu(attempts=0):
         delete_filter(ft_name)
         print(f"Filter {ft_name} is sucessfully deleted!")
 
-    elif choice == "5":
-        print("5")
-        # return init()
     elif choice == "6":
         raise SystemExit
     else:

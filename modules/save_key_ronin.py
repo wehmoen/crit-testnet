@@ -1,4 +1,4 @@
-from utils import db
+from data import db
 from cryptography.fernet import Fernet
 import tkinter.messagebox
 
@@ -10,16 +10,16 @@ def pvtkey(input_mode=0, pvt=""):
             "Please enter your private key. Or leave it blank to go back to main menu.\n"
         )
 
-        # Encrypt Private Key
-        # fernet_key should also be saved somewhere to be able to decrypt the data
+        """Encrypt Private Key"""
+        """fernet_key should also be saved somewhere to be able to decrypt the data"""
         fernet_key = Fernet.generate_key()
         f = Fernet(fernet_key)
         fernet_token = f.encrypt(bytes(pvt_key, "utf-8"))
         return fernet_token, fernet_key
 
     else:
-        # Encrypt Private Key
-        # fernet_key should also be saved somewhere to be able to decrypt the data
+        """Encrypt Private Key"""
+        """fernet_key should also be saved somewhere to be able to decrypt the data"""
         fernet_key = Fernet.generate_key()
         f = Fernet(fernet_key)
         fernet_token = f.encrypt(bytes(pvt, "utf-8"))

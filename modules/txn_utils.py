@@ -6,12 +6,14 @@ import sys
 
 
 def resource_path(relative_path):
+    """This function is for compiling the app in tkinter"""
     if hasattr(sys, "_MEIPASS"):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
 
 
-with open(resource_path("abis.json")) as file:
+with open(resource_path("./data/abis.json")) as file:
+    """Using the abi's"""
     w3 = Web3(
         Web3.HTTPProvider(
             "https://api.roninchain.com/rpc",
@@ -23,14 +25,14 @@ with open(resource_path("abis.json")) as file:
             },
         )
     )
-    # IF YOU HAVE YOUR OWN RPC URL, COMMENT OUT THE LINE ABOVE, UNCOMMENT THE LINE BELOW, AND ENTER IT ON THE LINE BELOW
-    # w3 = Web3(Web3.HTTPProvider('https://ronin-testnet.skymavis.com/rpc'))
+    """IF YOU HAVE YOUR OWN RPC URL, COMMENT OUT THE LINE ABOVE, UNCOMMENT THE LINE BELOW, AND ENTER IT ON THE LINE BELOW"""
+    """w3 = Web3(Web3.HTTPProvider('https://ronin-testnet.skymavis.com/rpc'))"""
     abis = json.load(file)
     nonces = {}
 
 
 def eth():
-    """Get the contrant module"""
+    """Get the eth contrant module"""
     ethAbi = abis["eth"]
     ethAddress = Web3.toChecksumAddress("0xc99a6a985ed2cac1ef41640596c5a5f9f4e19ef5")
     ethContract = w3.eth.contract(address=ethAddress, abi=ethAbi)
@@ -38,6 +40,7 @@ def eth():
 
 
 def marketplace():
+    """Get the target marketplace"""
     marketplaceAbi = abis["marketplace"]
     marketplaceAddress = Web3.toChecksumAddress(
         "0xfff9ce5f71ca6178d3beecedb61e7eff1602950e"
@@ -49,6 +52,7 @@ def marketplace():
 
 
 def sendTx(signedTxn, timeout=10):
+    """Send transaction"""
     tx = signedTxn.hash
     try:
         w3.eth.send_raw_transaction(signedTxn.rawTransaction)
@@ -72,6 +76,7 @@ def sendTx(signedTxn, timeout=10):
 
 
 def getNonce(address):
+    """Getting the nonce"""
     try:
         nonce = nonces[address]
         nonces[address] = nonce + 1
@@ -82,6 +87,7 @@ def getNonce(address):
 
 
 def sendTxThreads(txs, CONNECTIONS=100, TIMEOUT=10):
+    """For transaction threads"""
     with concurrent.futures.ThreadPoolExecutor(max_workers=CONNECTIONS) as executor:
         future_to_url = (executor.submit(sendTx, tx, TIMEOUT) for tx in txs)
         for future in concurrent.futures.as_completed(future_to_url):
