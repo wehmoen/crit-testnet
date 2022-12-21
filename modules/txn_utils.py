@@ -6,13 +6,13 @@ import sys
 
 
 def resource_path(relative_path):
-    """This function is for compiling the app in tkinter"""
+    """This function is for the path of additional files for tkinter"""
     if hasattr(sys, "_MEIPASS"):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
 
 
-with open(resource_path("./data/abis.json")) as file:
+with open("./data/abis.json") as file:
     """Using the abi's"""
     w3 = Web3(
         Web3.HTTPProvider(
@@ -33,29 +33,29 @@ with open(resource_path("./data/abis.json")) as file:
 
 def eth():
     """Get the eth contrant module"""
-    ethAbi = abis["eth"]
-    ethAddress = Web3.toChecksumAddress("0xc99a6a985ed2cac1ef41640596c5a5f9f4e19ef5")
-    ethContract = w3.eth.contract(address=ethAddress, abi=ethAbi)
-    return ethContract
+    eth_abi = abis["eth"]
+    eth_address = Web3.toChecksumAddress("0xc99a6a985ed2cac1ef41640596c5a5f9f4e19ef5")
+    eth_contract = w3.eth.contract(address=eth_address, abi=eth_abi)
+    return eth_contract
 
 
 def marketplace():
     """Get the target marketplace"""
-    marketplaceAbi = abis["marketplace"]
-    marketplaceAddress = Web3.toChecksumAddress(
+    marketplace_abi = abis["marketplace"]
+    marketplace_address = Web3.toChecksumAddress(
         "0xfff9ce5f71ca6178d3beecedb61e7eff1602950e"
     )
-    marketplaceContract = w3.eth.contract(
-        address=marketplaceAddress, abi=marketplaceAbi
+    marketplace_contract = w3.eth.contract(
+        address=marketplace_address, abi=marketplace_abi
     )
-    return marketplaceContract
+    return marketplace_contract
 
 
-def sendTx(signedTxn, timeout=10):
+def send_txn(signed_txn, timeout=10):
     """Send transaction"""
-    tx = signedTxn.hash
+    txn = signed_txn.hash
     try:
-        w3.eth.send_raw_transaction(signedTxn.rawTransaction)
+        w3.eth.send_raw_transaction(signed_txn.rawTransaction)
     except ValueError as e:
         print(e)
 
@@ -63,7 +63,7 @@ def sendTx(signedTxn, timeout=10):
     success = False
     while tries < 3:
         try:
-            receipt = w3.eth.wait_for_transaction_receipt(tx, timeout)
+            receipt = w3.eth.wait_for_transaction_receipt(txn, timeout)
             if receipt["status"] == 1:
                 success = True
             break
@@ -75,7 +75,7 @@ def sendTx(signedTxn, timeout=10):
     return False
 
 
-def getNonce(address):
+def get_nonce(address):
     """Getting the nonce"""
     try:
         nonce = nonces[address]
@@ -86,9 +86,9 @@ def getNonce(address):
     return nonce
 
 
-def sendTxThreads(txs, CONNECTIONS=100, TIMEOUT=10):
+def send_txn_threads(txns, CONNECTIONS=100, TIMEOUT=10):
     """For transaction threads"""
     with concurrent.futures.ThreadPoolExecutor(max_workers=CONNECTIONS) as executor:
-        future_to_url = (executor.submit(sendTx, tx, TIMEOUT) for tx in txs)
+        future_to_url = (executor.submit(send_txn, tx, TIMEOUT) for tx in txns)
         for future in concurrent.futures.as_completed(future_to_url):
             future.result()

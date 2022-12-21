@@ -10,7 +10,7 @@ from sqlite3 import connect
 # 	 fields- user_name,prod_stat
 
 
-DB_PATH = "./sniperbot.db"
+DB_PATH = "sniperbot.db"
 
 cxn = connect(DB_PATH, check_same_thread=False)
 cur = cxn.cursor()

@@ -9,33 +9,58 @@ from cryptography.fernet import Fernet
 import modules.create_filter as create_filter
 import tkinter.messagebox
 
-if True:
-    """Get the list of keys"""
-    key_data = db.records("SELECT * FROM keys WHERE status =?", "active")
-    db.commit
 
-    if len(key_data) <= 0:
-        print("No data")
-    else:
-        """Decrypt the private key"""
-        fernet_key = key_data[0][3]
-        f = Fernet(fernet_key)
+"""Get the list of keys"""
+key_data = db.records("SELECT * FROM keys WHERE status =?", "active")
+db.commit
 
-        pvt_key_bytes = f.decrypt(key_data[0][0])
+if len(key_data) <= 0:
+    print("No data")
+else:
+    """Decrypt the private key"""
+    fernet_key = key_data[0][3]
+    f = Fernet(fernet_key)
 
-        pvt_key = pvt_key_bytes.decode("utf-8")
-        ron_add = key_data[0][1]
+    pvt_key_bytes = f.decrypt(key_data[0][0])
 
-        address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
-        token = generate_access_token.generate_access_token(pvt_key, address)
-        gas_price = 1
-    eth_contract = txn_utils.eth()
-    mp_contract = txn_utils.marketplace()
+    pvt_key = pvt_key_bytes.decode("utf-8")
+    ron_add = key_data[0][1]
+
+    address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
+    token = generate_access_token.generate_access_token(pvt_key, address)
+    gas_price = 1
+eth_contract = txn_utils.eth()
+mp_contract = txn_utils.marketplace()
+
+
+def get_key_list():
+    if True:
+        """Get the list of keys"""
+        key_data = db.records("SELECT * FROM keys WHERE status =?", "active")
+        db.commit
+
+        if len(key_data) <= 0:
+            print("No data")
+        else:
+            """Decrypt the private key"""
+            fernet_key = key_data[0][3]
+            f = Fernet(fernet_key)
+
+            pvt_key_bytes = f.decrypt(key_data[0][0])
+
+            pvt_key = pvt_key_bytes.decode("utf-8")
+            ron_add = key_data[0][1]
+
+            address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
+            token = generate_access_token.generate_access_token(pvt_key, address)
+            gas_price = 1
+        eth_contract = txn_utils.eth()
+        mp_contract = txn_utils.marketplace()
 
 
 def approve():
-    """Approve ETH to Spend"""
-    send_txn = eth_contract.functions.approve(
+    """Approve ETH to spend"""
+    try_send_txn = eth_contract.functions.approve(
         Web3.toChecksumAddress("0xfff9ce5f71ca6178d3beecedb61e7eff1602950e"),
         115792089237316195423570985008687907853269984665640564039457584007913129639935,
     ).buildTransaction(
@@ -43,21 +68,21 @@ def approve():
             "chainId": 2020,
             "gas": 481337,
             "gasPrice": Web3.toWei(1, "gwei"),
-            "nonce": txn_utils.getNonce(address),
+            "nonce": txn_utils.get_nonce(address),
         }
     )
     signed_txn = txn_utils.w3.eth.account.sign_transaction(
-        send_txn, private_key=pvt_key
+        try_send_txn, private_key=pvt_key
     )
-    sentTx = Web3.toHex(Web3.keccak(signed_txn.rawTransaction))
-    txn_utils.sendTx(signed_txn)
-    return sentTx
+    sent_txn = Web3.toHex(Web3.keccak(signed_txn.rawTransaction))
+    txn_utils.send_txn(signed_txn)
+    return sent_txn
 
 
 def buy_asset(asset):
-    """This function is for buying the axie or any other marketplace asset"""
+    """This function is used to purchase the axie"""
     order = asset["order"]
-    marketTx = mp_contract.functions.interactWith(
+    market_txn = mp_contract.functions.interactWith(
         "ORDER_EXCHANGE",
         mp_contract.encodeABI(
             fn_name="settleOrder",
@@ -96,32 +121,34 @@ def buy_asset(asset):
             "chainId": 2020,
             "gas": 481337,
             "gasPrice": Web3.toWei(int(gas_price), "gwei"),
-            "nonce": txn_utils.getNonce(address),
+            "nonce": txn_utils.get_nonce(address),
         }
     )
-    signedTx = txn_utils.w3.eth.account.sign_transaction(marketTx, private_key=pvt_key)
-    return signedTx
+    signed_txn = txn_utils.w3.eth.account.sign_transaction(
+        market_txn, private_key=pvt_key
+    )
+    return signed_txn
 
 
 def run_loop(axie_filter, filter_index=0):
-    """Runing Loop to check if the axie is available"""
-    """If Statement to check if the filter num to buy is fulfilled. if yes, Skip"""
+    """Running the loop to check if the axie is available"""
+    """If statement to see if the filter number to purchase is met If yes, skip"""
     if axie_filter[filter_index][5] >= axie_filter[filter_index][3]:
-        print("Filter buy limit reached.")
+        print("The filter buy limit has been reached.")
         tkinter.messagebox.showinfo(
             "Bloodmoon Sniper Bot",
-            f"Filter Limit reached for {axie_filter[filter_index][0]}.",
+            f"Filter limit reached for {axie_filter[filter_index][0]}.",
         )
         run_loop(axie_filter, filter_index + 1)
     else:
         my_filter = eval(axie_filter[filter_index][2])
         num_asset = axie_filter[filter_index][3]
         price = Web3.toWei(axie_filter[filter_index][1], "ether")
-        txs = []
-        attemptedAssets = []
-        attemptedTxs = {}
+        txns = []
+        attempted_assets = []
+        attempted_txns = {}
         count = 0
-        numToBuy = num_asset
+        num_to_buy = num_asset
         balance = eth_contract.functions.balanceOf(address).call()
         while True:
             spend_amount = 0
@@ -129,19 +156,18 @@ def run_loop(axie_filter, filter_index=0):
             market = axie_functions.fetch_market(token, my_filter)
 
             for asset in market["data"]["axies"]["results"]:
-                print(asset)
-                if "id" in asset and asset["id"] in attemptedAssets:
+                if "id" in asset and asset["id"] in attempted_assets:
                     continue
-                elif "tokenId" in asset and asset["tokenId"] in attemptedAssets:
+                elif "tokenId" in asset and asset["tokenId"] in attempted_assets:
                     continue
                 if price >= int(asset["order"]["currentPrice"]):
                     if (
                         int(asset["order"]["endedPrice"]) == 0
                         and int(asset["order"]["endedAt"]) == 0
                     ):
-                        priceChange = 0
+                        price_change = 0
                     else:
-                        priceChange = (
+                        price_change = (
                             int(asset["order"]["endedPrice"])
                             - int(asset["order"]["basePrice"])
                         ) / int(asset["order"]["duration"])
@@ -149,7 +175,10 @@ def run_loop(axie_filter, filter_index=0):
                     # worst case, a tx takes 10 seconds from when it was pulled from marketplace to when it goes through
                     # i doubt it will ever take 10s, but would rather be safe.
                     # feel free to change the 10 to something less if you want to (at your own risk)
-                    if int(asset["order"]["currentPrice"]) + (priceChange * 10) > price:
+                    if (
+                        int(asset["order"]["currentPrice"]) + (price_change * 10)
+                        > price
+                    ):
                         if "id" in asset:
                             print(
                                 f"not buying {asset['id']}, someone is doing something funky."
@@ -164,38 +193,39 @@ def run_loop(axie_filter, filter_index=0):
                     if spend_amount > balance:
                         break
                     tx = buy_asset(asset)
-                    txs.append(tx)
+                    txns.append(tx)
+
                     if "id" in asset:
-                        print(f"Attempting to buy Asset #{asset['id']}.")
-                        attemptedTxs[
+                        print(f"Attempting to buy asset #{asset['id']}.")
+                        attempted_txns[
                             Web3.toHex(Web3.keccak(tx.rawTransaction))
                         ] = asset["id"]
-                        attemptedAssets.append(asset["id"])
+                        attempted_assets.append(asset["id"])
 
                     else:
-                        print(f"Attempting to buy Asset #{asset['tokenId']}.")
-                        attemptedTxs[
+                        print(f"Attempting to buy asset #{asset['tokenId']}.")
+                        attempted_txns[
                             Web3.toHex(Web3.keccak(tx.rawTransaction))
                         ] = asset["tokenId"]
-                        attemptedAssets.append(asset["tokenId"])
-                    numToBuy -= 1
-                    if numToBuy <= 0:
+                        attempted_assets.append(asset["tokenId"])
+                    num_to_buy -= 1
+                    if num_to_buy <= 0:
                         break
 
-            if len(txs) > 0:
-                txn_utils.sendTxThreads(txs)
-                for tx in txs:
-                    sentTx = Web3.toHex(Web3.keccak(tx.rawTransaction))
-                    receipt = txn_utils.w3.eth.get_transaction_receipt(sentTx)
+            if len(txns) > 0:
+                txn_utils.send_txn_threads(txns)
+                for tx in txns:
+                    sent_txn = Web3.toHex(Web3.keccak(tx.rawTransaction))
+                    receipt = txn_utils.w3.eth.get_transaction_receipt(sent_txn)
                     if not receipt.status == 1:
-                        numToBuy += 1
-                        print(f"Buying asset {attemptedTxs[sentTx]} failed.")
+                        num_to_buy += 1
+                        print(f"Buying asset {attempted_txns[sent_txn]} failed.")
                     else:
-                        print(f"Buying asset {attemptedTxs[sentTx]} succeded.")
+                        print(f"Buying asset {attempted_txns[sent_txn]} succeded.")
 
-                txs = []
+                txns = []
 
-            if numToBuy <= 0:
+            if num_to_buy <= 0:
                 print(f"Bought {num_asset} assets. This is the limit. Exiting.")
                 tkinter.messagebox.showinfo(
                     "Bloodmoon Sniper Bot",
@@ -204,6 +234,7 @@ def run_loop(axie_filter, filter_index=0):
                 return run_loop(axie_filter, filter_index + 1)
 
             balance = eth_contract.functions.balanceOf(address).call()
+
             if balance <= price:
                 print(
                     f"You do not have enough ETH to buy anything. Current price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting."
@@ -269,6 +300,5 @@ def init():
 
     print("Searching for Axies...")
     run_loop(axie_filter)
-
 
 

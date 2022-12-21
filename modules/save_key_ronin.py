@@ -3,27 +3,23 @@ from cryptography.fernet import Fernet
 import tkinter.messagebox
 
 
-def pvtkey(input_mode=0, pvt=""):
-    """Adding Users private key"""
+def encrypt_pvt_key(pvt_key):
+    """Encrypt private key"""
+    """fernet_key should also be saved somewhere to be able to decrypt the data"""
+    fernet_key = Fernet.generate_key()
+    f = Fernet(fernet_key)
+    fernet_token = f.encrypt(bytes(pvt_key, "utf-8"))
+    return fernet_token, fernet_key
+    
+def fn_pvt_key(input_mode=0, pvt=""):
+    """Adding users private key"""
     if input_mode == 0:
         pvt_key = input(
             "Please enter your private key. Or leave it blank to go back to main menu.\n"
         )
-
-        """Encrypt Private Key"""
-        """fernet_key should also be saved somewhere to be able to decrypt the data"""
-        fernet_key = Fernet.generate_key()
-        f = Fernet(fernet_key)
-        fernet_token = f.encrypt(bytes(pvt_key, "utf-8"))
-        return fernet_token, fernet_key
-
+        encrypt_pvt_key(pvt_key)
     else:
-        """Encrypt Private Key"""
-        """fernet_key should also be saved somewhere to be able to decrypt the data"""
-        fernet_key = Fernet.generate_key()
-        f = Fernet(fernet_key)
-        fernet_token = f.encrypt(bytes(pvt, "utf-8"))
-        return fernet_token, fernet_key
+        encrypt_pvt_key(pvt)
 
 
 def ronin_add():
@@ -33,7 +29,7 @@ def ronin_add():
 
 
 def add_gas():
-    """Adding Gas Price for the buy"""
+    """Adding gas price for the buy"""
     gas = input(
         "Please enter your desired gas price. Or leave blank for default price.\n"
     )
@@ -45,10 +41,10 @@ def add_gas():
 def add_key_address(input_mode=0, pvt="", ron="", gas=0):
     """Save ronin and private keys"""
     if input_mode == 0:
-        pvt_key = pvtkey()
+        pvt_key = fn_pvt_key()
         ron_add = ronin_add()
         gas_price = add_gas()
-        if pvtkey == "":
+        if fn_pvt_key == "":
             return pvt_key()
 
         if ron_add == "":
@@ -64,7 +60,7 @@ def add_key_address(input_mode=0, pvt="", ron="", gas=0):
             db.commit()
             print("Save Successfully!")
     else:
-        pvt_key = pvtkey(input_mode, pvt)
+        pvt_key = fn_pvt_key(input_mode, pvt)
         db.execute(
             "INSERT INTO keys(pvt_key,ron_add,gas,fernet_key) VALUES(?,?,?,?)",
             pvt_key[0],
@@ -76,7 +72,7 @@ def add_key_address(input_mode=0, pvt="", ron="", gas=0):
         print("Saved from GUI")
 
 def set_active(ron_add):
-    """Set Ronin Account as active"""
+    """Set ronin account as active"""
     db.execute("UPDATE keys SET status=?","")
     db.commit()
     db.execute("UPDATE keys SET status=? WHERE ron_add =?","active",ron_add)

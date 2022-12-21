@@ -3,7 +3,7 @@ import tkinter.messagebox
 import customtkinter
 import modules.create_filter as create_filter
 import modules.save_key_ronin as save_key_ronin
-from main import init
+from modules.main import init
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme(

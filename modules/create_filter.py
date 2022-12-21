@@ -19,7 +19,7 @@ def add_purchase_price(input_mode):
 
 
 def add_num_asset(input_mode):
-    """Adding Numner of asset to buy"""
+    """Adding a number of assets to buy"""
     num_assets = input("Please enter the number of assets to buy with this filter.\n")
     try:
         num_assets = int(num_assets)
@@ -104,13 +104,13 @@ def add_new_filter(input_mode=0, asset_type="", gui_filter=""):
                 "Something went wrong with the filter. Did you enter the URL correctly?"
             )
             print(
-                "Ex: https://app.axieinfinity.com/marketplace/axies/?class=Beast&mystic=1&auctionTypes=Sale"
+                "e.g.: https://app.axieinfinity.com/marketplace/axies/?class=Beast&mystic=1&auctionTypes=Sale"
             )
             print("Would search for a 1 part mystic beast")
             return add_new_filter()
     else:
 
-        print("GUI Filter")
+        print("GUI filter")
         new_filter = {}
         url = gui_filter
         if asset_type == "":
@@ -190,7 +190,11 @@ def add_new_filter(input_mode=0, asset_type="", gui_filter=""):
 
 
 def create_filter(
-    input_mode=0, guiftname="", guibuyprice=int(0), guinum_axie=int(0), gui_filter=""
+    input_mode=0,
+    gui_ftname="",
+    gui_buy_price=int(0),
+    gui_num_axie=int(0),
+    gui_filter="",
 ):
 
     """Main create new filter function"""
@@ -236,10 +240,10 @@ def create_filter(
         parsed_filter = add_new_filter(input_mode, "", gui_filter)
         db.execute(
             "INSERT INTO snipe_list(name,pur_price,filter,num_asset,link,buy_count) VALUES(?,?,?,?,?,?)",
-            guiftname,
-            guibuyprice,
+            gui_ftname,
+            gui_buy_price,
             str(parsed_filter),
-            guinum_axie,
+            gui_num_axie,
             gui_filter,
             0,
         )
@@ -253,7 +257,7 @@ def get_snipe_list_name():
 
 
 def get_filter_by_name(ft_name):
-    """Get sniper filter by Listing name"""
+    """Get sniper filter by listing name"""
     filter_data = db.records("SELECT * FROM snipe_list WHERE name=?", ft_name)
     return filter_data
 
@@ -265,7 +269,7 @@ def get_snipe_list():
 
 
 def ron_list():
-    """Get the list of Ronin Address from DB"""
+    """Get the list of ronin address from DB"""
     ron_add = db.records("SELECT * FROM keys")
     return ron_add
 
@@ -277,7 +281,7 @@ def get_ron_by_add(address):
 
 
 def gui_update(gui_name, pur_price, gui_filt, num):
-    """Update Filter From GUI"""
+    """Update filter from GUI"""
     parsed_filter = add_new_filter(1, "", gui_filt)
     db.execute(
         "UPDATE snipe_list SET name=?,pur_price=?,filter=?,num_asset=?,link=? WHERE name =?",
@@ -290,11 +294,11 @@ def gui_update(gui_name, pur_price, gui_filt, num):
     )
 
     db.commit()
-    print("GUI Update Success!")
+    print("GUI update success!")
 
 
 def edit_filter(filter_name="", attempts=0):
-    """Edit Snipe filter"""
+    """Edit snipe filter"""
     if filter_name == "":
         snipe_filters = get_snipe_list_name()
         counter = 0
@@ -304,7 +308,7 @@ def edit_filter(filter_name="", attempts=0):
             print(f"#{counter}-{records[0]}")
         print("**************************\n")
         choice = input(
-            "Enter the number of Snipe filter you want to edit. Or leave blank to return to main menu.\n"
+            "Enter the number of snipe filter you want to edit. Or leave blank to return to main menu.\n"
         )
         if choice == "":
             return main_menu()
@@ -392,7 +396,7 @@ def edit_filter(filter_name="", attempts=0):
 
 
 def view_filter():
-    """View List of filter"""
+    """View list of filter"""
     filter_list = get_snipe_list()
     counter = 0
     print("****************************")
@@ -405,13 +409,13 @@ def view_filter():
 
 
 def delete_filter(filter_name):
-    """Deleting Filter"""
+    """Deleting filter"""
     db.execute("DELETE FROM snipe_list WHERE name=?", filter_name)
     db.commit()
 
 
 def delete_ronin(ronin_add):
-    """Deleting Ronin"""
+    """Deleting ronin address"""
     db.execute("DELETE FROM keys WHERE ron_add=?", ronin_add)
     db.commit()
 
@@ -424,8 +428,7 @@ def main_menu(attempts=0):
     print("2. Edit existing filter")
     print("3. View existing filter")
     print("4. Delete existing filter")
-    print("5. Start the bot")
-    print("6. Exit")
+    print("5. Exit")
     print("****************************")
     choice = input("\nWhat would you like to do?\n")
     if not choice in ["1", "2", "3", "4", "5"]:
@@ -455,7 +458,7 @@ def main_menu(attempts=0):
         delete_filter(ft_name)
         print(f"Filter {ft_name} is sucessfully deleted!")
 
-    elif choice == "6":
+    elif choice == "5":
         raise SystemExit
     else:
         return main_menu(attempts + 1)

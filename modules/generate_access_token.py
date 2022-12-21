@@ -4,13 +4,13 @@ from eth_account.messages import encode_defunct
 from web3 import Web3
 
 
-def signRoninMessage(message, key, attempts2=0):
+def sign_ronin_message(message, key, attempts2=0):
     """This is for signing message"""
     try:
         mes = encode_defunct(text=message)
         ronweb3 = Web3(Web3.HTTPProvider("https://api.roninchain.com/rpc"))
-        sig = ronweb3.eth.account.sign_message(mes, private_key=key)
-        signature = sig["signature"].hex()
+        sign = ronweb3.eth.account.sign_message(mes, private_key=key)
+        signature = sign["signature"].hex()
         return signature
     except Exception as e:
         if attempts2 > 3:
@@ -18,13 +18,12 @@ def signRoninMessage(message, key, attempts2=0):
             print(e)
             return None
         else:
-            return signRoninMessage(message, key, attempts2 + 1)
+            return sign_ronin_message(message, key, attempts2 + 1)
 
 
 def generate_access_token(key, address, attempts=0):
-    """Generate access token"""
-
-    def getRandomMessage(attempts2=0):
+    """Generate an access token"""
+    def get_random_message(attempts2=0):
         try:
             url = "https://graphql-gateway.axieinfinity.com/graphql"
 
@@ -42,9 +41,9 @@ def generate_access_token(key, address, attempts=0):
                 print(e)
                 return None
             else:
-                return getRandomMessage(attempts2 + 1)
+                return get_random_message(attempts2 + 1)
 
-    def signRoninMessage(message, key, attempts2=0):
+    def sign_ronin_message(message, key, attempts2=0):
         """Signing Ronin Message"""
         try:
             mes = encode_defunct(text=message)
@@ -58,9 +57,9 @@ def generate_access_token(key, address, attempts=0):
                 print(e)
                 return None
             else:
-                return signRoninMessage(message, key, attempts2 + 1)
+                return sign_ronin_message(message, key, attempts2 + 1)
 
-    def CreateAccessToken(message, signature, address, attempts2=0):
+    def create_access_token(message, signature, address, attempts2=0):
         """Creating Access token"""
         try:
             url = "https://graphql-gateway.axieinfinity.com/graphql"
@@ -86,12 +85,12 @@ def generate_access_token(key, address, attempts=0):
                 print(e)
                 return None
             else:
-                return CreateAccessToken(message, signature, address, attempts2 + 1)
+                return create_access_token(message, signature, address, attempts2 + 1)
 
     try:
-        myResponse = getRandomMessage()
-        mySignature = signRoninMessage(myResponse, key)
-        token = CreateAccessToken(
+        myResponse = get_random_message()
+        mySignature = sign_ronin_message(myResponse, key)
+        token = create_access_token(
             repr(myResponse).replace("'", ""), mySignature, address
         )
         return token
@@ -104,6 +103,3 @@ def generate_access_token(key, address, attempts=0):
             return None
         else:
             return generate_access_token(key, address, attempts + 1)
-
-
-
