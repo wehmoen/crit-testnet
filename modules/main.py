@@ -211,7 +211,7 @@ def run_loop(axie_filter, filter_index=0):
                     num_to_buy -= 1
                     if num_to_buy <= 0:
                         break
-
+            print(txns)
             if len(txns) > 0:
                 txn_utils.send_txn_threads(txns)
                 for tx in txns:
