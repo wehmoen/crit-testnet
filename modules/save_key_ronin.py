@@ -1,4 +1,4 @@
-from data import db
+from . import db
 from cryptography.fernet import Fernet
 import tkinter.messagebox
 

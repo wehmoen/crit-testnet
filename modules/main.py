@@ -1,10 +1,10 @@
 import time
-from data import db
+from . import db
 import modules.save_key_ronin as save_key_ronin
 from web3 import Web3
 import modules.generate_access_token as generate_access_token
 import modules.txn_utils as txn_utils
-from asset_func import axie_functions
+from . import axie_functions
 from cryptography.fernet import Fernet
 import modules.create_filter as create_filter
 import tkinter.messagebox
