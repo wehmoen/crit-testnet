@@ -13,27 +13,31 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import modules.create_filter as create_filter
 import tkinter.messagebox
 
+SPENDER = "0xfff9ce5f71ca6178d3beecedb61e7eff1602950e"
+VALUE_TO_SPEND = (
+    115792089237316195423570985008687907853269984665640564039457584007913129639935
+)
+CHAIN_ID = 2020
+GAS = 481337
+
 
 def get_decryption_key():
-    """ Get decryption key from the KEK using PBKDF2"""
-    password = b'secret password'
-    salt = b'salt'
-    kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        iterations=100000
-    )
+    """Get decryption key from the KEK using PBKDF2"""
+    password = b"secret password"
+    salt = b"salt"
+    kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100000)
     decryption_key = base64.urlsafe_b64encode(kdf.derive(password))
 
     return decryption_key
 
+
 def read_KEK():
     """Read KEK from a file stored on disk"""
-    with open('kek.txt', 'rb') as f:
+    with open("kek.txt", "rb") as f:
         kek = f.read()
 
     return kek
+
 
 """Get the list of keys"""
 key_data = db.records("SELECT * FROM keys WHERE status =?", "active")
@@ -42,15 +46,9 @@ db.commit
 if len(key_data) <= 0:
     print("No data")
 else:
-    decryption_key = get_decryption_key()
-    """ Use decryption key to decrypt the encrypted key stored in the database"""
-    encrypted_key = b'encrypted key from database'
-    fernet = Fernet(decryption_key)
-    key = fernet.decrypt(encrypted_key)
-
     """Decrypt the private key"""
-    key = key_data[0][3]
-    f = Fernet(key)
+    fernet_key = key_data[0][3]
+    f = Fernet(fernet_key)
 
     pvt_key_bytes = f.decrypt(key_data[0][0])
 
@@ -64,16 +62,15 @@ eth_contract = txn_utils.eth()
 mp_contract = txn_utils.marketplace()
 
 
-
 def approve():
     """Approve ETH to spend"""
     try_send_txn = eth_contract.functions.approve(
-        Web3.toChecksumAddress("0xfff9ce5f71ca6178d3beecedb61e7eff1602950e"),
-        115792089237316195423570985008687907853269984665640564039457584007913129639935,
+        Web3.toChecksumAddress(SPENDER),
+        VALUE_TO_SPEND,
     ).buildTransaction(
         {
-            "chainId": 2020,
-            "gas": 481337,
+            "chainId": CHAIN_ID,
+            "gas": GAS,
             "gasPrice": Web3.toWei(1, "gwei"),
             "nonce": txn_utils.get_nonce(address),
         }
@@ -125,29 +122,86 @@ def buy_asset(asset):
         ),
     ).buildTransaction(
         {
-            "chainId": 2020,
-            "gas": 481337,
+            "chainId": CHAIN_ID,
+            "gas": GAS,
             "gasPrice": Web3.toWei(int(gas_price), "gwei"),
             "nonce": txn_utils.get_nonce(address),
         }
     )
+
     signed_txn = txn_utils.w3.eth.account.sign_transaction(
         market_txn, private_key=pvt_key
     )
     return signed_txn
 
 
-def run_loop(axie_filter, filter_index=0):
-    """Running the loop to check if the axie is available"""
-    """If statement to see if the filter number to purchase is met If yes, skip"""
-    if axie_filter[filter_index][5] >= axie_filter[filter_index][3]:
+def check_filter_limit(num_to_buy, bought_axie, filter_name):
+    """Check if you reached the filter limit"""
+    if num_to_buy >= bought_axie:
         print("The filter buy limit has been reached.")
         tkinter.messagebox.showinfo(
             "Bloodmoon Sniper Bot",
-            f"Filter limit reached for {axie_filter[filter_index][0]}.",
+            f"Filter limit reached for {filter_name}.",
         )
+        return True
+    else:
+        return False
+
+
+def verify_transactions(txns, attempted_txns):
+    """Verify if the transaction succeded"""
+    if len(txns) > 0:
+        txn_utils.send_txn_threads(txns)
+        for tx in txns:
+            sent_txn = Web3.toHex(Web3.keccak(tx.rawTransaction))
+            receipt = txn_utils.w3.eth.get_transaction_receipt(sent_txn)
+            if not receipt.status == 1:
+                num_to_buy += 1
+                print(f"Buying asset {attempted_txns[sent_txn]} failed.")
+            else:
+                print(f"Buying asset {attempted_txns[sent_txn]} succeded.")
+
+        txns = []
+
+    return txns
+
+
+def check_num_to_buy(num_to_buy, num_asset, axie_filter, filter_index):
+    """Check if you still need to buy anoter axie with this filter"""
+    if num_to_buy <= 0:
+        print(f"Bought {num_asset} assets. This is the limit. Exiting.")
+        tkinter.messagebox.showinfo(
+            "Bloodmoon Sniper Bot",
+            f"Bought {num_asset} assets. This is the limit. Returning to main menu",
+        )
+        return run_loop(axie_filter, filter_index + 1)
+
+
+def check_balance(balance, price):
+    """Check if you still have a balance to buy another axie"""
+    if balance <= price:
+        print(
+            f"You do not have enough ETH to buy anything. Current price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting."
+        )
+        tkinter.messagebox.showinfo(
+            "Bloodmoon Sniper Bot",
+            f"You do not have enough ETH to buy anything. Current price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting.",
+        )
+        raise SystemExit
+
+
+def run_loop(axie_filter, filter_index=0):
+    """Running the loop to check if the axie is available"""
+    """If statement to see if the filter number to purchase is met If yes, skip"""
+
+    if check_filter_limit(
+        axie_filter[filter_index][5],
+        axie_filter[filter_index][3],
+        axie_filter[filter_index][0],
+    ):
         run_loop(axie_filter, filter_index + 1)
     else:
+        """Variable declarations"""
         my_filter = eval(axie_filter[filter_index][2])
         num_asset = axie_filter[filter_index][3]
         price = Web3.toWei(axie_filter[filter_index][1], "ether")
@@ -157,6 +211,7 @@ def run_loop(axie_filter, filter_index=0):
         count = 0
         num_to_buy = num_asset
         balance = eth_contract.functions.balanceOf(address).call()
+        """Loop trough all the filters saved"""
         while True:
             spend_amount = 0
 
@@ -219,38 +274,14 @@ def run_loop(axie_filter, filter_index=0):
                     if num_to_buy <= 0:
                         break
 
-            if len(txns) > 0:
-                txn_utils.send_txn_threads(txns)
-                for tx in txns:
-                    sent_txn = Web3.toHex(Web3.keccak(tx.rawTransaction))
-                    receipt = txn_utils.w3.eth.get_transaction_receipt(sent_txn)
-                    if not receipt.status == 1:
-                        num_to_buy += 1
-                        print(f"Buying asset {attempted_txns[sent_txn]} failed.")
-                    else:
-                        print(f"Buying asset {attempted_txns[sent_txn]} succeded.")
-
-                txns = []
-
-            if num_to_buy <= 0:
-                print(f"Bought {num_asset} assets. This is the limit. Exiting.")
-                tkinter.messagebox.showinfo(
-                    "Bloodmoon Sniper Bot",
-                    f"Bought {num_asset} assets. This is the limit. Returning to main menu",
-                )
-                return run_loop(axie_filter, filter_index + 1)
-
+            """Verify Transactions"""
+            txns = verify_transactions(txns, attempted_txns)
+            """Check if you reached the limit to buy"""
+            check_num_to_buy(num_to_buy, num_asset, axie_filter, filter_index)
+            """Check if you still have balance to buy the axie"""
             balance = eth_contract.functions.balanceOf(address).call()
+            check_balance(balance,price)
 
-            if balance <= price:
-                print(
-                    f"You do not have enough ETH to buy anything. Current price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting."
-                )
-                tkinter.messagebox.showinfo(
-                    "Bloodmoon Sniper Bot",
-                    f"You do not have enough ETH to buy anything. Current price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting.",
-                )
-                raise SystemExit
             count += 1
 
             if count % 120 == 0:
@@ -307,5 +338,3 @@ def init():
 
     print("Searching for Axies...")
     run_loop(axie_filter)
-
-
