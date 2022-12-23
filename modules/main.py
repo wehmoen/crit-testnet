@@ -302,14 +302,14 @@ def check_available_ron():
 def check_allowance():
     """Check allowance. If 0 continue to approve"""
     allowance = eth_contract.functions.allowance(
-        address, "0xffF9Ce5f71ca6178D3BEEcEDB61e7Eff1602950E"
+        address, SPENDER
     ).call()
 
     if allowance == 0:
         print("We need to approve eth for spending on the marketplace. Approving...")
         sent_txn = approve()
         allowance = eth_contract.functions.allowance(
-            address, "0xffF9Ce5f71ca6178D3BEEcEDB61e7Eff1602950E"
+            address, SPENDER
         ).call()
 
         if allowance == 0:
