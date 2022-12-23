@@ -143,7 +143,7 @@ class App(customtkinter.CTk):
                 get_list()
 
             def active_account():
-                print("test")
+                """Setting the active account"""
                 active = listbox.get(listbox.curselection())
                 save_key_ronin.set_active(active)
 

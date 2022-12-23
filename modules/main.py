@@ -6,9 +6,34 @@ import modules.generate_access_token as generate_access_token
 import modules.txn_utils as txn_utils
 from . import axie_functions
 from cryptography.fernet import Fernet
+import base64
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
 import modules.create_filter as create_filter
 import tkinter.messagebox
 
+
+def get_decryption_key():
+    """ Get decryption key from the KEK using PBKDF2"""
+    password = b'secret password'
+    salt = b'salt'
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=100000
+    )
+    decryption_key = base64.urlsafe_b64encode(kdf.derive(password))
+
+    return decryption_key
+
+def read_KEK():
+    """Read KEK from a file stored on disk"""
+    with open('kek.txt', 'rb') as f:
+        kek = f.read()
+
+    return kek
 
 """Get the list of keys"""
 key_data = db.records("SELECT * FROM keys WHERE status =?", "active")
@@ -17,9 +42,15 @@ db.commit
 if len(key_data) <= 0:
     print("No data")
 else:
+    decryption_key = get_decryption_key()
+    """ Use decryption key to decrypt the encrypted key stored in the database"""
+    encrypted_key = b'encrypted key from database'
+    fernet = Fernet(decryption_key)
+    key = fernet.decrypt(encrypted_key)
+
     """Decrypt the private key"""
-    fernet_key = key_data[0][3]
-    f = Fernet(fernet_key)
+    key = key_data[0][3]
+    f = Fernet(key)
 
     pvt_key_bytes = f.decrypt(key_data[0][0])
 
@@ -32,30 +63,6 @@ else:
 eth_contract = txn_utils.eth()
 mp_contract = txn_utils.marketplace()
 
-
-def get_key_list():
-    if True:
-        """Get the list of keys"""
-        key_data = db.records("SELECT * FROM keys WHERE status =?", "active")
-        db.commit
-
-        if len(key_data) <= 0:
-            print("No data")
-        else:
-            """Decrypt the private key"""
-            fernet_key = key_data[0][3]
-            f = Fernet(fernet_key)
-
-            pvt_key_bytes = f.decrypt(key_data[0][0])
-
-            pvt_key = pvt_key_bytes.decode("utf-8")
-            ron_add = key_data[0][1]
-
-            address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
-            token = generate_access_token.generate_access_token(pvt_key, address)
-            gas_price = 1
-        eth_contract = txn_utils.eth()
-        mp_contract = txn_utils.marketplace()
 
 
 def approve():
@@ -211,7 +218,7 @@ def run_loop(axie_filter, filter_index=0):
                     num_to_buy -= 1
                     if num_to_buy <= 0:
                         break
-            print(txns)
+
             if len(txns) > 0:
                 txn_utils.send_txn_threads(txns)
                 for tx in txns:

@@ -9,6 +9,7 @@ def encrypt_pvt_key(pvt_key):
     fernet_key = Fernet.generate_key()
     f = Fernet(fernet_key)
     fernet_token = f.encrypt(bytes(pvt_key, "utf-8"))
+    print(fernet_key)
     return fernet_token, fernet_key
     
 def fn_pvt_key(input_mode=0, pvt=""):
@@ -17,9 +18,9 @@ def fn_pvt_key(input_mode=0, pvt=""):
         pvt_key = input(
             "Please enter your private key. Or leave it blank to go back to main menu.\n"
         )
-        encrypt_pvt_key(pvt_key)
+        return encrypt_pvt_key(pvt_key)
     else:
-        encrypt_pvt_key(pvt)
+        return encrypt_pvt_key(pvt)
 
 
 def ronin_add():
@@ -60,13 +61,14 @@ def add_key_address(input_mode=0, pvt="", ron="", gas=0):
             db.commit()
             print("Save Successfully!")
     else:
-        pvt_key = fn_pvt_key(input_mode, pvt)
+        encrypted_pvt_key = fn_pvt_key(input_mode, pvt)
+        print(f" Check{encrypted_pvt_key}")
         db.execute(
             "INSERT INTO keys(pvt_key,ron_add,gas,fernet_key) VALUES(?,?,?,?)",
-            pvt_key[0],
+            encrypted_pvt_key[0],
             ron,
             gas,
-            pvt_key[1],
+            encrypted_pvt_key[1],
         )
         db.commit()
         print("Saved from GUI")
@@ -84,6 +86,4 @@ def get_active():
     key_data = db.records("SELECT * FROM keys WHERE status =?","active")
     db.commit
     ronin_acc = key_data[0][1]
-    print(ronin_acc)
-
     return ronin_acc
