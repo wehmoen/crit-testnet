@@ -1,13 +1,22 @@
 from . import db
 from cryptography.fernet import Fernet
 import tkinter.messagebox
-from main import read_KEK,get_decryption_key
+import os
+from  modules.main import read_KEK,get_decryption_key
+
+def generate_salt():
+    return os.urandom(16)
 
 
 def encrypt_pvt_key(pvt_key):
     """Encrypt private key"""
     """Using KEK to encrypt key"""
     password,salt= read_KEK()
+    print(f"Current salt is:{salt}")
+    if salt ==b'':
+       salt = generate_salt()
+       print(f"Generated salt is:{salt}")
+
     decryption_key = get_decryption_key(password,salt)
     f = Fernet(decryption_key)
     fernet_token = f.encrypt(bytes(pvt_key, "utf-8"))
@@ -62,7 +71,6 @@ def add_key_address(input_mode=0, pvt="", ron="", gas=0):
             print("Save Successfully!")
     else:
         encrypted_pvt_key = fn_pvt_key(input_mode, pvt)
-        print(f" Check{encrypted_pvt_key}")
         db.execute(
             "INSERT INTO keys(pvt_key,ron_add,gas) VALUES(?,?,?)",
             encrypted_pvt_key[0],

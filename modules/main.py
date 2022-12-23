@@ -29,6 +29,7 @@ def get_decryption_key(password,salt):
     return decryption_key
 
 def find_value(line):
+    """Find value for password and salt"""
     line_value = line.rstrip('\n')
     value = line_value[line_value.index('=')+1:]
     return value
@@ -43,8 +44,6 @@ def read_KEK():
                 salt=bytes(find_value(line), 'utf-8')
     return password,salt
 
-password,salt = read_KEK()
-print(get_decryption_key(password,salt))
 
 """Get the list of keys"""
 key_data = db.records("SELECT * FROM keys WHERE status =?", "active")
