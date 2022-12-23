@@ -192,8 +192,8 @@ def check_balance(balance, price):
 
 def run_loop(axie_filter, filter_index=0):
     """Running the loop to check if the axie is available"""
-    """If statement to see if the filter number to purchase is met If yes, skip"""
 
+    """If statement to see if the filter number to purchase is met If yes, skip"""
     if check_filter_limit(
         axie_filter[filter_index][5],
         axie_filter[filter_index][3],
@@ -276,8 +276,10 @@ def run_loop(axie_filter, filter_index=0):
 
             """Verify Transactions"""
             txns = verify_transactions(txns, attempted_txns)
+
             """Check if you reached the limit to buy"""
             check_num_to_buy(num_to_buy, num_asset, axie_filter, filter_index)
+
             """Check if you still have balance to buy the axie"""
             balance = eth_contract.functions.balanceOf(address).call()
             check_balance(balance,price)
@@ -288,39 +290,43 @@ def run_loop(axie_filter, filter_index=0):
                 print("Still searching marketplace.")
             time.sleep(1)
 
-
-def init():
-    """Bot Initialization"""
+def check_available_ron():
+    """Check acailable RON balance"""
     ron_bal = txn_utils.w3.eth.get_balance(address)
     if ron_bal < (481337 * Web3.toWei(int(gas_price), "gwei")):
         print(
             "You do not have enough RON for the entered gas price. Please lower gas price or add more RON."
         )
         raise SystemExit
+
+def check_allowance():
+    """Check allowance. If 0 continue to approve"""
     allowance = eth_contract.functions.allowance(
         address, "0xffF9Ce5f71ca6178D3BEEcEDB61e7Eff1602950E"
     ).call()
+
     if allowance == 0:
         print("We need to approve eth for spending on the marketplace. Approving...")
         sent_txn = approve()
         allowance = eth_contract.functions.allowance(
             address, "0xffF9Ce5f71ca6178D3BEEcEDB61e7Eff1602950E"
         ).call()
+
         if allowance == 0:
             print("Something went wrong, approval didnt work. Exiting.")
             raise SystemExit
         else:
             print(f"Approved at tx: {sent_txn}")
 
-    cheapest_filter = Web3.toWei(99999, "ether")
-    can_afford = False
-    balance = eth_contract.functions.balanceOf(address).call()
-
+def get_filterdata():
+    """Get filter data from DB"""
     axie_filter = db.records("SELECT * FROM snipe_list")
     db.commit
-
     axie_price = Web3.toWei(axie_filter[0][1], "ether")
+    return axie_filter,axie_price
 
+def check_can_afford(axie_price,balance,can_afford,cheapest_filter):
+    """Check if the user can afford the current filter"""
     if axie_price < balance:
         can_afford = True
 
@@ -334,7 +340,22 @@ def init():
         tkinter.messagebox.showinfo(
             "Bloodmoon Sniper",
             f"You do not have enough ETH to buy anything. Current cheapest filter price you have set is {cheapest_filter / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH.",
-        )
+        )   
+
+def init():
+    """Bot Initialization"""
+    check_available_ron()
+
+    check_allowance()
+
+    cheapest_filter = Web3.toWei(99999, "ether")
+    can_afford = False
+    balance = eth_contract.functions.balanceOf(address).call()
+
+
+    axie_filter,axie_price = get_filterdata()
+
+    check_can_afford(axie_price,balance,can_afford,cheapest_filter)
 
     print("Searching for Axies...")
     run_loop(axie_filter)
