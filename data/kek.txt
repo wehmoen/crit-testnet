@@ -1,0 +1,2 @@
+password=Secret Password
+salt=Test Salt

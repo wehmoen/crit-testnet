@@ -21,23 +21,30 @@ CHAIN_ID = 2020
 GAS = 481337
 
 
-def get_decryption_key():
+def get_decryption_key(password,salt):
     """Get decryption key from the KEK using PBKDF2"""
-    password = b"secret password"
-    salt = b"salt"
     kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100000)
     decryption_key = base64.urlsafe_b64encode(kdf.derive(password))
 
     return decryption_key
 
+def find_value(line):
+    line_value = line.rstrip('\n')
+    value = line_value[line_value.index('=')+1:]
+    return value
 
 def read_KEK():
     """Read KEK from a file stored on disk"""
-    with open("kek.txt", "rb") as f:
-        kek = f.read()
+    with open("./data/kek.txt", "r") as f:
+        for line in f:
+            if line.startswith('password'):
+                password=bytes(find_value(line), 'utf-8')
+            if line.startswith('salt'):
+                salt=bytes(find_value(line), 'utf-8')
+    return password,salt
 
-    return kek
-
+password,salt = read_KEK()
+print(get_decryption_key(password,salt))
 
 """Get the list of keys"""
 key_data = db.records("SELECT * FROM keys WHERE status =?", "active")
@@ -47,8 +54,10 @@ if len(key_data) <= 0:
     print("No data")
 else:
     """Decrypt the private key"""
-    fernet_key = key_data[0][3]
-    f = Fernet(fernet_key)
+    password,salt= read_KEK()
+    decryption_key = get_decryption_key(password,salt)
+
+    f = Fernet(decryption_key)
 
     pvt_key_bytes = f.decrypt(key_data[0][0])
 

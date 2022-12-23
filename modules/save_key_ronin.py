@@ -1,16 +1,17 @@
 from . import db
 from cryptography.fernet import Fernet
 import tkinter.messagebox
+from main import read_KEK,get_decryption_key
 
 
 def encrypt_pvt_key(pvt_key):
     """Encrypt private key"""
-    """fernet_key should also be saved somewhere to be able to decrypt the data"""
-    fernet_key = Fernet.generate_key()
-    f = Fernet(fernet_key)
+    """Using KEK to encrypt key"""
+    password,salt= read_KEK()
+    decryption_key = get_decryption_key(password,salt)
+    f = Fernet(decryption_key)
     fernet_token = f.encrypt(bytes(pvt_key, "utf-8"))
-    print(fernet_key)
-    return fernet_token, fernet_key
+    return fernet_token
     
 def fn_pvt_key(input_mode=0, pvt=""):
     """Adding users private key"""
@@ -56,7 +57,6 @@ def add_key_address(input_mode=0, pvt="", ron="", gas=0):
                 pvt_key[0],
                 ron_add,
                 gas_price,
-                pvt_key[1],
             )
             db.commit()
             print("Save Successfully!")
@@ -64,11 +64,10 @@ def add_key_address(input_mode=0, pvt="", ron="", gas=0):
         encrypted_pvt_key = fn_pvt_key(input_mode, pvt)
         print(f" Check{encrypted_pvt_key}")
         db.execute(
-            "INSERT INTO keys(pvt_key,ron_add,gas,fernet_key) VALUES(?,?,?,?)",
+            "INSERT INTO keys(pvt_key,ron_add,gas) VALUES(?,?,?)",
             encrypted_pvt_key[0],
             ron,
-            gas,
-            encrypted_pvt_key[1],
+            gas
         )
         db.commit()
         print("Saved from GUI")
