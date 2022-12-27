@@ -45,15 +45,15 @@ def read_KEK():
     return password,salt
 
 
-"""Get the list of keys"""
+# Get the list of keys
 key_data = db.records("SELECT * FROM keys WHERE status =?", "active")
 db.commit
 
-"""Variable Declarations"""
+# Variable Declarations
 if len(key_data) <= 0:
-    print("No data")
+    print("No added ronin accounts yet")
 else:
-    """Decrypt the private key"""
+    # Decrypt the private key
     password,salt= read_KEK()
     decryption_key = get_decryption_key(password,salt)
     f = Fernet(decryption_key)
