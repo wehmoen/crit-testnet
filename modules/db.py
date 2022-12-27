@@ -34,3 +34,8 @@ def records(command, *values):
     cur.execute(command, tuple(values))
 
     return cur.fetchall()
+
+# cur.execute("DELETE  FROM keys")
+# # print(cur.fetchall())
+# cxn.commit()
+# cxn.close()

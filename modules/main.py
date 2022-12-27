@@ -49,21 +49,24 @@ def read_KEK():
 key_data = db.records("SELECT * FROM keys WHERE status =?", "active")
 db.commit
 
+"""Variable Declarations"""
 if len(key_data) <= 0:
     print("No data")
 else:
     """Decrypt the private key"""
     password,salt= read_KEK()
     decryption_key = get_decryption_key(password,salt)
-
     f = Fernet(decryption_key)
 
     pvt_key_bytes = f.decrypt(key_data[0][0])
-
     pvt_key = pvt_key_bytes.decode("utf-8")
     ron_add = key_data[0][1]
 
-    address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
+    try:
+        address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
+    except Exception as e:
+        print(e)
+
     token = generate_access_token.generate_access_token(pvt_key, address)
     gas_price = 1
 eth_contract = txn_utils.eth()
@@ -101,7 +104,7 @@ def buy_asset(asset):
             args=[
                 0,
                 int(order["currentPrice"]),
-                Web3.toChecksumAddress("0xa8Da6b8948D011f063aF3aA8B6bEb417f75d1194"),
+                Web3.toChecksumAddress(address),
                 order["signature"],
                 [
                     Web3.toChecksumAddress(order["maker"]),

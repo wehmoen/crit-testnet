@@ -231,6 +231,46 @@ def gui_update(gui_name, pur_price, gui_filt, num):
     print("GUI update success!")
 
 
+def update_filter_name(name_edit, filter_index):
+    """Update filter name on DB"""
+    db.execute("UPDATE snipe_list SET name=? WHERE name =?", name_edit, filter_index)
+    db.commit()
+    print(f"{name_edit} is the new name!")
+
+
+def update_filter_purchase_price(pur_price_edit, filter_index):
+    """Update filter purchase price on DB"""
+    db.execute(
+        "UPDATE snipe_list SET pur_price=? WHERE name =?",
+        pur_price_edit,
+        filter_index,
+    )
+    db.commit()
+    print(f"{pur_price_edit} is the new purchase price!")
+
+
+def update_filter_link(filter_edit, filter_index):
+    """Update filter link on DB"""
+    db.execute(
+        "UPDATE snipe_list SET filter=? WHERE name =?",
+        str(filter_edit),
+        filter_index,
+    )
+    db.commit()
+    print(f"{filter_edit} is the new filter!")
+
+
+def update_num_of_asset(num_asset_edit, filter_index):
+    """Update number of asset to buy on DB"""
+    db.execute(
+        "UPDATE snipe_list SET num_asset=? WHERE name =?",
+        num_asset_edit,
+        filter_index,
+    )
+    db.commit()
+    print(f"{num_asset_edit} is the new number of asset to buy!")
+
+
 def edit_filter(filter_name="", attempts=0):
     """Edit snipe filter"""
     if filter_name == "":
@@ -277,13 +317,9 @@ def edit_filter(filter_name="", attempts=0):
     if choice == "1":
         name_edit = add_name()
         if name_edit == "":
-            return add_name()
+            return add_name
         else:
-            db.execute(
-                "UPDATE snipe_list SET name=? WHERE name =?", name_edit, filter_index
-            )
-            db.commit()
-            print(f"{name_edit} is the new name!")
+            update_filter_name(name_edit, filter_index)
             return main_menu()
 
     if choice == "2":
@@ -291,41 +327,23 @@ def edit_filter(filter_name="", attempts=0):
         if pur_price_edit == "":
             return add_purchase_price
         else:
-            db.execute(
-                "UPDATE snipe_list SET pur_price=? WHERE name =?",
-                pur_price_edit,
-                filter_index,
-            )
-            db.commit()
-            print(f"{pur_price_edit} is the new purchase price!")
+            update_filter_purchase_price(pur_price_edit, filter_index)
             return main_menu()
 
     if choice == "3":
         filter_edit = add_new_filter()
         if filter_edit == "":
-            return add_purchase_price
+            return add_new_filter
         else:
-            db.execute(
-                "UPDATE snipe_list SET filter=? WHERE name =?",
-                str(filter_edit),
-                filter_index,
-            )
-            db.commit()
-            print(f"{filter_edit} is the new filter!")
+            update_filter_link(filter_edit, filter_index)
             return main_menu()
 
     if choice == "4":
-        num_asset_edit = add_new_filter()
+        num_asset_edit = add_num_asset()
         if num_asset_edit == "":
-            return add_purchase_price
+            return add_num_asset
         else:
-            db.execute(
-                "UPDATE snipe_list SET num_asset=? WHERE name =?",
-                num_asset_edit,
-                filter_index,
-            )
-            db.commit()
-            print(f"{num_asset_edit} is the new number of asset to buy!")
+            update_num_of_asset(num_asset_edit, filter_index)
             return main_menu()
 
 

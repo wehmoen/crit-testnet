@@ -88,10 +88,10 @@ def generate_access_token(key, address, attempts=0):
                 return create_access_token(message, signature, address, attempts2 + 1)
 
     try:
-        myResponse = get_random_message()
-        mySignature = sign_ronin_message(myResponse, key)
+        my_response = get_random_message()
+        my_signature = sign_ronin_message(my_response, key)
         token = create_access_token(
-            repr(myResponse).replace("'", ""), mySignature, address
+            repr(my_response).replace("'", ""), my_signature, address
         )
         return token
     except Exception as e:
