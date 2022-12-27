@@ -55,9 +55,10 @@ if len(key_data) <= 0:
 else:
     # Decrypt the private key
     password,salt= read_KEK()
+    print(f"The key data is this {key_data}")
     decryption_key = get_decryption_key(password,salt)
     f = Fernet(decryption_key)
-
+    print(decryption_key)
     pvt_key_bytes = f.decrypt(key_data[0][0])
     pvt_key = pvt_key_bytes.decode("utf-8")
     ron_add = key_data[0][1]
