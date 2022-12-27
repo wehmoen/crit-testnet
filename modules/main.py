@@ -13,7 +13,8 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import modules.create_filter as create_filter
 import tkinter.messagebox
 
-SPENDER = "0xfff9ce5f71ca6178d3beecedb61e7eff1602950e"
+SPENDER = Web3.toChecksumAddress("0xfff9ce5f71ca6178d3beecedb61e7eff1602950e")
+WETH_CONTRACT = Web3.toChecksumAddress("0xc99a6A985eD2Cac1ef41640596C5A5f9F4E19Ef5")
 VALUE_TO_SPEND = (
     115792089237316195423570985008687907853269984665640564039457584007913129639935
 )
@@ -21,28 +22,30 @@ CHAIN_ID = 2020
 GAS = 481337
 
 
-def get_decryption_key(password,salt):
+def get_decryption_key(password, salt):
     """Get decryption key from the KEK using PBKDF2"""
     kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100000)
     decryption_key = base64.urlsafe_b64encode(kdf.derive(password))
 
     return decryption_key
 
+
 def find_value(line):
     """Find value for password and salt"""
-    line_value = line.rstrip('\n')
-    value = line_value[line_value.index('=')+1:]
+    line_value = line.rstrip("\n")
+    value = line_value[line_value.index("=") + 1 :]
     return value
+
 
 def read_KEK():
     """Read KEK from a file stored on disk"""
     with open("./data/kek.txt", "r") as f:
         for line in f:
-            if line.startswith('password'):
-                password=bytes(find_value(line), 'utf-8')
-            if line.startswith('salt'):
-                salt=bytes(find_value(line), 'utf-8')
-    return password,salt
+            if line.startswith("password"):
+                password = bytes(find_value(line), "utf-8")
+            if line.startswith("salt"):
+                salt = bytes(find_value(line), "utf-8")
+    return password, salt
 
 
 # Get the list of keys
@@ -54,20 +57,14 @@ if len(key_data) <= 0:
     print("No added ronin accounts yet")
 else:
     # Decrypt the private key
-    password,salt= read_KEK()
-    print(f"The key data is this {key_data}")
-    decryption_key = get_decryption_key(password,salt)
+    password, salt = read_KEK()
+    decryption_key = get_decryption_key(password, salt)
     f = Fernet(decryption_key)
-    print(decryption_key)
+
     pvt_key_bytes = f.decrypt(key_data[0][0])
     pvt_key = pvt_key_bytes.decode("utf-8")
     ron_add = key_data[0][1]
-
-    try:
-        address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
-    except Exception as e:
-        print(e)
-
+    address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
     token = generate_access_token.generate_access_token(pvt_key, address)
     gas_price = 1
 eth_contract = txn_utils.eth()
@@ -119,9 +116,7 @@ def buy_asset(asset):
                         ]
                     ],
                     int(order["expiredAt"]),
-                    Web3.toChecksumAddress(
-                        "0xc99a6A985eD2Cac1ef41640596C5A5f9F4E19Ef5"
-                    ),
+                    Web3.toChecksumAddress(WETH_CONTRACT),
                     int(order["startedAt"]),
                     int(order["basePrice"]),
                     int(order["endedAt"]),
@@ -294,13 +289,14 @@ def run_loop(axie_filter, filter_index=0):
 
             """Check if you still have balance to buy the axie"""
             balance = eth_contract.functions.balanceOf(address).call()
-            check_balance(balance,price)
+            check_balance(balance, price)
 
             count += 1
 
             if count % 120 == 0:
                 print("Still searching marketplace.")
             time.sleep(1)
+
 
 def check_available_ron():
     """Check acailable RON balance"""
@@ -311,18 +307,15 @@ def check_available_ron():
         )
         raise SystemExit
 
+
 def check_allowance():
     """Check allowance. If 0 continue to approve"""
-    allowance = eth_contract.functions.allowance(
-        address, SPENDER
-    ).call()
+    allowance = eth_contract.functions.allowance(address, SPENDER).call()
 
     if allowance == 0:
         print("We need to approve eth for spending on the marketplace. Approving...")
         sent_txn = approve()
-        allowance = eth_contract.functions.allowance(
-            address, SPENDER
-        ).call()
+        allowance = eth_contract.functions.allowance(address, SPENDER).call()
 
         if allowance == 0:
             print("Something went wrong, approval didnt work. Exiting.")
@@ -330,14 +323,16 @@ def check_allowance():
         else:
             print(f"Approved at tx: {sent_txn}")
 
+
 def get_filterdata():
     """Get filter data from DB"""
     axie_filter = db.records("SELECT * FROM snipe_list")
     db.commit
     axie_price = Web3.toWei(axie_filter[0][1], "ether")
-    return axie_filter,axie_price
+    return axie_filter, axie_price
 
-def check_can_afford(axie_price,balance,can_afford,cheapest_filter):
+
+def check_can_afford(axie_price, balance, can_afford, cheapest_filter):
     """Check if the user can afford the current filter"""
     if axie_price < balance:
         can_afford = True
@@ -352,7 +347,8 @@ def check_can_afford(axie_price,balance,can_afford,cheapest_filter):
         tkinter.messagebox.showinfo(
             "Bloodmoon Sniper",
             f"You do not have enough ETH to buy anything. Current cheapest filter price you have set is {cheapest_filter / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH.",
-        )   
+        )
+
 
 def init():
     """Bot Initialization"""
@@ -364,10 +360,9 @@ def init():
     can_afford = False
     balance = eth_contract.functions.balanceOf(address).call()
 
+    axie_filter, axie_price = get_filterdata()
 
-    axie_filter,axie_price = get_filterdata()
-
-    check_can_afford(axie_price,balance,can_afford,cheapest_filter)
+    check_can_afford(axie_price, balance, can_afford, cheapest_filter)
 
     print("Searching for Axies...")
     run_loop(axie_filter)
