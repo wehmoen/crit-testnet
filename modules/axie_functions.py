@@ -3,7 +3,7 @@ import json
 import traceback
 
 
-def fetch_market(accessToken, myFilter, attempts=0):
+def fetch_market(access_token, my_filter, attempts=0):
     """Fetch listing from marketplace with the desired filter"""
     url = "https://graphql-gateway.axieinfinity.com/graphql"
 
@@ -15,12 +15,12 @@ def fetch_market(accessToken, myFilter, attempts=0):
             "sort": "PriceAsc",
             "auctionType": "Sale",
             "owner": None,
-            "criteria": myFilter,
+            "criteria": my_filter,
         },
     }
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer " + accessToken,
+        "Authorization": "Bearer " + access_token,
         "User-Agent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)",
     }
     try:
@@ -33,7 +33,7 @@ def fetch_market(accessToken, myFilter, attempts=0):
             print("something is wrong. exiting the program.")
             print(traceback.format_exc())
             raise SystemExit
-        return fetch_market(accessToken, myFilter, attempts + 1)
+        return fetch_market(access_token, my_filter, attempts + 1)
     try:
         temp = json.loads(response.text)["data"]["axies"]["total"]
         if temp >= 0:
@@ -42,14 +42,14 @@ def fetch_market(accessToken, myFilter, attempts=0):
         if attempts >= 3:
             print("fetchAxieMarket")
             print("something is wrong. exiting the program.")
-            print("filter:\t" + json.dumps(myFilter))
+            print("filter:\t" + json.dumps(my_filter))
             print("response:\t" + response.text)
             print(traceback.format_exc())
             raise SystemExit
-        return fetch_market(accessToken, myFilter, attempts + 1)
+        return fetch_market(access_token, my_filter, attempts + 1)
 
 
-def checkFilter(accessToken, myFilter, attempts=0):
+def checkFilter(access_token, my_filter, attempts=0):
     """Check if the filter exist"""
     url = "https://graphql-gateway.axieinfinity.com/graphql"
 
@@ -61,12 +61,12 @@ def checkFilter(accessToken, myFilter, attempts=0):
             "sort": "PriceAsc",
             "auctionType": "All",
             "owner": None,
-            "criteria": myFilter,
+            "criteria": my_filter,
         },
     }
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer " + accessToken,
+        "Authorization": "Bearer " + access_token,
         "User-Agent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)",
     }
     try:
@@ -79,15 +79,15 @@ def checkFilter(accessToken, myFilter, attempts=0):
             print("something is wrong. exiting the program.")
             print(traceback.format_exc())
             raise SystemExit
-        return checkFilter(accessToken, myFilter, attempts + 1)
+        return checkFilter(access_token, my_filter, attempts + 1)
     try:
         return json.loads(response.text)["data"]["axies"]["total"]
     except:
         if attempts >= 3:
             print("checkAxieFilter")
             print("something is wrong. exiting the program.")
-            print("filter:\t" + json.dumps(myFilter))
+            print("filter:\t" + json.dumps(my_filter))
             print("response:\t" + response.text)
             print(traceback.format_exc())
             raise SystemExit
-        return checkFilter(accessToken, myFilter, attempts + 1)
+        return checkFilter(access_token, my_filter, attempts + 1)

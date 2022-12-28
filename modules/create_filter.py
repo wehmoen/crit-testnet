@@ -29,164 +29,98 @@ def add_num_asset(input_mode):
         return add_num_asset()
 
 
+def transform_filterdata(input_data):
+
+    new_filter = {}
+    for value in input_data:
+        temp_data = value.split("=")
+        filter_type = temp_data[0]
+        try:
+            filter_value = int(temp_data[1])
+        except:
+            filter_value = temp_data[1]
+        if filter_type == "region":
+            new_filter["region"] = "japan"
+            continue
+        if filter_type in ["auctionTypes", "stage", "page", "partTypes"]:
+            continue
+        if filter_type == "excludeParts":
+            filter_type = "parts"
+            if filter_value in new_filter["parts"]:
+                new_filter["parts"][new_filter["parts"].index(filter_value)] = (
+                    "!" + filter_value
+                )
+                continue
+        if filter_type in ["mystic", "japan", "xmas", "shiny", "summer"]:
+            filter_type = "num" + filter_type.capitalize()
+        if filter_type == "class":
+            filter_type = "classes"
+        if filter_type in ["part", "bodyShape"]:
+            filter_type = filter_type + "s"
+        if filter_type == "title":
+            filter_value = filter_value.replace("-", " ")
+        if filter_type == "type":
+            filter_type = "landType"
+        if not filter_type in new_filter:
+            new_filter[filter_type] = []
+        new_filter[filter_type].append(filter_value)
+
+    return new_filter
+
+
+def transform_link_data(asset_type, url):
+
+    if asset_type == "":
+        asset_type = (
+            url[: url.find("?")]
+            .replace("https://app.axieinfinity.com/marketplace/", "")
+            .replace("/", "")
+        )
+
+    elif not asset_type == url[: url.find("?")].replace(
+        "https://app.axieinfinity.com/marketplace/", ""
+    ).replace("/", ""):
+        new_asset_type = (
+            url[: url.find("?")]
+            .replace("https://app.axieinfinity.com/marketplace/", "")
+            .replace("/", "")
+        )
+        print(
+            "Cannot change filter type. Previous type was "
+            + asset_type
+            + " new filter type is "
+            + new_asset_type
+            + "."
+        )
+        return add_new_filter()
+    try:
+        input_data = url[url.find("?") + 1 :].split("&")
+        new_filter = transform_filterdata(input_data)
+
+        for value in new_filter:
+            if len(new_filter[value]) == 0:
+                new_filter[value] = None
+
+        return new_filter
+
+    except:
+        print("Something went wrong with the filter. Did you enter the URL correctly?")
+        print(
+            "e.g.: https://app.axieinfinity.com/marketplace/axies/?class=Beast&mystic=1&auctionTypes=Sale"
+        )
+        print("Would search for a 1 part mystic beast")
+        return add_new_filter()
+
+
 def add_new_filter(input_mode=0, asset_type="", gui_filter=""):
     """Adding new sniper filter to DB"""
     if input_mode == 0:
-        new_filter = {}
+        """Save on general input"""
         url = input("Please paste marketplace url of your filter.\n")
-        if asset_type == "":
-            asset_type = (
-                url[: url.find("?")]
-                .replace("https://app.axieinfinity.com/marketplace/", "")
-                .replace("/", "")
-            )
-
-        elif not asset_type == url[: url.find("?")].replace(
-            "https://app.axieinfinity.com/marketplace/", ""
-        ).replace("/", ""):
-            new_asset_type = (
-                url[: url.find("?")]
-                .replace("https://app.axieinfinity.com/marketplace/", "")
-                .replace("/", "")
-            )
-            print(
-                "Cannot change filter type. Previous type was "
-                + asset_type
-                + " new filter type is "
-                + new_asset_type
-                + "."
-            )
-            return add_new_filter()
-        try:
-            input_data = url[url.find("?") + 1 :].split("&")
-            print(input_data)
-            for value in input_data:
-                temp_data = value.split("=")
-                filter_type = temp_data[0]
-                try:
-                    filter_value = int(temp_data[1])
-                except:
-                    filter_value = temp_data[1]
-                if filter_type == "region":
-                    new_filter["region"] = "japan"
-                    continue
-                if filter_type in ["auctionTypes", "stage", "page", "partTypes"]:
-                    continue
-                if filter_type == "excludeParts":
-                    filter_type = "parts"
-                    if filter_value in new_filter["parts"]:
-                        new_filter["parts"][new_filter["parts"].index(filter_value)] = (
-                            "!" + filter_value
-                        )
-                        continue
-                if filter_type in ["mystic", "japan", "xmas", "shiny", "summer"]:
-                    filter_type = "num" + filter_type.capitalize()
-                if filter_type == "class":
-                    filter_type = "classes"
-                if filter_type in ["part", "bodyShape"]:
-                    filter_type = filter_type + "s"
-                if filter_type == "title":
-                    filter_value = filter_value.replace("-", " ")
-                if filter_type == "type":
-                    filter_type = "landType"
-                if not filter_type in new_filter:
-                    new_filter[filter_type] = []
-                new_filter[filter_type].append(filter_value)
-
-            for value in new_filter:
-                if len(new_filter[value]) == 0:
-                    new_filter[value] = None
-
-            return new_filter
-
-        except:
-            print(
-                "Something went wrong with the filter. Did you enter the URL correctly?"
-            )
-            print(
-                "e.g.: https://app.axieinfinity.com/marketplace/axies/?class=Beast&mystic=1&auctionTypes=Sale"
-            )
-            print("Would search for a 1 part mystic beast")
-            return add_new_filter()
+        return transform_link_data(asset_type, url)
     else:
-
-        print("GUI filter")
-        new_filter = {}
-        url = gui_filter
-        if asset_type == "":
-            asset_type = (
-                url[: url.find("?")]
-                .replace("https://app.axieinfinity.com/marketplace/", "")
-                .replace("/", "")
-            )
-
-        elif not asset_type == url[: url.find("?")].replace(
-            "https://app.axieinfinity.com/marketplace/", ""
-        ).replace("/", ""):
-            new_asset_type = (
-                url[: url.find("?")]
-                .replace("https://app.axieinfinity.com/marketplace/", "")
-                .replace("/", "")
-            )
-            print(
-                "Cannot change filter type. Previous type was "
-                + asset_type
-                + " new filter type is "
-                + new_asset_type
-                + "."
-            )
-            return add_new_filter()
-        try:
-            input_data = url[url.find("?") + 1 :].split("&")
-            print(input_data)
-            for value in input_data:
-                temp_data = value.split("=")
-                filter_type = temp_data[0]
-                try:
-                    filter_value = int(temp_data[1])
-                except:
-                    filter_value = temp_data[1]
-                if filter_type == "region":
-                    new_filter["region"] = "japan"
-                    continue
-                if filter_type in ["auctionTypes", "stage", "page", "partTypes"]:
-                    continue
-                if filter_type == "excludeParts":
-                    filter_type = "parts"
-                    if filter_value in new_filter["parts"]:
-                        new_filter["parts"][new_filter["parts"].index(filter_value)] = (
-                            "!" + filter_value
-                        )
-                        continue
-                if filter_type in ["mystic", "japan", "xmas", "shiny", "summer"]:
-                    filter_type = "num" + filter_type.capitalize()
-                if filter_type == "class":
-                    filter_type = "classes"
-                if filter_type in ["part", "bodyShape"]:
-                    filter_type = filter_type + "s"
-                if filter_type == "title":
-                    filter_value = filter_value.replace("-", " ")
-                if filter_type == "type":
-                    filter_type = "landType"
-                if not filter_type in new_filter:
-                    new_filter[filter_type] = []
-                new_filter[filter_type].append(filter_value)
-
-            for value in new_filter:
-                if len(new_filter[value]) == 0:
-                    new_filter[value] = None
-
-            return new_filter
-
-        except:
-            print(
-                "Something went wrong with the filter. Did you enter the URL correctly?"
-            )
-            print(
-                "Ex: https://app.axieinfinity.com/marketplace/axies/?class=Beast&mystic=1&auctionTypes=Sale"
-            )
-            print("Would search for a 1 part mystic beast")
-            return add_new_filter()
+        """Save on GUI"""
+        return transform_link_data(asset_type, gui_filter)
 
 
 def create_filter(
@@ -297,6 +231,46 @@ def gui_update(gui_name, pur_price, gui_filt, num):
     print("GUI update success!")
 
 
+def update_filter_name(name_edit, filter_index):
+    """Update filter name on DB"""
+    db.execute("UPDATE snipe_list SET name=? WHERE name =?", name_edit, filter_index)
+    db.commit()
+    print(f"{name_edit} is the new name!")
+
+
+def update_filter_purchase_price(pur_price_edit, filter_index):
+    """Update filter purchase price on DB"""
+    db.execute(
+        "UPDATE snipe_list SET pur_price=? WHERE name =?",
+        pur_price_edit,
+        filter_index,
+    )
+    db.commit()
+    print(f"{pur_price_edit} is the new purchase price!")
+
+
+def update_filter_link(filter_edit, filter_index):
+    """Update filter link on DB"""
+    db.execute(
+        "UPDATE snipe_list SET filter=? WHERE name =?",
+        str(filter_edit),
+        filter_index,
+    )
+    db.commit()
+    print(f"{filter_edit} is the new filter!")
+
+
+def update_num_of_asset(num_asset_edit, filter_index):
+    """Update number of asset to buy on DB"""
+    db.execute(
+        "UPDATE snipe_list SET num_asset=? WHERE name =?",
+        num_asset_edit,
+        filter_index,
+    )
+    db.commit()
+    print(f"{num_asset_edit} is the new number of asset to buy!")
+
+
 def edit_filter(filter_name="", attempts=0):
     """Edit snipe filter"""
     if filter_name == "":
@@ -343,13 +317,9 @@ def edit_filter(filter_name="", attempts=0):
     if choice == "1":
         name_edit = add_name()
         if name_edit == "":
-            return add_name()
+            return add_name
         else:
-            db.execute(
-                "UPDATE snipe_list SET name=? WHERE name =?", name_edit, filter_index
-            )
-            db.commit()
-            print(f"{name_edit} is the new name!")
+            update_filter_name(name_edit, filter_index)
             return main_menu()
 
     if choice == "2":
@@ -357,41 +327,23 @@ def edit_filter(filter_name="", attempts=0):
         if pur_price_edit == "":
             return add_purchase_price
         else:
-            db.execute(
-                "UPDATE snipe_list SET pur_price=? WHERE name =?",
-                pur_price_edit,
-                filter_index,
-            )
-            db.commit()
-            print(f"{pur_price_edit} is the new purchase price!")
+            update_filter_purchase_price(pur_price_edit, filter_index)
             return main_menu()
 
     if choice == "3":
         filter_edit = add_new_filter()
         if filter_edit == "":
-            return add_purchase_price
+            return add_new_filter
         else:
-            db.execute(
-                "UPDATE snipe_list SET filter=? WHERE name =?",
-                str(filter_edit),
-                filter_index,
-            )
-            db.commit()
-            print(f"{filter_edit} is the new filter!")
+            update_filter_link(filter_edit, filter_index)
             return main_menu()
 
     if choice == "4":
-        num_asset_edit = add_new_filter()
+        num_asset_edit = add_num_asset()
         if num_asset_edit == "":
-            return add_purchase_price
+            return add_num_asset
         else:
-            db.execute(
-                "UPDATE snipe_list SET num_asset=? WHERE name =?",
-                num_asset_edit,
-                filter_index,
-            )
-            db.commit()
-            print(f"{num_asset_edit} is the new number of asset to buy!")
+            update_num_of_asset(num_asset_edit, filter_index)
             return main_menu()
 
 

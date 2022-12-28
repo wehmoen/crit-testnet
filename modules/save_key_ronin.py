@@ -1,15 +1,28 @@
 from . import db
 from cryptography.fernet import Fernet
 import tkinter.messagebox
+import os
+from  modules.main import read_KEK,get_decryption_key
+
+def generate_salt():
+    return os.urandom(16)
 
 
 def encrypt_pvt_key(pvt_key):
     """Encrypt private key"""
-    """fernet_key should also be saved somewhere to be able to decrypt the data"""
-    fernet_key = Fernet.generate_key()
-    f = Fernet(fernet_key)
+    """Using KEK to encrypt key"""
+    password,salt= read_KEK()
+    print(f"Current salt is:{salt}")
+    if salt ==b'':
+       salt = generate_salt()
+       print(f"Generated salt is:{salt}")
+
+    decryption_key = get_decryption_key(password,salt)
+    print(decryption_key)
+    
+    f = Fernet(decryption_key)
     fernet_token = f.encrypt(bytes(pvt_key, "utf-8"))
-    return fernet_token, fernet_key
+    return fernet_token
     
 def fn_pvt_key(input_mode=0, pvt=""):
     """Adding users private key"""
@@ -17,9 +30,9 @@ def fn_pvt_key(input_mode=0, pvt=""):
         pvt_key = input(
             "Please enter your private key. Or leave it blank to go back to main menu.\n"
         )
-        encrypt_pvt_key(pvt_key)
+        return encrypt_pvt_key(pvt_key)
     else:
-        encrypt_pvt_key(pvt)
+        return encrypt_pvt_key(pvt)
 
 
 def ronin_add():
@@ -55,18 +68,16 @@ def add_key_address(input_mode=0, pvt="", ron="", gas=0):
                 pvt_key[0],
                 ron_add,
                 gas_price,
-                pvt_key[1],
             )
             db.commit()
             print("Save Successfully!")
     else:
-        pvt_key = fn_pvt_key(input_mode, pvt)
+        encrypted_pvt_key = fn_pvt_key(input_mode, pvt)
         db.execute(
-            "INSERT INTO keys(pvt_key,ron_add,gas,fernet_key) VALUES(?,?,?,?)",
-            pvt_key[0],
+            "INSERT INTO keys(pvt_key,ron_add,gas) VALUES(?,?,?)",
+            encrypted_pvt_key,
             ron,
-            gas,
-            pvt_key[1],
+            gas
         )
         db.commit()
         print("Saved from GUI")
@@ -77,13 +88,11 @@ def set_active(ron_add):
     db.commit()
     db.execute("UPDATE keys SET status=? WHERE ron_add =?","active",ron_add)
     db.commit()
-    tkinter.messagebox.showinfo("Bloodmoon Sniper Bot",f"{ron_add} account is set as active!")
+    tkinter.messagebox.showinfo("Bloodmoon Sniper Bot",f"{ron_add} account is set as active! Please restart the bot to save changes.")
 
 def get_active():
     """Get the active ronin account"""
     key_data = db.records("SELECT * FROM keys WHERE status =?","active")
     db.commit
     ronin_acc = key_data[0][1]
-    print(ronin_acc)
-
     return ronin_acc

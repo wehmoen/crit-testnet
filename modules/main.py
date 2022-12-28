@@ -1,72 +1,97 @@
 import time
 from . import db
-import modules.save_key_ronin as save_key_ronin
 from web3 import Web3
 import modules.generate_access_token as generate_access_token
 import modules.txn_utils as txn_utils
 from . import axie_functions
 from cryptography.fernet import Fernet
+import base64
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
 import modules.create_filter as create_filter
 import tkinter.messagebox
 
-
-"""Get the list of keys"""
-key_data = db.records("SELECT * FROM keys WHERE status =?", "active")
-db.commit
-
-if len(key_data) <= 0:
-    print("No data")
-else:
-    """Decrypt the private key"""
-    fernet_key = key_data[0][3]
-    f = Fernet(fernet_key)
-
-    pvt_key_bytes = f.decrypt(key_data[0][0])
-
-    pvt_key = pvt_key_bytes.decode("utf-8")
-    ron_add = key_data[0][1]
-
-    address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
-    token = generate_access_token.generate_access_token(pvt_key, address)
-    gas_price = 1
-eth_contract = txn_utils.eth()
-mp_contract = txn_utils.marketplace()
+SPENDER = Web3.toChecksumAddress("0xfff9ce5f71ca6178d3beecedb61e7eff1602950e")
+WETH_CONTRACT = Web3.toChecksumAddress("0xc99a6A985eD2Cac1ef41640596C5A5f9F4E19Ef5")
+VALUE_TO_SPEND = (
+    115792089237316195423570985008687907853269984665640564039457584007913129639935
+)
+CHAIN_ID = 2020
+GAS = 481337
 
 
-def get_key_list():
-    if True:
-        """Get the list of keys"""
-        key_data = db.records("SELECT * FROM keys WHERE status =?", "active")
-        db.commit
+def get_decryption_key(password, salt):
+    """Get decryption key from the KEK using PBKDF2"""
+    kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100000)
+    decryption_key = base64.urlsafe_b64encode(kdf.derive(password))
 
-        if len(key_data) <= 0:
-            print("No data")
-        else:
-            """Decrypt the private key"""
-            fernet_key = key_data[0][3]
-            f = Fernet(fernet_key)
+    return decryption_key
 
-            pvt_key_bytes = f.decrypt(key_data[0][0])
 
-            pvt_key = pvt_key_bytes.decode("utf-8")
-            ron_add = key_data[0][1]
+def find_value(line):
+    """Find value for password and salt"""
+    line_value = line.rstrip("\n")
+    value = line_value[line_value.index("=") + 1 :]
+    return value
 
-            address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
-            token = generate_access_token.generate_access_token(pvt_key, address)
-            gas_price = 1
+
+def read_KEK():
+    """Read KEK from a file stored on disk"""
+    with open("./data/kek.txt", "r") as f:
+        for line in f:
+            if line.startswith("password"):
+                password = bytes(find_value(line), "utf-8")
+            if line.startswith("salt"):
+                salt = bytes(find_value(line), "utf-8")
+    return password, salt
+
+
+def get_list_of_keys():
+    # Get the list of keys
+    key_data = db.records("SELECT * FROM keys WHERE status =?", "active")
+    db.commit
+
+    # Variable Declarations
+    if len(key_data) <= 0:
+        print("No added ronin accounts yet")
+        address=""
+        token=""
+        gas_price=""
+        eth_contract=""
+        mp_contract=""
+        pvt_key=""
+    else:
+        # Decrypt the private key
+        password, salt = read_KEK()
+        decryption_key = get_decryption_key(password, salt)
+        f = Fernet(decryption_key)
+
+        pvt_key_bytes = f.decrypt(key_data[0][0])
+        pvt_key = pvt_key_bytes.decode("utf-8")
+        ron_add = key_data[0][1]
+
+        address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
+        token = generate_access_token.generate_access_token(pvt_key, address)
+        gas_price = 1
         eth_contract = txn_utils.eth()
         mp_contract = txn_utils.marketplace()
+
+    return address, token, gas_price, eth_contract, mp_contract, pvt_key
+
+
+address, token, gas_price, eth_contract, mp_contract, pvt_key = get_list_of_keys()
 
 
 def approve():
     """Approve ETH to spend"""
     try_send_txn = eth_contract.functions.approve(
-        Web3.toChecksumAddress("0xfff9ce5f71ca6178d3beecedb61e7eff1602950e"),
-        115792089237316195423570985008687907853269984665640564039457584007913129639935,
+        Web3.toChecksumAddress(SPENDER),
+        VALUE_TO_SPEND,
     ).buildTransaction(
         {
-            "chainId": 2020,
-            "gas": 481337,
+            "chainId": CHAIN_ID,
+            "gas": GAS,
             "gasPrice": Web3.toWei(1, "gwei"),
             "nonce": txn_utils.get_nonce(address),
         }
@@ -89,7 +114,7 @@ def buy_asset(asset):
             args=[
                 0,
                 int(order["currentPrice"]),
-                Web3.toChecksumAddress("0xa8Da6b8948D011f063aF3aA8B6bEb417f75d1194"),
+                Web3.toChecksumAddress(address),
                 order["signature"],
                 [
                     Web3.toChecksumAddress(order["maker"]),
@@ -103,9 +128,7 @@ def buy_asset(asset):
                         ]
                     ],
                     int(order["expiredAt"]),
-                    Web3.toChecksumAddress(
-                        "0xc99a6A985eD2Cac1ef41640596C5A5f9F4E19Ef5"
-                    ),
+                    Web3.toChecksumAddress(WETH_CONTRACT),
                     int(order["startedAt"]),
                     int(order["basePrice"]),
                     int(order["endedAt"]),
@@ -118,29 +141,86 @@ def buy_asset(asset):
         ),
     ).buildTransaction(
         {
-            "chainId": 2020,
-            "gas": 481337,
+            "chainId": CHAIN_ID,
+            "gas": GAS,
             "gasPrice": Web3.toWei(int(gas_price), "gwei"),
             "nonce": txn_utils.get_nonce(address),
         }
     )
+
     signed_txn = txn_utils.w3.eth.account.sign_transaction(
         market_txn, private_key=pvt_key
     )
     return signed_txn
 
 
-def run_loop(axie_filter, filter_index=0):
-    """Running the loop to check if the axie is available"""
-    """If statement to see if the filter number to purchase is met If yes, skip"""
-    if axie_filter[filter_index][5] >= axie_filter[filter_index][3]:
+def check_filter_limit(num_to_buy, bought_axie, filter_name):
+    """Check if you reached the filter limit"""
+    if num_to_buy >= bought_axie:
         print("The filter buy limit has been reached.")
         tkinter.messagebox.showinfo(
             "Bloodmoon Sniper Bot",
-            f"Filter limit reached for {axie_filter[filter_index][0]}.",
+            f"Filter limit reached for {filter_name}.",
         )
+        return True
+    else:
+        return False
+
+
+def verify_transactions(txns, attempted_txns):
+    """Verify if the transaction succeded"""
+    if len(txns) > 0:
+        txn_utils.send_txn_threads(txns)
+        for tx in txns:
+            sent_txn = Web3.toHex(Web3.keccak(tx.rawTransaction))
+            receipt = txn_utils.w3.eth.get_transaction_receipt(sent_txn)
+            if not receipt.status == 1:
+                num_to_buy += 1
+                print(f"Buying asset {attempted_txns[sent_txn]} failed.")
+            else:
+                print(f"Buying asset {attempted_txns[sent_txn]} succeded.")
+
+        txns = []
+
+    return txns
+
+
+def check_num_to_buy(num_to_buy, num_asset, axie_filter, filter_index):
+    """Check if you still need to buy anoter axie with this filter"""
+    if num_to_buy <= 0:
+        print(f"Bought {num_asset} assets. This is the limit. Exiting.")
+        tkinter.messagebox.showinfo(
+            "Bloodmoon Sniper Bot",
+            f"Bought {num_asset} assets. This is the limit. Returning to main menu",
+        )
+        return run_loop(axie_filter, filter_index + 1)
+
+
+def check_balance(balance, price):
+    """Check if you still have a balance to buy another axie"""
+    if balance <= price:
+        print(
+            f"You do not have enough ETH to buy anything. Current price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting."
+        )
+        tkinter.messagebox.showinfo(
+            "Bloodmoon Sniper Bot",
+            f"You do not have enough ETH to buy anything. Current price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting.",
+        )
+        raise SystemExit
+
+
+def run_loop(axie_filter, filter_index=0):
+    """Running the loop to check if the axie is available"""
+
+    """If statement to see if the filter number to purchase is met If yes, skip"""
+    if check_filter_limit(
+        axie_filter[filter_index][5],
+        axie_filter[filter_index][3],
+        axie_filter[filter_index][0],
+    ):
         run_loop(axie_filter, filter_index + 1)
     else:
+        """Variable declarations"""
         my_filter = eval(axie_filter[filter_index][2])
         num_asset = axie_filter[filter_index][3]
         price = Web3.toWei(axie_filter[filter_index][1], "ether")
@@ -150,6 +230,7 @@ def run_loop(axie_filter, filter_index=0):
         count = 0
         num_to_buy = num_asset
         balance = eth_contract.functions.balanceOf(address).call()
+        """Loop trough all the filters saved"""
         while True:
             spend_amount = 0
 
@@ -211,39 +292,17 @@ def run_loop(axie_filter, filter_index=0):
                     num_to_buy -= 1
                     if num_to_buy <= 0:
                         break
-            print(txns)
-            if len(txns) > 0:
-                txn_utils.send_txn_threads(txns)
-                for tx in txns:
-                    sent_txn = Web3.toHex(Web3.keccak(tx.rawTransaction))
-                    receipt = txn_utils.w3.eth.get_transaction_receipt(sent_txn)
-                    if not receipt.status == 1:
-                        num_to_buy += 1
-                        print(f"Buying asset {attempted_txns[sent_txn]} failed.")
-                    else:
-                        print(f"Buying asset {attempted_txns[sent_txn]} succeded.")
 
-                txns = []
+            """Verify Transactions"""
+            txns = verify_transactions(txns, attempted_txns)
 
-            if num_to_buy <= 0:
-                print(f"Bought {num_asset} assets. This is the limit. Exiting.")
-                tkinter.messagebox.showinfo(
-                    "Bloodmoon Sniper Bot",
-                    f"Bought {num_asset} assets. This is the limit. Returning to main menu",
-                )
-                return run_loop(axie_filter, filter_index + 1)
+            """Check if you reached the limit to buy"""
+            check_num_to_buy(num_to_buy, num_asset, axie_filter, filter_index)
 
+            """Check if you still have balance to buy the axie"""
             balance = eth_contract.functions.balanceOf(address).call()
+            check_balance(balance, price)
 
-            if balance <= price:
-                print(
-                    f"You do not have enough ETH to buy anything. Current price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting."
-                )
-                tkinter.messagebox.showinfo(
-                    "Bloodmoon Sniper Bot",
-                    f"You do not have enough ETH to buy anything. Current price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting.",
-                )
-                raise SystemExit
             count += 1
 
             if count % 120 == 0:
@@ -251,38 +310,42 @@ def run_loop(axie_filter, filter_index=0):
             time.sleep(1)
 
 
-def init():
-    """Bot Initialization"""
+def check_available_ron():
+    """Check acailable RON balance"""
     ron_bal = txn_utils.w3.eth.get_balance(address)
     if ron_bal < (481337 * Web3.toWei(int(gas_price), "gwei")):
         print(
             "You do not have enough RON for the entered gas price. Please lower gas price or add more RON."
         )
         raise SystemExit
-    allowance = eth_contract.functions.allowance(
-        address, "0xffF9Ce5f71ca6178D3BEEcEDB61e7Eff1602950E"
-    ).call()
+
+
+def check_allowance():
+    """Check allowance. If 0 continue to approve"""
+    allowance = eth_contract.functions.allowance(address, SPENDER).call()
+
     if allowance == 0:
         print("We need to approve eth for spending on the marketplace. Approving...")
         sent_txn = approve()
-        allowance = eth_contract.functions.allowance(
-            address, "0xffF9Ce5f71ca6178D3BEEcEDB61e7Eff1602950E"
-        ).call()
+        allowance = eth_contract.functions.allowance(address, SPENDER).call()
+
         if allowance == 0:
             print("Something went wrong, approval didnt work. Exiting.")
             raise SystemExit
         else:
             print(f"Approved at tx: {sent_txn}")
 
-    cheapest_filter = Web3.toWei(99999, "ether")
-    can_afford = False
-    balance = eth_contract.functions.balanceOf(address).call()
 
+def get_filterdata():
+    """Get filter data from DB"""
     axie_filter = db.records("SELECT * FROM snipe_list")
     db.commit
-
     axie_price = Web3.toWei(axie_filter[0][1], "ether")
+    return axie_filter, axie_price
 
+
+def check_can_afford(axie_price, balance, can_afford, cheapest_filter):
+    """Check if the user can afford the current filter"""
     if axie_price < balance:
         can_afford = True
 
@@ -298,7 +361,20 @@ def init():
             f"You do not have enough ETH to buy anything. Current cheapest filter price you have set is {cheapest_filter / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH.",
         )
 
+
+def init():
+    """Bot Initialization"""
+    check_available_ron()
+
+    check_allowance()
+
+    cheapest_filter = Web3.toWei(99999, "ether")
+    can_afford = False
+    balance = eth_contract.functions.balanceOf(address).call()
+
+    axie_filter, axie_price = get_filterdata()
+
+    check_can_afford(axie_price, balance, can_afford, cheapest_filter)
+
     print("Searching for Axies...")
     run_loop(axie_filter)
-
-

@@ -128,7 +128,6 @@ class App(customtkinter.CTk):
 
             def cancel_edit():
                 """Cancel Edit on GUI"""
-
                 entry_1.delete(0, tk.END)
                 entry_2.delete(0, tk.END)
                 entry_3.delete(0, tk.END)
@@ -143,7 +142,7 @@ class App(customtkinter.CTk):
                 get_list()
 
             def active_account():
-                print("test")
+                """Setting the active account"""
                 active = listbox.get(listbox.curselection())
                 save_key_ronin.set_active(active)
 
