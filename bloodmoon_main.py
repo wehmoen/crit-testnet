@@ -128,7 +128,6 @@ class App(customtkinter.CTk):
 
             def cancel_edit():
                 """Cancel Edit on GUI"""
-
                 entry_1.delete(0, tk.END)
                 entry_2.delete(0, tk.END)
                 entry_3.delete(0, tk.END)
