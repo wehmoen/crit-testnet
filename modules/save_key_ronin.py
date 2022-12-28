@@ -88,7 +88,7 @@ def set_active(ron_add):
     db.commit()
     db.execute("UPDATE keys SET status=? WHERE ron_add =?","active",ron_add)
     db.commit()
-    tkinter.messagebox.showinfo("Bloodmoon Sniper Bot",f"{ron_add} account is set as active!")
+    tkinter.messagebox.showinfo("Bloodmoon Sniper Bot",f"{ron_add} account is set as active! Please restart the bot to save changes.")
 
 def get_active():
     """Get the active ronin account"""

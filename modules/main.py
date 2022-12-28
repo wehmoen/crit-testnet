@@ -1,6 +1,5 @@
 import time
 from . import db
-import modules.save_key_ronin as save_key_ronin
 from web3 import Web3
 import modules.generate_access_token as generate_access_token
 import modules.txn_utils as txn_utils
@@ -48,27 +47,40 @@ def read_KEK():
     return password, salt
 
 
-# Get the list of keys
-key_data = db.records("SELECT * FROM keys WHERE status =?", "active")
-db.commit
+def get_list_of_keys():
+    # Get the list of keys
+    key_data = db.records("SELECT * FROM keys WHERE status =?", "active")
+    db.commit
 
-# Variable Declarations
-if len(key_data) <= 0:
-    print("No added ronin accounts yet")
-else:
-    # Decrypt the private key
-    password, salt = read_KEK()
-    decryption_key = get_decryption_key(password, salt)
-    f = Fernet(decryption_key)
+    # Variable Declarations
+    if len(key_data) <= 0:
+        print("No added ronin accounts yet")
+        address=""
+        token=""
+        gas_price=""
+        eth_contract=""
+        mp_contract=""
+        pvt_key=""
+    else:
+        # Decrypt the private key
+        password, salt = read_KEK()
+        decryption_key = get_decryption_key(password, salt)
+        f = Fernet(decryption_key)
 
-    pvt_key_bytes = f.decrypt(key_data[0][0])
-    pvt_key = pvt_key_bytes.decode("utf-8")
-    ron_add = key_data[0][1]
-    address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
-    token = generate_access_token.generate_access_token(pvt_key, address)
-    gas_price = 1
-eth_contract = txn_utils.eth()
-mp_contract = txn_utils.marketplace()
+        pvt_key_bytes = f.decrypt(key_data[0][0])
+        pvt_key = pvt_key_bytes.decode("utf-8")
+        ron_add = key_data[0][1]
+
+        address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
+        token = generate_access_token.generate_access_token(pvt_key, address)
+        gas_price = 1
+        eth_contract = txn_utils.eth()
+        mp_contract = txn_utils.marketplace()
+
+    return address, token, gas_price, eth_contract, mp_contract, pvt_key
+
+
+address, token, gas_price, eth_contract, mp_contract, pvt_key = get_list_of_keys()
 
 
 def approve():
