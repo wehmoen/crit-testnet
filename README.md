@@ -7,10 +7,9 @@ sniper listing and also add multiple ronin accounts for your every transaction.
 
 ### Installation
 
-- Download the application using this [link](https://mega.nz/folder/x2g0zRyB#kT4g-TiI0Dz_gdYxQe6eIw).
-- Once downloaded you’ll have the bloodmoon folder.
-- Run the bot by double clicking the bloodmoon.exe file.
-- Add your user name and the product key provided.
+- Once the code is downloaded run `py -m pip install -r requirements.txt` to install all the required dependencies.
+- On the `data\kek.txt` enter your desired password and salt for encrypting your private keys.(Note:You can move this file anywhere you want if you are not using the bot for security purposes)
+- On your command line run `py bloodmoon_main.py` to start the bot.
 
 ---
 
@@ -26,6 +25,7 @@ sniper listing and also add multiple ronin accounts for your every transaction.
 If you want to learn more about fernet crytography you can check out this [link](https://cryptography.io/en/latest/fernet/).
 - Once done you can set your active account by clicking the Set as Active button on the right frame of the window.
 - You can now close the window to setup your filters.
+- Restart the bot to save the changes you made
 
 ### Setting up filters
 

@@ -1,2 +1,2 @@
-password=Secret Password
-salt=Test salt
+password=secretpassword
+salt=samplesalt
