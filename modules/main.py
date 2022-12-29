@@ -23,7 +23,7 @@ GAS = 481337
 
 def get_decryption_key(password, salt):
     """Get decryption key from the KEK using PBKDF2"""
-    kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100000)
+    kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=350000)
     decryption_key = base64.urlsafe_b64encode(kdf.derive(password))
 
     return decryption_key
