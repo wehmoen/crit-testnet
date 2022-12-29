@@ -9,10 +9,9 @@ import base64
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-import modules.create_filter as create_filter
 import tkinter.messagebox
 
-SPENDER = Web3.toChecksumAddress("0xfff9ce5f71ca6178d3beecedb61e7eff1602950e")
+MRKT_CONTRACT = Web3.toChecksumAddress("0xfff9ce5f71ca6178d3beecedb61e7eff1602950e")
 WETH_CONTRACT = Web3.toChecksumAddress("0xc99a6A985eD2Cac1ef41640596C5A5f9F4E19Ef5")
 VALUE_TO_SPEND = (
     115792089237316195423570985008687907853269984665640564039457584007913129639935
@@ -23,7 +22,7 @@ GAS = 481337
 
 def get_decryption_key(password, salt):
     """Get decryption key from the KEK using PBKDF2"""
-    kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100000)
+    kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=350000)
     decryption_key = base64.urlsafe_b64encode(kdf.derive(password))
 
     return decryption_key
@@ -48,11 +47,11 @@ def read_KEK():
 
 
 def get_list_of_keys():
-    # Get the list of keys
+    """Get the list of keys"""
     key_data = db.records("SELECT * FROM keys WHERE status =?", "active")
     db.commit
 
-    # Variable Declarations
+    """Variable Declarations"""
     if len(key_data) <= 0:
         print("No added ronin accounts yet")
         address=""
@@ -62,7 +61,7 @@ def get_list_of_keys():
         mp_contract=""
         pvt_key=""
     else:
-        # Decrypt the private key
+        """Decrypt the private key"""
         password, salt = read_KEK()
         decryption_key = get_decryption_key(password, salt)
         f = Fernet(decryption_key)
@@ -86,7 +85,7 @@ address, token, gas_price, eth_contract, mp_contract, pvt_key = get_list_of_keys
 def approve():
     """Approve ETH to spend"""
     try_send_txn = eth_contract.functions.approve(
-        Web3.toChecksumAddress(SPENDER),
+        Web3.toChecksumAddress(MRKT_CONTRACT),
         VALUE_TO_SPEND,
     ).buildTransaction(
         {
@@ -322,12 +321,12 @@ def check_available_ron():
 
 def check_allowance():
     """Check allowance. If 0 continue to approve"""
-    allowance = eth_contract.functions.allowance(address, SPENDER).call()
+    allowance = eth_contract.functions.allowance(address, MRKT_CONTRACT).call()
 
     if allowance == 0:
         print("We need to approve eth for spending on the marketplace. Approving...")
         sent_txn = approve()
-        allowance = eth_contract.functions.allowance(address, SPENDER).call()
+        allowance = eth_contract.functions.allowance(address, MRKT_CONTRACT).call()
 
         if allowance == 0:
             print("Something went wrong, approval didnt work. Exiting.")
