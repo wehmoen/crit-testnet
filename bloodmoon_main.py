@@ -181,19 +181,19 @@ class App(customtkinter.CTk):
             label_1.grid(row=1, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
             entry_1 = customtkinter.CTkEntry(
-                master=frame_left, placeholder_text="Enter your private key", width=200
+                master=frame_left, placeholder_text="Enter your private key", width=200,text_color="#000000"
             )
             entry_1.grid(row=2, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
             entry_2 = customtkinter.CTkEntry(
                 master=frame_left,
                 placeholder_text="Enter your Ronin Address",
-                width=200,
+                width=200,text_color="#000000"
             )
             entry_2.grid(row=3, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
             entry_3 = customtkinter.CTkEntry(
-                master=frame_left, placeholder_text="Gas Price", width=200
+                master=frame_left, placeholder_text="Gas Price", width=200,text_color="#000000"
             )
             entry_3.grid(row=4, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
@@ -340,47 +340,42 @@ class App(customtkinter.CTk):
 
         # ============ frame_left ============
 
-        # configure grid layout (1x11)
+        # configure grid layout (1x8)
         self.frame_left.grid_rowconfigure(
             0, minsize=10
-        )  # empty row with minsize as spacing
-        # empty row with minsize as spacing
-        self.frame_left.grid_rowconfigure(10, weight=1)
-        self.frame_left.grid_rowconfigure(
-            13, minsize=10
-        )  # empty row with minsize as spacing
-
+        )  
         self.label_1 = customtkinter.CTkLabel(
             master=self.frame_left,
             text="QU3ST Axie Sniper",
             text_font=("Poppins Bold", 25,"bold"),
+            
         )  # font name and size in px
         self.label_1.grid(row=1, column=0, pady=10, padx=10, columnspan=2)
 
         self.entry_1 = customtkinter.CTkEntry(
-            master=self.frame_left, placeholder_text="Name your Axie Sniper.."
+            master=self.frame_left, placeholder_text="Name your Axie Sniper..",text_color="#000000"
         )
         self.entry_1.grid(row=2, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
         self.entry_3 = customtkinter.CTkEntry(
-            master=self.frame_left, placeholder_text="Set the buy price (ETH)..."
+            master=self.frame_left, placeholder_text="Set the buy price (ETH)...",text_color="#000000"
         )
         self.entry_3.grid(row=4, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
         self.entry_4 = customtkinter.CTkEntry(
-            master=self.frame_left, placeholder_text="How many Axies should it buy before stopping.."
+            master=self.frame_left, placeholder_text="How many Axies should it buy before stopping..",text_color="#000000"
         )
         self.entry_4.grid(row=5, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
         self.entry_5 = customtkinter.CTkEntry(
-            master=self.frame_left, placeholder_text="Paste the market place filter link here..."
+            master=self.frame_left, placeholder_text="Paste the market place filter link here...",text_color="#000000"
         )
         self.entry_5.grid(row=6, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
         self.save_button = customtkinter.CTkButton(
             master=self.frame_left, text="Save", command=save_file
         )
-        self.save_button.grid(row=7, column=0, pady=5, padx=5)
+        self.save_button.grid(row=7, column=0, pady=10, padx=20,)
 
         self.run_button = customtkinter.CTkButton(
             master=self.frame_left, text="Run Bot", command=start_bot, bg="#d2ffd2"
@@ -392,19 +387,8 @@ class App(customtkinter.CTk):
         self.cancel_button = customtkinter.CTkButton(
             master=self.frame_left, text="Cancel", command=cancel_edit
         )
-        self.cancel_button.grid(row=7, column=1, pady=5, padx=20)
+        self.cancel_button.grid(row=7, column=1, pady=10, padx=20,)
 
-        self.label_mode = customtkinter.CTkLabel(
-            master=self.frame_left, text="Appearance Mode:"
-        )
-        self.label_mode.grid(row=11, column=0, pady=0, padx=20, sticky="w")
-
-        self.optionmenu_1 = customtkinter.CTkOptionMenu(
-            master=self.frame_left,
-            values=["Light", "Dark", "System"],
-            command=self.change_appearance_mode,
-        )
-        self.optionmenu_1.grid(row=12, column=0, pady=10, padx=20, sticky="w")
 
         # ============ frame_right ============
 
@@ -464,7 +448,7 @@ class App(customtkinter.CTk):
         )
         self.delete_filter.grid(column=1, row=2, padx=15, pady=5, sticky="w")
 
-        self.optionmenu_1.set("Dark")
+        # self.optionmenu_1.set("Dark")
 
         self.label_info_2 = customtkinter.CTkLabel(
             master=self.frame_info,
