@@ -3,6 +3,7 @@ import json
 from web3 import Web3, exceptions
 import os
 import sys
+import time
 
 
 def resource_path(relative_path):
@@ -54,14 +55,17 @@ def marketplace():
 def send_txn(signed_txn, timeout=10):
     """Send transaction"""
     txn = signed_txn.hash
+    
     try:
         w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        print(txn.hex())
     except ValueError as e:
         print(e)
 
     tries = 0
     success = False
     while tries < 3:
+        time.sleep(10)
         try:
             receipt = w3.eth.wait_for_transaction_receipt(txn, timeout)
             if receipt["status"] == 1:
