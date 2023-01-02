@@ -92,7 +92,7 @@ class App(customtkinter.CTk):
 
             key_add = tk.Tk()
             key_add.title("Bloodmoon")
-            key_add.configure(background="#212325", height=App.HEIGHT, width=App.WIDTH)
+            key_add.configure(background="#353358", height=App.HEIGHT, width=App.WIDTH)
 
             def save_account():
 
@@ -207,17 +207,9 @@ class App(customtkinter.CTk):
             )
             button_2.grid(row=5, column=1, pady=10, padx=20)
 
-            label_mode = customtkinter.CTkLabel(
-                master=self.frame_left, text="Appearance Mode:"
-            )
-            label_mode.grid(row=11, column=0, pady=0, padx=20, sticky="w")
 
-            optionmenu_1 = customtkinter.CTkOptionMenu(
-                master=frame_left,
-                values=["Light", "Dark", "System"],
-                command=self.change_appearance_mode,
-            )
-            optionmenu_1.grid(row=12, column=0, pady=10, padx=20, sticky="w")
+
+
             # ============ frame_right ============
 
             # configure grid layout (3x7)
@@ -251,7 +243,7 @@ class App(customtkinter.CTk):
                 text="Ronin Accounts",
                 height=35,
                 corner_radius=6,  # <- custom corner radius
-                fg_color=("white", "gray38"),  # <- custom tuple-color
+                fg_color=("white", "#e96b6d"),  # <- custom tuple-color
                 justify=tkinter.LEFT,
             )
             label_info_1.grid(
@@ -279,7 +271,7 @@ class App(customtkinter.CTk):
                     text=f"Active Account: {active_ron}",
                     height=35,
                     corner_radius=6,  # <- custom corner radius
-                    fg_color=("white", "gray38"),  # <- custom tuple-color
+                    fg_color=("white", "#e96b6d"),  # <- custom tuple-color
                     justify=tkinter.LEFT,
                 )
                 label_info_2.grid(

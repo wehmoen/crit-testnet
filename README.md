@@ -7,9 +7,10 @@ sniper listing and also add multiple ronin accounts for your every transaction.
 
 ### Installation
 
-- Once the code is downloaded run `py -m pip install -r requirements.txt` to install all the required dependencies.
-- On the `data\kek.txt` enter your desired password and salt for encrypting your private keys.(Note:You can move this file anywhere you want if you are not using the bot for security purposes)
-- On your command line run `py bloodmoon_main.py` to start the bot.
+- Download the application using this [link](https://drive.google.com/drive/folders/1IDFFAtstl5s1u8sKf3tV7hRAPw_bzY30?usp=share_link).
+- Once downloaded extract all the files.
+- Once extracted you will get the folder `bloodmoon_main` folder. On the `data\kek.txt` enter your desired password and salt for encrypting your private keys.(Note:You can move this file anywhere you want if you are not using the bot for security purposes).
+- Run the bot by double clicking the bloodmoon_main.exe file.
 
 ---
 
