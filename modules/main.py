@@ -35,6 +35,7 @@ def find_value(line):
     return value
 
 
+
 def read_KEK():
     """Read KEK from a file stored on disk"""
     with open("./data/kek.txt", "r") as f:
@@ -147,6 +148,7 @@ def buy_asset(asset):
         }
     )
 
+    print(market_txn)
     signed_txn = txn_utils.w3.eth.account.sign_transaction(
         market_txn, private_key=pvt_key
     )

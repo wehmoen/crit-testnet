@@ -7,7 +7,7 @@ from modules.main import init
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme(
-    "blue"
+    "dark-blue"
 )  # Themes: "blue" (standard), "green", "dark-blue"
 
 
@@ -19,7 +19,7 @@ class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
 
-        self.title("Bloodmon")
+        self.title("Bloodmoon")
         self.geometry(f"{App.WIDTH}x{App.HEIGHT}")
         self.protocol(
             "WM_DELETE_WINDOW", self.on_closing
@@ -176,7 +176,7 @@ class App(customtkinter.CTk):
                 master=frame_left,
                 justify=tkinter.LEFT,
                 text="Setup your account",
-                text_font=("Roboto Medium", -16),
+                text_font=("Poppins", 25, "bold"),
             )
             label_1.grid(row=1, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
@@ -360,28 +360,28 @@ class App(customtkinter.CTk):
 
         self.label_1 = customtkinter.CTkLabel(
             master=self.frame_left,
-            text="Bloodmoon Axie Sniper Bot",
-            text_font=("Roboto Medium", -16),
+            text="QU3ST Axie Sniper",
+            text_font=("Poppins Bold", 25,"bold"),
         )  # font name and size in px
         self.label_1.grid(row=1, column=0, pady=10, padx=10, columnspan=2)
 
         self.entry_1 = customtkinter.CTkEntry(
-            master=self.frame_left, placeholder_text="Name Axie Sniper"
+            master=self.frame_left, placeholder_text="Name your Axie Sniper.."
         )
         self.entry_1.grid(row=2, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
         self.entry_3 = customtkinter.CTkEntry(
-            master=self.frame_left, placeholder_text="Buy Price"
+            master=self.frame_left, placeholder_text="Set the buy price (ETH)..."
         )
         self.entry_3.grid(row=4, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
         self.entry_4 = customtkinter.CTkEntry(
-            master=self.frame_left, placeholder_text="Number of Axie to buy"
+            master=self.frame_left, placeholder_text="How many Axies should it buy before stopping.."
         )
         self.entry_4.grid(row=5, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
         self.entry_5 = customtkinter.CTkEntry(
-            master=self.frame_left, placeholder_text="Filter Link"
+            master=self.frame_left, placeholder_text="Paste the market place filter link here..."
         )
         self.entry_5.grid(row=6, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
@@ -440,8 +440,9 @@ class App(customtkinter.CTk):
             master=self.frame_info,
             text="Sniping List",
             height=35,
+            text_font=("Cabin", -19,"bold"),
             corner_radius=6,  # <- custom corner radius
-            fg_color=("white", "gray38"),  # <- custom tuple-color
+            fg_color=("white", "#e96b6d"),  # <- custom tuple-color
             justify=tkinter.LEFT,
         )
         self.label_info_1.grid(
