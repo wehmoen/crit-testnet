@@ -4,11 +4,20 @@ import customtkinter
 import modules.create_filter as create_filter
 import modules.save_key_ronin as save_key_ronin
 from modules.main import init
+import threading
+import sys
+import os
 
-customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
+def resource_path(relative_path):
+    """This function is for the path of additional files for tkinter"""
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
+
+customtkinter.set_appearance_mode("Dark")
 customtkinter.set_default_color_theme(
     "dark-blue"
-)  # Themes: "blue" (standard), "green", "dark-blue"
+)
 
 
 class App(customtkinter.CTk):
@@ -24,6 +33,7 @@ class App(customtkinter.CTk):
         self.protocol(
             "WM_DELETE_WINDOW", self.on_closing
         )  # call .on_closing() when app gets closed
+        self.iconbitmap(resource_path("QUEST_logo.ico"))
 
         def save_file():
             """Saving Filter Using GUI"""
@@ -91,8 +101,9 @@ class App(customtkinter.CTk):
         def add_key():
 
             key_add = tk.Tk()
-            key_add.title("Bloodmoon")
+            key_add.title("Bloodmoon")  
             key_add.configure(background="#353358", height=App.HEIGHT, width=App.WIDTH)
+            key_add.iconbitmap(resource_path("QUEST_logo.ico"))
 
             def save_account():
 
@@ -296,7 +307,6 @@ class App(customtkinter.CTk):
             )
             set_active.grid(column=0, row=4, padx=15, pady=5, sticky="ew", columnspan=2)
 
-            self.optionmenu_1.set("Dark")
 
         def cancel_edit():
             """Cancel editing"""
@@ -312,7 +322,7 @@ class App(customtkinter.CTk):
         def user_quit():
             raise SystemExit
 
-        menu_bar = tkinter.Menu(self)
+        menu_bar = tkinter.Menu(self,background='#353358')
         self.configure(menu=menu_bar)
 
         file_menu = tkinter.Menu(menu_bar, tearoff=0)
@@ -378,7 +388,7 @@ class App(customtkinter.CTk):
         self.save_button.grid(row=7, column=0, pady=10, padx=20,)
 
         self.run_button = customtkinter.CTkButton(
-            master=self.frame_left, text="Run Bot", command=start_bot, bg="#d2ffd2"
+            master=self.frame_left, text="Run Bot", command=threading.Thread(target=start_bot).start, bg="#d2ffd2"
         )
         self.run_button.grid(
             row=8, column=0, pady=10, padx=20, sticky="ew", columnspan=2

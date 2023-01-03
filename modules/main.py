@@ -8,8 +8,10 @@ from cryptography.fernet import Fernet
 import base64
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-
 import tkinter.messagebox
+import os
+import sys
+
 
 MRKT_CONTRACT = Web3.toChecksumAddress("0xfff9ce5f71ca6178d3beecedb61e7eff1602950e")
 WETH_CONTRACT = Web3.toChecksumAddress("0xc99a6A985eD2Cac1ef41640596C5A5f9F4E19Ef5")
@@ -19,6 +21,11 @@ VALUE_TO_SPEND = (
 CHAIN_ID = 2020
 GAS = 481337
 
+def resource_path(relative_path):
+    """This function is for the path of additional files for tkinter"""
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
 
 def get_decryption_key(password, salt):
     """Get decryption key from the KEK using PBKDF2"""
@@ -38,7 +45,7 @@ def find_value(line):
 
 def read_KEK():
     """Read KEK from a file stored on disk"""
-    with open("./data/kek.txt", "r") as f:
+    with open(resource_path("kek.txt"), "r") as f:
         for line in f:
             if line.startswith("password"):
                 password = bytes(find_value(line), "utf-8")
@@ -70,10 +77,10 @@ def get_list_of_keys():
         pvt_key_bytes = f.decrypt(key_data[0][0])
         pvt_key = pvt_key_bytes.decode("utf-8")
         ron_add = key_data[0][1]
-
+        print(key_data)
         address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
         token = generate_access_token.generate_access_token(pvt_key, address)
-        gas_price = 1
+        gas_price = key_data[0][2]
         eth_contract = txn_utils.eth()
         mp_contract = txn_utils.marketplace()
 
@@ -361,7 +368,6 @@ def check_can_afford(axie_price, balance, can_afford, cheapest_filter):
             "Bloodmoon Sniper",
             f"You do not have enough ETH to buy anything. Current cheapest filter price you have set is {cheapest_filter / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH.",
         )
-
 
 def init():
     """Bot Initialization"""

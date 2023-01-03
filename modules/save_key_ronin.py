@@ -18,7 +18,6 @@ def encrypt_pvt_key(pvt_key):
        print(f"Generated salt is:{salt}")
 
     decryption_key = get_decryption_key(password,salt)
-    print(decryption_key)
     
     f = Fernet(decryption_key)
     fernet_token = f.encrypt(bytes(pvt_key, "utf-8"))
@@ -73,6 +72,8 @@ def add_key_address(input_mode=0, pvt="", ron="", gas=0):
             print("Save Successfully!")
     else:
         encrypted_pvt_key = fn_pvt_key(input_mode, pvt)
+        if gas == "":
+            gas = 20
         db.execute(
             "INSERT INTO keys(pvt_key,ron_add,gas) VALUES(?,?,?)",
             encrypted_pvt_key,

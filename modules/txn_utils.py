@@ -1,9 +1,10 @@
 import concurrent.futures
 import json
 from web3 import Web3, exceptions
+import time
 import os
 import sys
-import time
+
 
 
 def resource_path(relative_path):
@@ -13,7 +14,7 @@ def resource_path(relative_path):
     return os.path.join(os.path.abspath("."), relative_path)
 
 
-with open("./data/abis.json") as file:
+with open(resource_path("abis.json")) as file:
     """Using the abi's"""
     w3 = Web3(
         Web3.HTTPProvider(

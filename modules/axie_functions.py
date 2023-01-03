@@ -6,7 +6,8 @@ import traceback
 def fetch_market(access_token, my_filter, attempts=0):
     """Fetch listing from marketplace with the desired filter"""
     url = "https://graphql-gateway.axieinfinity.com/graphql"
-
+    del my_filter['specialCollection']
+    print(my_filter)
     payload = {
         "query": "query GetAxieBriefList($auctionType:AuctionType,$criteria:AxieSearchCriteria,$from:Int,$sort:SortBy,$size:Int,$owner:String){axies(auctionType:$auctionType,criteria:$criteria,from:$from,sort:$sort,size:$size,owner:$owner,){total,results{id,order{...on Order{id,maker,kind,assets{...on Asset{erc,address,id,quantity,orderId}}expiredAt,paymentToken,startedAt,basePrice,endedAt,endedPrice,expectedState,nonce,marketFeePercentage,signature,hash,duration,timeLeft,currentPrice,suggestedPrice,currentPriceUsd}}}}}",
         "variables": {
