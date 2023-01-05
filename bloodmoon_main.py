@@ -3,10 +3,11 @@ import tkinter.messagebox
 import customtkinter
 import modules.create_filter as create_filter
 import modules.save_key_ronin as save_key_ronin
-from modules.main import init
+import modules.main
 import threading
 import sys
 import os
+
 
 def resource_path(relative_path):
     """This function is for the path of additional files for tkinter"""
@@ -14,10 +15,10 @@ def resource_path(relative_path):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
 
+
 customtkinter.set_appearance_mode("Dark")
-customtkinter.set_default_color_theme(
-    "dark-blue"
-)
+customtkinter.set_default_color_theme("dark-blue")
+
 
 
 class App(customtkinter.CTk):
@@ -33,7 +34,7 @@ class App(customtkinter.CTk):
         self.protocol(
             "WM_DELETE_WINDOW", self.on_closing
         )  # call .on_closing() when app gets closed
-        self.iconbitmap(resource_path("QUEST_logo.ico"))
+        self.iconbitmap("image\QUEST_logo_sword_RGB-1.ico")
 
         def save_file():
             """Saving Filter Using GUI"""
@@ -101,9 +102,9 @@ class App(customtkinter.CTk):
         def add_key():
 
             key_add = tk.Tk()
-            key_add.title("Bloodmoon")  
+            key_add.title("Bloodmoon")
             key_add.configure(background="#353358", height=App.HEIGHT, width=App.WIDTH)
-            key_add.iconbitmap(resource_path("QUEST_logo.ico"))
+            key_add.iconbitmap("image\QUEST_logo_sword_RGB-1.ico")
 
             def save_account():
 
@@ -192,19 +193,26 @@ class App(customtkinter.CTk):
             label_1.grid(row=1, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
             entry_1 = customtkinter.CTkEntry(
-                master=frame_left, placeholder_text="Enter your private key", width=200,text_color="#000000"
+                master=frame_left,
+                placeholder_text="Enter your private key",
+                width=200,
+                text_color="#000000",
             )
             entry_1.grid(row=2, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
             entry_2 = customtkinter.CTkEntry(
                 master=frame_left,
                 placeholder_text="Enter your Ronin Address",
-                width=200,text_color="#000000"
+                width=200,
+                text_color="#000000",
             )
             entry_2.grid(row=3, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
             entry_3 = customtkinter.CTkEntry(
-                master=frame_left, placeholder_text="Gas Price", width=200,text_color="#000000"
+                master=frame_left,
+                placeholder_text="Gas Price",
+                width=200,
+                text_color="#000000",
             )
             entry_3.grid(row=4, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
@@ -217,9 +225,6 @@ class App(customtkinter.CTk):
                 master=frame_left, command=cancel_edit, text="Cancel"
             )
             button_2.grid(row=5, column=1, pady=10, padx=20)
-
-
-
 
             # ============ frame_right ============
 
@@ -307,7 +312,6 @@ class App(customtkinter.CTk):
             )
             set_active.grid(column=0, row=4, padx=15, pady=5, sticky="ew", columnspan=2)
 
-
         def cancel_edit():
             """Cancel editing"""
             self.entry_1.delete(0, tk.END)
@@ -315,14 +319,15 @@ class App(customtkinter.CTk):
             self.entry_4.delete(0, tk.END)
             self.entry_5.delete(0, tk.END)
 
+
         def start_bot():
-            """Start Bot in GUI"""
-            init()
+            """Start Bot in GUI""" 
+            modules.main.init()
 
         def user_quit():
             raise SystemExit
 
-        menu_bar = tkinter.Menu(self,background='#353358')
+        menu_bar = tkinter.Menu(self, background="#353358")
         self.configure(menu=menu_bar)
 
         file_menu = tkinter.Menu(menu_bar, tearoff=0)
@@ -352,57 +357,79 @@ class App(customtkinter.CTk):
 
         # configure grid layout (1x8)
         self.frame_left.grid_rowconfigure(
-            0, minsize=10
-        )  
+            0,
+            minsize=10,
+        )
         self.label_1 = customtkinter.CTkLabel(
             master=self.frame_left,
             text="QU3ST Axie Sniper",
-            text_font=("Poppins Bold", 25,"bold"),
-            
+            text_font=("Poppins Bold", 25, "bold"),
         )  # font name and size in px
         self.label_1.grid(row=1, column=0, pady=10, padx=10, columnspan=2)
 
         self.entry_1 = customtkinter.CTkEntry(
-            master=self.frame_left, placeholder_text="Name your Axie Sniper..",text_color="#000000"
+            master=self.frame_left,
+            placeholder_text="Name your Axie Sniper..",
+            text_color="#000000",
         )
         self.entry_1.grid(row=2, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
         self.entry_3 = customtkinter.CTkEntry(
-            master=self.frame_left, placeholder_text="Set the buy price (ETH)...",text_color="#000000"
+            master=self.frame_left,
+            placeholder_text="Set the buy price (ETH)...",
+            text_color="#000000",
         )
         self.entry_3.grid(row=4, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
         self.entry_4 = customtkinter.CTkEntry(
-            master=self.frame_left, placeholder_text="How many Axies should it buy before stopping..",text_color="#000000"
+            master=self.frame_left,
+            placeholder_text="How many Axies should it buy before stopping..",
+            text_color="#000000",
         )
         self.entry_4.grid(row=5, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
         self.entry_5 = customtkinter.CTkEntry(
-            master=self.frame_left, placeholder_text="Paste the market place filter link here...",text_color="#000000"
+            master=self.frame_left,
+            placeholder_text="Paste the market place filter link here...",
+            text_color="#000000",
         )
         self.entry_5.grid(row=6, column=0, pady=10, padx=20, sticky="ew", columnspan=2)
 
         self.save_button = customtkinter.CTkButton(
             master=self.frame_left, text="Save", command=save_file
         )
-        self.save_button.grid(row=7, column=0, pady=10, padx=20,)
+        self.save_button.grid(
+            row=7,
+            column=0,
+            pady=10,
+            padx=20,
+        )
 
-        self.run_button = customtkinter.CTkButton(
-            master=self.frame_left, text="Run Bot", command=threading.Thread(target=start_bot).start, bg="#d2ffd2"
-        )
-        self.run_button.grid(
-            row=8, column=0, pady=10, padx=20, sticky="ew", columnspan=2
-        )
+        # self.run_button = customtkinter.CTkButton(
+        #     master=self.frame_left,
+        #     text="Run Bot",
+        #     command=threading.Thread(target=start_bot).start,
+        #     # command=start_bot,
+        #     bg="#d2ffd2",
+        # )
+        # self.run_button.grid(
+        #     row=8, column=0, pady=5, padx=20, sticky="ew", columnspan=2
+        # )
 
         self.cancel_button = customtkinter.CTkButton(
             master=self.frame_left, text="Cancel", command=cancel_edit
         )
-        self.cancel_button.grid(row=7, column=1, pady=10, padx=20,)
+        self.cancel_button.grid(
+            row=7,
+            column=1,
+            pady=10,
+            padx=20,
+        )
 
 
         # ============ frame_right ============
 
-        # configure grid layout (3x7)
+        # configure grid layout (3x7)f
         self.frame_right.rowconfigure((0, 1, 2, 3), weight=1)
         self.frame_right.rowconfigure(7, weight=10)
         self.frame_right.columnconfigure((0, 1), weight=1)
@@ -426,7 +453,7 @@ class App(customtkinter.CTk):
             master=self.frame_info,
             text="Sniping List",
             height=35,
-            text_font=("Cabin", -19,"bold"),
+            text_font=("Cabin", -19, "bold"),
             corner_radius=6,  # <- custom corner radius
             fg_color=("white", "#e96b6d"),  # <- custom tuple-color
             justify=tkinter.LEFT,
@@ -451,31 +478,32 @@ class App(customtkinter.CTk):
         self.edit_filter = customtkinter.CTkButton(
             master=self.frame_info, text="Edit", command=edit_filter
         )
-        self.edit_filter.grid(column=0, row=2, padx=5, pady=5, sticky="e")
+        self.edit_filter.grid(column=0, row=2, padx=15, pady=15, sticky="ew")
 
         self.delete_filter = customtkinter.CTkButton(
             master=self.frame_info, text="Delete", command=delete_filter
         )
-        self.delete_filter.grid(column=1, row=2, padx=15, pady=5, sticky="w")
+        self.delete_filter.grid(column=1, row=2, padx=15, pady=15, sticky="ew")
 
-        # self.optionmenu_1.set("Dark")
-
-        self.label_info_2 = customtkinter.CTkLabel(
+        self.run_button = customtkinter.CTkButton(
             master=self.frame_info,
-            text="",
-            height=35,
-            corner_radius=6,  # <- custom corner radius
-            justify=tkinter.LEFT,
+            text="Run Bot",
+            command=threading.Thread(target=start_bot).start,
+            # command=start_bot,
+            bg="#d2ffd2",
         )
-        self.label_info_2.grid(
-            column=0, row=3, sticky="nwe", padx=15, pady=15, columnspan=2
+        self.run_button.grid(
+            row=3, column=0, pady=15, padx=15, sticky="ew", columnspan=2
         )
 
     def change_appearance_mode(self, new_appearance_mode):
+        """Change appearance of GUI"""
         customtkinter.set_appearance_mode(new_appearance_mode)
 
     def on_closing(self, event=0):
+        """Stop running mainloop on close"""
         self.destroy()
+
 
 if __name__ == "__main__":
     app = App()

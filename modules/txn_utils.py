@@ -1,10 +1,9 @@
 import concurrent.futures
 import json
 from web3 import Web3, exceptions
-import time
 import os
 import sys
-
+import time
 
 
 def resource_path(relative_path):
@@ -14,7 +13,7 @@ def resource_path(relative_path):
     return os.path.join(os.path.abspath("."), relative_path)
 
 
-with open(resource_path("abis.json")) as file:
+with open("./data/abis.json") as file:
     """Using the abi's"""
     w3 = Web3(
         Web3.HTTPProvider(
@@ -55,11 +54,9 @@ def marketplace():
 
 def send_txn(signed_txn, timeout=10):
     """Send transaction"""
-    txn = signed_txn.hash
-    
+    txn = signed_txn.hash  
     try:
         w3.eth.send_raw_transaction(signed_txn.rawTransaction)
-        print(txn.hex())
     except ValueError as e:
         print(e)
 
@@ -74,7 +71,7 @@ def send_txn(signed_txn, timeout=10):
             break
         except (exceptions.TransactionNotFound, exceptions.TimeExhausted, ValueError):
             tries += 1
-            print("Not found yet, waiting...")
+            print("Confirming transaction.Please wait...")
     if success:
         return True
     return False

@@ -13,6 +13,7 @@ import os
 import sys
 
 
+
 MRKT_CONTRACT = Web3.toChecksumAddress("0xfff9ce5f71ca6178d3beecedb61e7eff1602950e")
 WETH_CONTRACT = Web3.toChecksumAddress("0xc99a6A985eD2Cac1ef41640596C5A5f9F4E19Ef5")
 VALUE_TO_SPEND = (
@@ -20,6 +21,8 @@ VALUE_TO_SPEND = (
 )
 CHAIN_ID = 2020
 GAS = 481337
+
+gui_messages=[]
 
 def resource_path(relative_path):
     """This function is for the path of additional files for tkinter"""
@@ -45,7 +48,7 @@ def find_value(line):
 
 def read_KEK():
     """Read KEK from a file stored on disk"""
-    with open(resource_path("kek.txt"), "r") as f:
+    with open("data\kek.txt", "r") as f:
         for line in f:
             if line.startswith("password"):
                 password = bytes(find_value(line), "utf-8")
@@ -77,7 +80,6 @@ def get_list_of_keys():
         pvt_key_bytes = f.decrypt(key_data[0][0])
         pvt_key = pvt_key_bytes.decode("utf-8")
         ron_add = key_data[0][1]
-        print(key_data)
         address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
         token = generate_access_token.generate_access_token(pvt_key, address)
         gas_price = key_data[0][2]
@@ -184,9 +186,9 @@ def verify_transactions(txns, attempted_txns):
             receipt = txn_utils.w3.eth.get_transaction_receipt(sent_txn)
             if not receipt.status == 1:
                 num_to_buy += 1
-                print(f"Buying asset {attempted_txns[sent_txn]} failed.")
+                print(f"Failed to buy {attempted_txns[sent_txn]}.")
             else:
-                print(f"Buying asset {attempted_txns[sent_txn]} succeded.")
+                print(f"You successfully bought {attempted_txns[sent_txn]}!")
 
         txns = []
 
@@ -196,10 +198,10 @@ def verify_transactions(txns, attempted_txns):
 def check_num_to_buy(num_to_buy, num_asset, axie_filter, filter_index):
     """Check if you still need to buy anoter axie with this filter"""
     if num_to_buy <= 0:
-        print(f"Bought {num_asset} assets. This is the limit. Exiting.")
+        print(f"Bought {num_asset} axie/s. This is the limit.")
         tkinter.messagebox.showinfo(
             "Bloodmoon Sniper Bot",
-            f"Bought {num_asset} assets. This is the limit. Returning to main menu",
+            f"Bought {num_asset} axie/s. This is the limit.",
         )
         return run_loop(axie_filter, filter_index + 1)
 
@@ -208,11 +210,11 @@ def check_balance(balance, price):
     """Check if you still have a balance to buy another axie"""
     if balance <= price:
         print(
-            f"You do not have enough ETH to buy anything. Current price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting."
+            f"You do not have enough ETH to buy anything. The lowest price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH."
         )
         tkinter.messagebox.showinfo(
             "Bloodmoon Sniper Bot",
-            f"You do not have enough ETH to buy anything. Current price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting.",
+            f"You do not have enough ETH to buy anything. The lowest price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH.",
         )
         raise SystemExit
 
@@ -285,14 +287,14 @@ def run_loop(axie_filter, filter_index=0):
                     txns.append(tx)
 
                     if "id" in asset:
-                        print(f"Attempting to buy asset #{asset['id']}.")
+                        print(f"Attempting to buy axie #{asset['id']}.")
                         attempted_txns[
                             Web3.toHex(Web3.keccak(tx.rawTransaction))
                         ] = asset["id"]
                         attempted_assets.append(asset["id"])
 
                     else:
-                        print(f"Attempting to buy asset #{asset['tokenId']}.")
+                        print(f"Attempting to buy axie #{asset['tokenId']}.")
                         attempted_txns[
                             Web3.toHex(Web3.keccak(tx.rawTransaction))
                         ] = asset["tokenId"]
@@ -333,7 +335,7 @@ def check_allowance():
     allowance = eth_contract.functions.allowance(address, MRKT_CONTRACT).call()
 
     if allowance == 0:
-        print("We need to approve eth for spending on the marketplace. Approving...")
+        print("Approving ETH to spend...")
         sent_txn = approve()
         allowance = eth_contract.functions.allowance(address, MRKT_CONTRACT).call()
 
@@ -341,7 +343,7 @@ def check_allowance():
             print("Something went wrong, approval didnt work. Exiting.")
             raise SystemExit
         else:
-            print(f"Approved at tx: {sent_txn}")
+            print(f"Approved at txn: {sent_txn}")
 
 
 def get_filterdata():
@@ -362,12 +364,13 @@ def check_can_afford(axie_price, balance, can_afford, cheapest_filter):
 
     if not can_afford:
         print(
-            f"You do not have enough ETH to buy anything. Current cheapest filter price you have set is {cheapest_filter / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting."
+            f"You do not have enough ETH to buy anything."
         )
         tkinter.messagebox.showinfo(
             "Bloodmoon Sniper",
-            f"You do not have enough ETH to buy anything. Current cheapest filter price you have set is {cheapest_filter / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH.",
+            f"You do not have enough ETH to buy anything.",
         )
+
 
 def init():
     """Bot Initialization"""
@@ -382,6 +385,5 @@ def init():
     axie_filter, axie_price = get_filterdata()
 
     check_can_afford(axie_price, balance, can_afford, cheapest_filter)
-
-    print("Searching for Axies...")
+    print(f"Searching for {axie_filter[0][0]}...")
     run_loop(axie_filter)
