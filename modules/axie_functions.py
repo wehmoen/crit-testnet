@@ -1,7 +1,8 @@
 import requests
 import json
 import traceback
-
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 def fetch_market(access_token, my_filter, attempts=0):
     """Fetch listing from marketplace with the desired filter"""
@@ -74,8 +75,16 @@ def checkFilter(access_token, my_filter, attempts=0):
         "Authorization": "Bearer " + access_token,
         "User-Agent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)",
     }
+
+    # this block of code is to prevent from timeout on the request
+    session = requests.Session()
+    retry = Retry(connect=3, backoff_factor=0.5)
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+
     try:
-        response = requests.request(
+        response = session.request(
             "POST", url, headers=headers, data=json.dumps(payload)
         )
     except:

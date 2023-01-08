@@ -405,16 +405,6 @@ class App(customtkinter.CTk):
             padx=20,
         )
 
-        # self.run_button = customtkinter.CTkButton(
-        #     master=self.frame_left,
-        #     text="Run Bot",
-        #     command=threading.Thread(target=start_bot).start,
-        #     # command=start_bot,
-        #     bg="#d2ffd2",
-        # )
-        # self.run_button.grid(
-        #     row=8, column=0, pady=5, padx=20, sticky="ew", columnspan=2
-        # )
 
         self.cancel_button = customtkinter.CTkButton(
             master=self.frame_left, text="Cancel", command=cancel_edit

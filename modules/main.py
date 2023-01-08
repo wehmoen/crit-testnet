@@ -210,13 +210,8 @@ def check_balance(balance, price):
     """Check if you still have a balance to buy another axie"""
     if balance <= price:
         print(
-            f"You do not have enough ETH to buy anything. The lowest price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH."
+            f"You do not have enough ETH to buy anything. The lowest price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH.\nPlease deposit a sufficient amount of ETH and restart (exit and reopen) the bot to continue."
         )
-        tkinter.messagebox.showinfo(
-            "Bloodmoon Sniper Bot",
-            f"You do not have enough ETH to buy anything. The lowest price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH.",
-        )
-        raise SystemExit
 
 
 def run_loop(axie_filter, filter_index=0):
@@ -241,83 +236,86 @@ def run_loop(axie_filter, filter_index=0):
         num_to_buy = num_asset
         balance = eth_contract.functions.balanceOf(address).call()
         """Loop trough all the filters saved"""
-        while True:
-            spend_amount = 0
+        try:
+            while True:
+                spend_amount = 0
 
-            market = axie_functions.fetch_market(token, my_filter)
+                market = axie_functions.fetch_market(token, my_filter)
 
-            for asset in market["data"]["axies"]["results"]:
-                if "id" in asset and asset["id"] in attempted_assets:
-                    continue
-                elif "tokenId" in asset and asset["tokenId"] in attempted_assets:
-                    continue
-                if price >= int(asset["order"]["currentPrice"]):
-                    if (
-                        int(asset["order"]["endedPrice"]) == 0
-                        and int(asset["order"]["endedAt"]) == 0
-                    ):
-                        price_change = 0
-                    else:
-                        price_change = (
-                            int(asset["order"]["endedPrice"])
-                            - int(asset["order"]["basePrice"])
-                        ) / int(asset["order"]["duration"])
-                    # this is to check if they are doing a sale from 0 -> 10000 over 1 day in attempt to fool bots.
-                    # worst case, a tx takes 10 seconds from when it was pulled from marketplace to when it goes through
-                    # i doubt it will ever take 10s, but would rather be safe.
-                    # feel free to change the 10 to something less if you want to (at your own risk)
-                    if (
-                        int(asset["order"]["currentPrice"]) + (price_change * 10)
-                        > price
-                    ):
-                        if "id" in asset:
-                            print(
-                                f"not buying {asset['id']}, someone is doing something funky."
-                            )
-                        else:
-                            print(
-                                f"not buying {asset['tokenId']}, someone is doing something funky."
-                            )
+                for asset in market["data"]["axies"]["results"]:
+                    if "id" in asset and asset["id"] in attempted_assets:
                         continue
+                    elif "tokenId" in asset and asset["tokenId"] in attempted_assets:
+                        continue
+                    if price >= int(asset["order"]["currentPrice"]):
+                        if (
+                            int(asset["order"]["endedPrice"]) == 0
+                            and int(asset["order"]["endedAt"]) == 0
+                        ):
+                            price_change = 0
+                        else:
+                            price_change = (
+                                int(asset["order"]["endedPrice"])
+                                - int(asset["order"]["basePrice"])
+                            ) / int(asset["order"]["duration"])
+                        # this is to check if they are doing a sale from 0 -> 10000 over 1 day in attempt to fool bots.
+                        # worst case, a tx takes 10 seconds from when it was pulled from marketplace to when it goes through
+                        # i doubt it will ever take 10s, but would rather be safe.
+                        # feel free to change the 10 to something less if you want to (at your own risk)
+                        if (
+                            int(asset["order"]["currentPrice"]) + (price_change * 10)
+                            > price
+                        ):
+                            if "id" in asset:
+                                print(
+                                    f"not buying {asset['id']}, someone is doing something funky."
+                                )
+                            else:
+                                print(
+                                    f"not buying {asset['tokenId']}, someone is doing something funky."
+                                )
+                            continue
 
-                    spend_amount += int(asset["order"]["currentPrice"])
-                    if spend_amount > balance:
-                        break
-                    tx = buy_asset(asset)
-                    txns.append(tx)
+                        spend_amount += int(asset["order"]["currentPrice"])
+                        if spend_amount > balance:
+                            break
+                        tx = buy_asset(asset)
+                        txns.append(tx)
 
-                    if "id" in asset:
-                        print(f"Attempting to buy axie #{asset['id']}.")
-                        attempted_txns[
-                            Web3.toHex(Web3.keccak(tx.rawTransaction))
-                        ] = asset["id"]
-                        attempted_assets.append(asset["id"])
+                        if "id" in asset:
+                            print(f"Attempting to buy axie #{asset['id']}.")
+                            attempted_txns[
+                                Web3.toHex(Web3.keccak(tx.rawTransaction))
+                            ] = asset["id"]
+                            attempted_assets.append(asset["id"])
 
-                    else:
-                        print(f"Attempting to buy axie #{asset['tokenId']}.")
-                        attempted_txns[
-                            Web3.toHex(Web3.keccak(tx.rawTransaction))
-                        ] = asset["tokenId"]
-                        attempted_assets.append(asset["tokenId"])
-                    num_to_buy -= 1
-                    if num_to_buy <= 0:
-                        break
+                        else:
+                            print(f"Attempting to buy axie #{asset['tokenId']}.")
+                            attempted_txns[
+                                Web3.toHex(Web3.keccak(tx.rawTransaction))
+                            ] = asset["tokenId"]
+                            attempted_assets.append(asset["tokenId"])
+                        num_to_buy -= 1
+                        if num_to_buy <= 0:
+                            break
 
-            """Verify Transactions"""
-            txns = verify_transactions(txns, attempted_txns)
+                """Verify Transactions"""
+                txns = verify_transactions(txns, attempted_txns)
 
-            """Check if you reached the limit to buy"""
-            check_num_to_buy(num_to_buy, num_asset, axie_filter, filter_index)
+                """Check if you reached the limit to buy"""
+                check_num_to_buy(num_to_buy, num_asset, axie_filter, filter_index)
 
-            """Check if you still have balance to buy the axie"""
-            balance = eth_contract.functions.balanceOf(address).call()
-            check_balance(balance, price)
+                """Check if you still have balance to buy the axie"""
+                balance = eth_contract.functions.balanceOf(address).call()
+                check_balance(balance, price)
 
-            count += 1
+                count += 1
 
-            if count % 120 == 0:
-                print("Still searching marketplace.")
-            time.sleep(1)
+                if count % 120 == 0:
+                    print("Still searching marketplace.")
+                time.sleep(1)
+        except:
+            pass
 
 
 def check_available_ron():
