@@ -35,6 +35,7 @@ class App(customtkinter.CTk):
             "WM_DELETE_WINDOW", self.on_closing
         )  # call .on_closing() when app gets closed
         self.iconbitmap("image\QUEST_logo_sword_RGB-1.ico")
+        self.resizable(False,False)
 
         def save_file():
             """Saving Filter Using GUI"""

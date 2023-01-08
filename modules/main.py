@@ -199,10 +199,8 @@ def check_num_to_buy(num_to_buy, num_asset, axie_filter, filter_index):
     """Check if you still need to buy anoter axie with this filter"""
     if num_to_buy <= 0:
         print(f"Bought {num_asset} axie/s. This is the limit.")
-        tkinter.messagebox.showinfo(
-            "Bloodmoon Sniper Bot",
-            f"Bought {num_asset} axie/s. This is the limit.",
-        )
+        db.execute("UPDATE snipe_list SET buy_count = ? WHERE name = ?",num_asset,axie_filter[filter_index][0])
+        db.commit
         return run_loop(axie_filter, filter_index + 1)
 
 
@@ -210,8 +208,9 @@ def check_balance(balance, price):
     """Check if you still have a balance to buy another axie"""
     if balance <= price:
         print(
-            f"You do not have enough ETH to buy anything. The lowest price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH.\nPlease deposit a sufficient amount of ETH and restart (exit and reopen) the bot to continue."
+            f'You do not have enough ETH to buy anything. The lowest price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH.\nTo continue, please complete the following steps: (1) deposit a sufficient amount of ETH, (2) restart the application (close and re-open), (3) click "Run Bot" for the desired filter.'
         )
+        raise SystemExit
 
 
 def run_loop(axie_filter, filter_index=0):
@@ -320,6 +319,7 @@ def run_loop(axie_filter, filter_index=0):
 
 def check_available_ron():
     """Check acailable RON balance"""
+    print("Checking RON balance...")
     ron_bal = txn_utils.w3.eth.get_balance(address)
     if ron_bal < (481337 * Web3.toWei(int(gas_price), "gwei")):
         print(
@@ -369,9 +369,24 @@ def check_can_afford(axie_price, balance, can_afford, cheapest_filter):
             f"You do not have enough ETH to buy anything.",
         )
 
+def print_list(axie_filter):
+    """This is to print the current axies to run"""
+
+    print("\nPending axie's to purchase...")
+    print("***************************")
+    print("Filtername | Purchase Limit")
+    print("***************************")
+    for filter_list in axie_filter:
+        to_buy = filter_list[3]-filter_list[5]
+        if to_buy == 0 :
+           print(f"{filter_list[0]} | Rebuild to run again")
+        else:
+            print(f"{filter_list[0]} | {to_buy}")
+    print("***************************\n")
 
 def init():
     """Bot Initialization"""
+    print("Initializing bot...")
     check_available_ron()
 
     check_allowance()
@@ -381,6 +396,7 @@ def init():
     balance = eth_contract.functions.balanceOf(address).call()
 
     axie_filter, axie_price = get_filterdata()
+    print_list(axie_filter)
 
     check_can_afford(axie_price, balance, can_afford, cheapest_filter)
     print(f"Searching for {axie_filter[0][0]}...")

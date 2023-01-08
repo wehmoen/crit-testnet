@@ -35,8 +35,8 @@ def records(command, *values):
 
     return cur.fetchall()
 
-# cur.execute("DELETE from keys")
-# cur.execute("DELETE from snipe_list")
-# # print(cur.fetchall())
+# cur.execute("UPDATE snipe_list SET buy_count = 1 WHERE name = 'Beast Axie'")
+# cur.execute("SELECT * from snipe_list")
+# print(cur.fetchall())
 # cxn.commit()
 # cxn.close()
