@@ -210,7 +210,7 @@ class App(customtkinter.CTk):
 
             entry_3 = customtkinter.CTkEntry(
                 master=frame_left,
-                placeholder_text="Gas Price",
+                placeholder_text="Gas Price(Leave blank for default value)",
                 width=200,
                 text_color="#000000",
             )
