@@ -176,8 +176,15 @@ def check_filter_limit(num_to_buy, bought_axie, filter_name):
     else:
         return False
 
+def update_buy_count(axie_filter,filter_index):
+    """Update buy_count on DB"""
+    buy_count = db.field("SELECT buy_count FROM snipe_list WHERE name = ?", axie_filter[filter_index][0])
+    db.execute("UPDATE snipe_list SET buy_count = ? WHERE name = ?", int(buy_count) + int(1), axie_filter[filter_index][0])
+    db.commit()
 
-def verify_transactions(txns, attempted_txns):
+    
+
+def verify_transactions(txns, attempted_txns,axie_filter,filter_index):
     """Verify if the transaction succeded"""
     if len(txns) > 0:
         txn_utils.send_txn_threads(txns)
@@ -188,7 +195,8 @@ def verify_transactions(txns, attempted_txns):
                 num_to_buy += 1
                 print(f"Failed to buy {attempted_txns[sent_txn]}.")
             else:
-                print(f"You successfully bought {attempted_txns[sent_txn]}!")
+                print(f"You successfully bought 1 {axie_filter[filter_index][0]} with {attempted_txns[sent_txn]} axie ID!")
+                update_buy_count(axie_filter,filter_index)
 
         txns = []
 
@@ -199,8 +207,6 @@ def check_num_to_buy(num_to_buy, num_asset, axie_filter, filter_index):
     """Check if you still need to buy anoter axie with this filter"""
     if num_to_buy <= 0:
         print(f"Bought {num_asset} axie/s. This is the limit.")
-        db.execute("UPDATE snipe_list SET buy_count = ? WHERE name = ?",num_asset,axie_filter[filter_index][0])
-        db.commit
         return run_loop(axie_filter, filter_index + 1)
 
 
@@ -299,7 +305,7 @@ def run_loop(axie_filter, filter_index=0):
                             break
 
                 """Verify Transactions"""
-                txns = verify_transactions(txns, attempted_txns)
+                txns = verify_transactions(txns, attempted_txns,axie_filter,filter_index)
 
                 """Check if you reached the limit to buy"""
                 check_num_to_buy(num_to_buy, num_asset, axie_filter, filter_index)
