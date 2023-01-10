@@ -232,6 +232,7 @@ def run_loop(axie_filter, filter_index=0):
     else:
         """Variable declarations"""
         my_filter = eval(axie_filter[filter_index][2])
+        filter_name = axie_filter[filter_index][0]
         num_asset = axie_filter[filter_index][3]
         price = Web3.toWei(axie_filter[filter_index][1], "ether")
         txns = []
@@ -245,7 +246,7 @@ def run_loop(axie_filter, filter_index=0):
             while True:
                 spend_amount = 0
 
-                market = axie_functions.fetch_market(token, my_filter)
+                market = axie_functions.fetch_market(token, my_filter,filter_name)
 
                 for asset in market["data"]["axies"]["results"]:
                     if "id" in asset and asset["id"] in attempted_assets:
@@ -406,4 +407,8 @@ def init():
 
     check_can_afford(axie_price, balance, can_afford, cheapest_filter)
     print(f"Searching for {axie_filter[0][0]}...")
-    run_loop(axie_filter)
+    
+    try:
+        run_loop(axie_filter)
+    except Exception as e:
+        print(e)
