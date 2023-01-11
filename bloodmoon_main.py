@@ -476,12 +476,13 @@ class App(customtkinter.CTk):
         )
         self.delete_filter.grid(column=1, row=2, padx=15, pady=15, sticky="ew")
 
+        self.threads = list()
        
         def start_thread():
             """Start threading to stop GUI freeze"""
             main_thread = threading.Thread(target=start_bot, args=(), daemon=True)
+            self.threads.append(main_thread)
             main_thread.start()
-            main_thread.join()
 
         self.run_button = customtkinter.CTkButton(
             master=self.frame_info,
@@ -505,3 +506,6 @@ class App(customtkinter.CTk):
 if __name__ == "__main__":
     app = App()
     app.mainloop()
+    
+    for thread in app.threads:
+        thread.join()

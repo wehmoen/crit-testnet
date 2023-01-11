@@ -4,6 +4,7 @@ import traceback
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 import datetime
+import bloodmoon_main
 
 def fetch_market(access_token, my_filter,filter_name,attempts=0):
     """Fetch listing from marketplace with the desired filter"""
@@ -12,8 +13,7 @@ def fetch_market(access_token, my_filter,filter_name,attempts=0):
     try:
         del my_filter['specialCollection']
         print(f"Searching for {filter_name}...")
-    except:
-        
+    except:  
         print(f"\nSearching for {filter_name}...")
         print("Non Special Collection")
         print("current time:-",datetime.datetime.now())
