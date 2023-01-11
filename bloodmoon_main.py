@@ -479,7 +479,7 @@ class App(customtkinter.CTk):
        
         def start_thread():
             """Start threading to stop GUI freeze"""
-            main_thread = threading.Thread(target=start_bot, args=())
+            main_thread = threading.Thread(target=start_bot, args=(), daemon=True)
             main_thread.start()
             main_thread.join()
 
