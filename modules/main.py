@@ -406,7 +406,6 @@ def init():
     print_list(axie_filter)
 
     check_can_afford(axie_price, balance, can_afford, cheapest_filter)
-    print(f"Searching for {axie_filter[0][0]}...")
     
     try:
         run_loop(axie_filter)

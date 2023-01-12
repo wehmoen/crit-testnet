@@ -4,7 +4,9 @@ import traceback
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 import datetime
-import bloodmoon_main
+import bloodmoon
+
+
 
 def fetch_market(access_token, my_filter,filter_name,attempts=0):
     """Fetch listing from marketplace with the desired filter"""
@@ -13,10 +15,12 @@ def fetch_market(access_token, my_filter,filter_name,attempts=0):
     try:
         del my_filter['specialCollection']
         print(f"Searching for {filter_name}...")
-    except:  
+        print("current time:-",datetime.datetime.now())
+    except:
         print(f"\nSearching for {filter_name}...")
         print("Non Special Collection")
         print("current time:-",datetime.datetime.now())
+
 
     payload = {
         "query": "query GetAxieBriefList($auctionType:AuctionType,$criteria:AxieSearchCriteria,$from:Int,$sort:SortBy,$size:Int,$owner:String){axies(auctionType:$auctionType,criteria:$criteria,from:$from,sort:$sort,size:$size,owner:$owner,){total,results{id,order{...on Order{id,maker,kind,assets{...on Asset{erc,address,id,quantity,orderId}}expiredAt,paymentToken,startedAt,basePrice,endedAt,endedPrice,expectedState,nonce,marketFeePercentage,signature,hash,duration,timeLeft,currentPrice,suggestedPrice,currentPriceUsd}}}}}",
