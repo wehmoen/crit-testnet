@@ -506,4 +506,8 @@ class App(customtkinter.CTk):
 if __name__ == "__main__":
     app = App()
     app.mainloop()
-    app.main_thread.join()
+    try:
+        if app.main_thread.is_alive:
+            app.main_thread.join()
+    except:
+        pass
