@@ -4,7 +4,6 @@ import traceback
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 import datetime
-import bloodmoon
 
 
 
@@ -39,7 +38,13 @@ def fetch_market(access_token, my_filter,filter_name,attempts=0):
         "User-Agent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)",
     }
     try:
-        response = requests.request(
+        # this block of code is to prevent from timeout on the request
+        session = requests.Session()
+        retry = Retry(connect=3, backoff_factor=0.5)
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
+        response = session.request(
             "POST", url, headers=headers, data=json.dumps(payload)
         )
     except:
@@ -63,54 +68,3 @@ def fetch_market(access_token, my_filter,filter_name,attempts=0):
             raise SystemExit
         return fetch_market(access_token, my_filter, attempts + 1)
 
-
-def checkFilter(access_token, my_filter, attempts=0):
-    """Check if the filter exist"""
-    url = "https://graphql-gateway.axieinfinity.com/graphql"
-
-    payload = {
-        "query": "query GetAxieBriefList($auctionType:AuctionType,$criteria:AxieSearchCriteria,$from:Int,$sort:SortBy,$size:Int,$owner:String){axies(auctionType:$auctionType,criteria:$criteria,from:$from,sort:$sort,size:$size,owner:$owner){total}}",
-        "variables": {
-            "from": 0,
-            "size": 0,
-            "sort": "PriceAsc",
-            "auctionType": "All",
-            "owner": None,
-            "criteria": my_filter,
-        },
-    }
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + access_token,
-        "User-Agent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)",
-    }
-
-    # this block of code is to prevent from timeout on the request
-    session = requests.Session()
-    retry = Retry(connect=3, backoff_factor=0.5)
-    adapter = HTTPAdapter(max_retries=retry)
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
-
-    try:
-        response = session.request(
-            "POST", url, headers=headers, data=json.dumps(payload)
-        )
-    except:
-        if attempts >= 3:
-            print("checkAxieFilter request")
-            print("something is wrong. exiting the program.")
-            print(traceback.format_exc())
-            raise SystemExit
-        return checkFilter(access_token, my_filter, attempts + 1)
-    try:
-        return json.loads(response.text)["data"]["axies"]["total"]
-    except:
-        if attempts >= 3:
-            print("checkAxieFilter")
-            print("something is wrong. exiting the program.")
-            print("filter:\t" + json.dumps(my_filter))
-            print("response:\t" + response.text)
-            print(traceback.format_exc())
-            raise SystemExit
-        return checkFilter(access_token, my_filter, attempts + 1)
