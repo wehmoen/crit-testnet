@@ -1,6 +1,5 @@
 from . import db
 from cryptography.fernet import Fernet
-import tkinter.messagebox
 import os
 from  modules.main import read_KEK,get_decryption_key
 
@@ -12,7 +11,6 @@ def encrypt_pvt_key(pvt_key):
     """Encrypt private key"""
     """Using KEK to encrypt key"""
     password,salt= read_KEK()
-    print(f"Current salt is:{salt}")
     if salt ==b'':
        salt = generate_salt()
        print(f"Generated salt is:{salt}")
@@ -81,7 +79,7 @@ def add_key_address(input_mode=0, pvt="", ron="", gas=0):
             gas
         )
         db.commit()
-        print("Saved from GUI")
+        print("Ronin account is added to database.")
 
 def set_active(ron_add):
     """Set ronin account as active"""
@@ -89,7 +87,7 @@ def set_active(ron_add):
     db.commit()
     db.execute("UPDATE keys SET status=? WHERE ron_add =?","active",ron_add)
     db.commit()
-    tkinter.messagebox.showinfo("Bloodmoon Sniper Bot",f"{ron_add} account is set as active! Please restart the bot to save changes.")
+    print(f"{ron_add} account is set as active! Please restart the bot to save changes.")
 
 def get_active():
     """Get the active ronin account"""
