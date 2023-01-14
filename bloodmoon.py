@@ -4,7 +4,6 @@ import customtkinter
 import modules.create_filter as create_filter
 import modules.save_key_ronin as save_key_ronin
 import modules.main
-import threading
 import sys
 import os
 
@@ -323,7 +322,7 @@ class App(customtkinter.CTk):
 
         def start_bot():
             """Start Bot in GUI""" 
-            modules.main.init()
+            modules.main.start_threading()
 
         def user_quit():
             raise SystemExit
@@ -476,18 +475,10 @@ class App(customtkinter.CTk):
         )
         self.delete_filter.grid(column=1, row=2, padx=15, pady=15, sticky="ew")
 
-        self.threads = list()
-        self.main_thread = threading.Thread(target=start_bot, args=(), daemon=True)
-        def start_thread():
-            """Start threading to stop GUI freeze"""
-            
-            self.threads.append(self.main_thread)
-            self.main_thread.start()
-
         self.run_button = customtkinter.CTkButton(
             master=self.frame_info,
             text="Run Bot",
-            command=start_thread,
+            command=start_bot,
             bg="#d2ffd2",
         )
         self.run_button.grid(
@@ -506,8 +497,3 @@ class App(customtkinter.CTk):
 if __name__ == "__main__":
     app = App()
     app.mainloop()
-    try:
-        if app.main_thread.is_alive:
-            app.main_thread.join()
-    except:
-        pass

@@ -9,8 +9,7 @@ import base64
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import tkinter.messagebox
-import os
-import sys
+import threading
 
 
 
@@ -22,13 +21,6 @@ VALUE_TO_SPEND = (
 CHAIN_ID = 2020
 GAS = 481337
 
-gui_messages=[]
-
-def resource_path(relative_path):
-    """This function is for the path of additional files for tkinter"""
-    if hasattr(sys, "_MEIPASS"):
-        return os.path.join(sys._MEIPASS, relative_path)
-    return os.path.join(os.path.abspath("."), relative_path)
 
 def get_decryption_key(password, salt):
     """Get decryption key from the KEK using PBKDF2"""
@@ -203,9 +195,12 @@ def verify_transactions(txns, attempted_txns,axie_filter,filter_index):
     return txns
 
 
-def check_num_to_buy(num_to_buy, num_asset, axie_filter, filter_index):
-    """Check if you still need to buy anoter axie with this filter"""
-    if num_to_buy <= 0:
+def check_num_to_buy(axie_filter, filter_index):
+    """Check if you still need to buy another axie with this filter"""
+    filter_name=axie_filter[filter_index][0]
+    buy_count = db.field("SELECT buy_count FROM snipe_list WHERE name = ?", filter_name)
+    num_asset = db.field("SELECT num_asset FROM snipe_list WHERE name = ?", filter_name)
+    if num_asset <= buy_count:
         print(f"Bought {num_asset} axie/s. This is the limit.")
         return run_loop(axie_filter, filter_index + 1)
 
@@ -309,7 +304,7 @@ def run_loop(axie_filter, filter_index=0):
                 txns = verify_transactions(txns, attempted_txns,axie_filter,filter_index)
 
                 """Check if you reached the limit to buy"""
-                check_num_to_buy(num_to_buy, num_asset, axie_filter, filter_index)
+                check_num_to_buy(axie_filter, filter_index)
 
                 """Check if you still have balance to buy the axie"""
                 balance = eth_contract.functions.balanceOf(address).call()
@@ -411,3 +406,9 @@ def init():
         run_loop(axie_filter)
     except Exception as e:
         print(e)
+
+def start_threading():
+    """Start separate threading for main module"""
+    main_module_thread = threading.Thread(target=init, args=())
+    main_module_thread.start()
+    main_module_thread.join()
