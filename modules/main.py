@@ -202,7 +202,11 @@ def check_num_to_buy(axie_filter, filter_index):
     num_asset = db.field("SELECT num_asset FROM snipe_list WHERE name = ?", filter_name)
     if num_asset <= buy_count:
         print(f"Bought {num_asset} axie/s. This is the limit.")
-        return run_loop(axie_filter, filter_index + 1)
+        try:
+            return run_loop(axie_filter, filter_index + 1)
+        except:
+            print("Bought all of the axie's on your list.\nBot will not exit...")
+            SystemExit
 
 
 def check_balance(balance, price):
@@ -228,13 +232,11 @@ def run_loop(axie_filter, filter_index=0):
         """Variable declarations"""
         my_filter = eval(axie_filter[filter_index][2])
         filter_name = axie_filter[filter_index][0]
-        num_asset = axie_filter[filter_index][3]
         price = Web3.toWei(axie_filter[filter_index][1], "ether")
         txns = []
         attempted_assets = []
         attempted_txns = {}
         count = 0
-        num_to_buy = num_asset
         balance = eth_contract.functions.balanceOf(address).call()
         """Loop trough all the filters saved"""
         try:
@@ -398,7 +400,6 @@ def init():
     balance = eth_contract.functions.balanceOf(address).call()
 
     axie_filter, axie_price = get_filterdata()
-    print_list(axie_filter)
 
     check_can_afford(axie_price, balance, can_afford, cheapest_filter)
     
