@@ -154,9 +154,11 @@ def buy_asset(asset):
     return signed_txn
 
 
-def check_filter_limit(num_to_buy, bought_axie, filter_name):
+def check_filter_limit(filter_name):
     """Check if you reached the filter limit"""
-    if num_to_buy >= bought_axie:
+    buy_count = db.field("SELECT buy_count FROM snipe_list WHERE name = ?", filter_name)
+    num_asset = db.field("SELECT num_asset FROM snipe_list WHERE name = ?", filter_name)
+    if buy_count >= num_asset:
         print("The filter buy limit has been reached.")
         tkinter.messagebox.showinfo(
             "Bloodmoon Sniper Bot",
@@ -237,12 +239,12 @@ def run_loop(axie_filter, filter_index=0):
     """Running the loop to check if the axie is available"""
 
     """If statement to see if the filter number to purchase is met If yes, skip"""
-    if check_filter_limit(
-        axie_filter[filter_index][5],
-        axie_filter[filter_index][3],
-        axie_filter[filter_index][0],
-    ):
-        run_loop(axie_filter, filter_index + 1)
+    if check_filter_limit(axie_filter[filter_index][0]):
+        try:
+         run_loop(axie_filter, filter_index + 1)
+        except:
+            print("All axies in your list is bought.\nThe bot will now exit.")
+            SystemExit
     else:
         """Variable declarations"""
         my_filter = eval(axie_filter[filter_index][2])
@@ -252,6 +254,7 @@ def run_loop(axie_filter, filter_index=0):
         attempted_assets = []
         attempted_txns = {}
         count = 0
+        num_to_buy = axie_filter[filter_index][3]
         balance = eth_contract.functions.balanceOf(address).call()
         """Loop trough all the filters saved"""
         try:
@@ -259,7 +262,7 @@ def run_loop(axie_filter, filter_index=0):
                 keep_thread_running()
 
                 spend_amount = 0
-                
+
                 market = axie_functions.fetch_market(token, my_filter, filter_name)
 
                 for asset in market["data"]["axies"]["results"]:
