@@ -12,7 +12,6 @@ import tkinter.messagebox
 import threading
 
 
-
 MRKT_CONTRACT = Web3.toChecksumAddress("0xfff9ce5f71ca6178d3beecedb61e7eff1602950e")
 WETH_CONTRACT = Web3.toChecksumAddress("0xc99a6A985eD2Cac1ef41640596C5A5f9F4E19Ef5")
 VALUE_TO_SPEND = (
@@ -37,7 +36,6 @@ def find_value(line):
     return value
 
 
-
 def read_KEK():
     """Read KEK from a file stored on disk"""
     with open("data\kek.txt", "r") as f:
@@ -57,12 +55,12 @@ def get_list_of_keys():
     """Variable Declarations"""
     if len(key_data) <= 0:
         print("No added ronin accounts yet")
-        address=""
-        token=""
-        gas_price=""
-        eth_contract=""
-        mp_contract=""
-        pvt_key=""
+        address = ""
+        token = ""
+        gas_price = ""
+        eth_contract = ""
+        mp_contract = ""
+        pvt_key = ""
     else:
         """Decrypt the private key"""
         password, salt = read_KEK()
@@ -168,15 +166,21 @@ def check_filter_limit(num_to_buy, bought_axie, filter_name):
     else:
         return False
 
-def update_buy_count(axie_filter,filter_index):
+
+def update_buy_count(axie_filter, filter_index):
     """Update buy_count on DB"""
-    buy_count = db.field("SELECT buy_count FROM snipe_list WHERE name = ?", axie_filter[filter_index][0])
-    db.execute("UPDATE snipe_list SET buy_count = ? WHERE name = ?", int(buy_count) + int(1), axie_filter[filter_index][0])
+    buy_count = db.field(
+        "SELECT buy_count FROM snipe_list WHERE name = ?", axie_filter[filter_index][0]
+    )
+    db.execute(
+        "UPDATE snipe_list SET buy_count = ? WHERE name = ?",
+        int(buy_count) + int(1),
+        axie_filter[filter_index][0],
+    )
     db.commit()
 
-    
 
-def verify_transactions(txns, attempted_txns,axie_filter,filter_index):
+def verify_transactions(txns, attempted_txns, axie_filter, filter_index):
     """Verify if the transaction succeded"""
     if len(txns) > 0:
         txn_utils.send_txn_threads(txns)
@@ -187,8 +191,10 @@ def verify_transactions(txns, attempted_txns,axie_filter,filter_index):
                 num_to_buy += 1
                 print(f"Failed to buy {attempted_txns[sent_txn]}.")
             else:
-                print(f"You successfully bought 1 {axie_filter[filter_index][0]} with {attempted_txns[sent_txn]} axie ID!")
-                update_buy_count(axie_filter,filter_index)
+                print(
+                    f"You successfully bought 1 {axie_filter[filter_index][0]} with {attempted_txns[sent_txn]} axie ID!"
+                )
+                update_buy_count(axie_filter, filter_index)
 
         txns = []
 
@@ -197,7 +203,7 @@ def verify_transactions(txns, attempted_txns,axie_filter,filter_index):
 
 def check_num_to_buy(axie_filter, filter_index):
     """Check if you still need to buy another axie with this filter"""
-    filter_name=axie_filter[filter_index][0]
+    filter_name = axie_filter[filter_index][0]
     buy_count = db.field("SELECT buy_count FROM snipe_list WHERE name = ?", filter_name)
     num_asset = db.field("SELECT num_asset FROM snipe_list WHERE name = ?", filter_name)
     if num_asset <= buy_count:
@@ -216,6 +222,15 @@ def check_balance(balance, price):
             f'You do not have enough ETH to buy anything. The lowest price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH.\nTo continue, please complete the following steps: (1) deposit a sufficient amount of ETH, (2) restart the application (close and re-open), (3) click "Run Bot" for the desired filter.'
         )
         raise SystemExit
+
+
+def keep_thread_running():
+    """Keeping the thread running"""
+    if thread_running:
+        if main_module_thread.is_alive:
+            pass
+        else:
+            main_module_thread.start()
 
 
 def run_loop(axie_filter, filter_index=0):
@@ -241,9 +256,11 @@ def run_loop(axie_filter, filter_index=0):
         """Loop trough all the filters saved"""
         try:
             while True:
-                spend_amount = 0
+                keep_thread_running()
 
-                market = axie_functions.fetch_market(token, my_filter,filter_name)
+                spend_amount = 0
+                
+                market = axie_functions.fetch_market(token, my_filter, filter_name)
 
                 for asset in market["data"]["axies"]["results"]:
                     if "id" in asset and asset["id"] in attempted_assets:
@@ -303,7 +320,9 @@ def run_loop(axie_filter, filter_index=0):
                             break
 
                 """Verify Transactions"""
-                txns = verify_transactions(txns, attempted_txns,axie_filter,filter_index)
+                txns = verify_transactions(
+                    txns, attempted_txns, axie_filter, filter_index
+                )
 
                 """Check if you reached the limit to buy"""
                 check_num_to_buy(axie_filter, filter_index)
@@ -365,13 +384,12 @@ def check_can_afford(axie_price, balance, can_afford, cheapest_filter):
         cheapest_filter = axie_price
 
     if not can_afford:
-        print(
-            f"You do not have enough ETH to buy anything."
-        )
+        print(f"You do not have enough ETH to buy anything.")
         tkinter.messagebox.showinfo(
             "Bloodmoon Sniper",
             f"You do not have enough ETH to buy anything.",
         )
+
 
 def print_list(axie_filter):
     """This is to print the current axies to run"""
@@ -381,12 +399,13 @@ def print_list(axie_filter):
     print("Filtername | Purchase Limit")
     print("***************************")
     for filter_list in axie_filter:
-        to_buy = filter_list[3]-filter_list[5]
-        if to_buy == 0 :
-           print(f"{filter_list[0]} | Rebuild to run again")
+        to_buy = filter_list[3] - filter_list[5]
+        if to_buy == 0:
+            print(f"{filter_list[0]} | Rebuild to run again")
         else:
             print(f"{filter_list[0]} | {to_buy}")
     print("***************************\n")
+
 
 def init():
     """Bot Initialization"""
@@ -402,14 +421,20 @@ def init():
     axie_filter, axie_price = get_filterdata()
 
     check_can_afford(axie_price, balance, can_afford, cheapest_filter)
-    
+
     try:
         run_loop(axie_filter)
     except Exception as e:
         print(e)
 
+
+thread_running = bool()
+
+
 def start_threading():
     """Start separate threading for main module"""
+    global main_module_thread
     main_module_thread = threading.Thread(target=init, args=())
     main_module_thread.start()
-    main_module_thread.join()
+    thread_running = True
+    return thread_running
