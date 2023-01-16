@@ -10,7 +10,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import modules.create_filter as create_filter
-
+from modules import main
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -68,7 +68,6 @@ class Ui_MainWindow(object):
         self.marketplace_link_input.setObjectName("marketplace_link_input")
         self.bot_name = QtWidgets.QLabel(self.frame_left)
         self.bot_name.setGeometry(QtCore.QRect(50, 20, 321, 61))
-        self.bot_name.setStyleSheet("drop-shadow:70")
         self.bot_name.setObjectName("bot_name")
         self.save_filter_btn = QtWidgets.QPushButton(self.frame_left)
         self.save_filter_btn.setGeometry(QtCore.QRect(30, 340, 181, 41))
@@ -91,6 +90,8 @@ class Ui_MainWindow(object):
             "}"
         )
         self.save_filter_btn.setObjectName("save_filter_btn")
+        self.save_filter_btn.clicked.connect(self.save_filter)
+
         self.cancel_btn = QtWidgets.QPushButton(self.frame_left)
         self.cancel_btn.setGeometry(QtCore.QRect(220, 340, 181, 41))
         font = QtGui.QFont()
@@ -111,6 +112,8 @@ class Ui_MainWindow(object):
             "}"
         )
         self.cancel_btn.setObjectName("cancel_btn")
+        self.cancel_btn.clicked.connect(self.clear_inputs)
+
         self.frame = QtWidgets.QFrame(self.centralwidget)
         self.frame.setGeometry(QtCore.QRect(440, 0, 571, 721))
         self.frame.setStyleSheet("background-color:rgb(53, 52, 88)")
@@ -143,7 +146,11 @@ class Ui_MainWindow(object):
         self.sniping_list_view.setGeometry(QtCore.QRect(20, 90, 431, 281))
         self.sniping_list_view.setStyleSheet("background-color:rgb(255, 255, 255);")
         self.sniping_list_view.setObjectName("sniping_list_view")
-        
+        self.model = QtGui.QStandardItemModel()
+        self.sniping_list_view.setModel(self.model)
+
+        self.get_list()
+
         self.edit_btn = QtWidgets.QPushButton(self.frame_3)
         self.edit_btn.setGeometry(QtCore.QRect(20, 380, 201, 41))
         font = QtGui.QFont()
@@ -164,6 +171,8 @@ class Ui_MainWindow(object):
             "}"
         )
         self.edit_btn.setObjectName("edit_btn")
+        self.edit_btn.clicked.connect(self.edit_filter)
+        
         self.delete_btn = QtWidgets.QPushButton(self.frame_3)
         self.delete_btn.setGeometry(QtCore.QRect(250, 380, 201, 41))
         font = QtGui.QFont()
@@ -184,6 +193,9 @@ class Ui_MainWindow(object):
             "}"
         )
         self.delete_btn.setObjectName("delete_btn")
+        self.delete_btn.clicked.connect(self.delete_filter)
+
+
         self.run_btn = QtWidgets.QPushButton(self.frame_3)
         self.run_btn.setGeometry(QtCore.QRect(20, 440, 431, 41))
         font = QtGui.QFont()
@@ -204,6 +216,9 @@ class Ui_MainWindow(object):
             "}"
         )
         self.run_btn.setObjectName("run_btn")
+        self.run_btn.clicked.connect(self.start_bot)
+
+        
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1010, 26))
@@ -334,10 +349,41 @@ class Ui_MainWindow(object):
             self.clear_inputs()
         else:
             print(f"Filter {filter_name} is added...")
-            return create_filter.create_filter(
+            return (create_filter.create_filter(
                 1, filter_name, buy_price, num_axie, axie_filter
-            )
+            ),self.get_list())
 
+    def get_list(self):
+            """Get Sniping List"""
+            snipe_list = create_filter.get_snipe_list()
+            self.model.removeRows( 0, self.model.rowCount())
+            for i in snipe_list:
+                item=QtGui.QStandardItem(i[0])
+                self.model.appendRow(item)
+
+    def delete_filter(self):
+        """Delete filter on GUI"""
+        for index in self.sniping_list_view.selectedIndexes():
+            item = self.model.itemFromIndex(index)
+            filter_name = item.text()
+        create_filter.delete_filter(filter_name)
+        self.get_list()
+        print(f"Filter {filter_name} is deleted...")
+    
+    def edit_filter(self):
+        """Edit filter on GUI"""
+        for index in self.sniping_list_view.selectedIndexes():
+            item = self.model.itemFromIndex(index)
+            filter_name = item.text()
+        filter_data = create_filter.get_filter_by_name(filter_name)
+        self.name_input.setText(filter_data[0][0])
+        self.buy_price_input.setText(str(filter_data[0][1]))
+        self.num_axie_input.setText(str(filter_data[0][3]))
+        self.marketplace_link_input.setText(filter_data[0][4])
+
+    def start_bot(self):
+        """Start BOT on GUI"""
+        main.init()
 
 if __name__ == "__main__":
     import sys
