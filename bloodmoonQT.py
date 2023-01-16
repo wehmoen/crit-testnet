@@ -9,6 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+import modules.create_filter as create_filter
 
 
 class Ui_MainWindow(object):
@@ -142,6 +143,7 @@ class Ui_MainWindow(object):
         self.sniping_list_view.setGeometry(QtCore.QRect(20, 90, 431, 281))
         self.sniping_list_view.setStyleSheet("background-color:rgb(255, 255, 255);")
         self.sniping_list_view.setObjectName("sniping_list_view")
+        
         self.edit_btn = QtWidgets.QPushButton(self.frame_3)
         self.edit_btn.setGeometry(QtCore.QRect(20, 380, 201, 41))
         font = QtGui.QFont()
@@ -312,10 +314,30 @@ class Ui_MainWindow(object):
         self.actionRonin_Accounts.setText(_translate("MainWindow", "Ronin Accounts"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
 
+    def clear_inputs(self):
+        """Clear GUI Inputs"""
+        self.name_input.clear()
+        self.buy_price_input.clear()
+        self.num_axie_input.clear()
+        self.marketplace_link_input.clear()
+
     def save_filter(self):
         """Save filter from GUI"""
         filter_name = self.name_input.toPlainText()
-        
+        check_name = create_filter.get_filter_by_name(filter_name)
+        buy_price = self.buy_price_input.toPlainText()
+        num_axie = self.num_axie_input.toPlainText()
+        axie_filter = self.marketplace_link_input.toPlainText()
+        if len(check_name) >= 1:
+            create_filter.gui_update(filter_name, buy_price, axie_filter, num_axie)
+            print(f"Filter {filter_name} is updated...")
+            self.clear_inputs()
+        else:
+            print(f"Filter {filter_name} is added...")
+            return create_filter.create_filter(
+                1, filter_name, buy_price, num_axie, axie_filter
+            )
+
 
 if __name__ == "__main__":
     import sys
