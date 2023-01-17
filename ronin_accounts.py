@@ -1,4 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from modules import create_filter
+from modules import save_key_ronin
 
 
 class Accounts_gui(object):
@@ -23,6 +25,7 @@ class Accounts_gui(object):
         self.private_key_input.setFont(font)
         self.private_key_input.setStyleSheet("background-color:rgb(255, 255, 255)")
         self.private_key_input.setObjectName("private_key_input")
+        self.private_key_input.setTabChangesFocus(True)
         self.ronin_add_input = QtWidgets.QTextEdit(self.frame)
         self.ronin_add_input.setGeometry(QtCore.QRect(20, 130, 311, 31))
         font = QtGui.QFont()
@@ -30,6 +33,7 @@ class Accounts_gui(object):
         self.ronin_add_input.setFont(font)
         self.ronin_add_input.setStyleSheet("background-color:rgb(255, 255, 255)")
         self.ronin_add_input.setObjectName("ronin_add_input")
+        self.ronin_add_input.setTabChangesFocus(True)
         self.gas_price_input = QtWidgets.QTextEdit(self.frame)
         self.gas_price_input.setGeometry(QtCore.QRect(20, 180, 311, 31))
         font = QtGui.QFont()
@@ -37,6 +41,7 @@ class Accounts_gui(object):
         self.gas_price_input.setFont(font)
         self.gas_price_input.setStyleSheet("background-color:rgb(255, 255, 255)")
         self.gas_price_input.setObjectName("gas_price_input")
+        self.gas_price_input.setTabChangesFocus(True)
         self.save_ronin_btn = QtWidgets.QPushButton(self.frame)
         self.save_ronin_btn.setGeometry(QtCore.QRect(20, 230, 151, 31))
         font = QtGui.QFont()
@@ -56,6 +61,8 @@ class Accounts_gui(object):
             "            }"
         )
         self.save_ronin_btn.setObjectName("save_ronin_btn")
+        self.save_ronin_btn.clicked.connect(self.save_ron_accunt)
+
         self.cancel_btn = QtWidgets.QPushButton(self.frame)
         self.cancel_btn.setGeometry(QtCore.QRect(180, 230, 151, 31))
         font = QtGui.QFont()
@@ -75,6 +82,7 @@ class Accounts_gui(object):
             "            }"
         )
         self.cancel_btn.setObjectName("cancel_btn")
+        self.cancel_btn.clicked.connect(self.clear_inputs)
         self.frame_2 = QtWidgets.QFrame(self.centralwidget)
         self.frame_2.setGeometry(QtCore.QRect(350, 0, 541, 671))
         self.frame_2.setStyleSheet("background-color:rgb(53, 52, 88)")
@@ -103,6 +111,11 @@ class Accounts_gui(object):
         self.account_list_view.setStyleSheet("background-color:rgb(255, 255, 255)")
         self.account_list_view.setTabKeyNavigation(True)
         self.account_list_view.setObjectName("account_list_view")
+
+        self.model = QtGui.QStandardItemModel()
+        self.account_list_view.setModel(self.model)
+        self.get_ron_list()
+
         self.edit_btn = QtWidgets.QPushButton(self.frame_4)
         self.edit_btn.setGeometry(QtCore.QRect(20, 410, 201, 31))
         font = QtGui.QFont()
@@ -122,6 +135,7 @@ class Accounts_gui(object):
             "            }"
         )
         self.edit_btn.setObjectName("edit_btn")
+        self.edit_btn.clicked.connect(self.edit_account)
         self.delete_btn = QtWidgets.QPushButton(self.frame_4)
         self.delete_btn.setGeometry(QtCore.QRect(240, 410, 201, 31))
         font = QtGui.QFont()
@@ -141,6 +155,8 @@ class Accounts_gui(object):
             "            }"
         )
         self.delete_btn.setObjectName("delete_btn")
+        self.delete_btn.clicked.connect(self.delete_acount)
+
         self.set_active_btn = QtWidgets.QPushButton(self.frame_4)
         self.set_active_btn.setGeometry(QtCore.QRect(20, 460, 421, 31))
         font = QtGui.QFont()
@@ -160,23 +176,14 @@ class Accounts_gui(object):
             "            }"
         )
         self.set_active_btn.setObjectName("set_active_btn")
+        self.set_active_btn.clicked.connect(self.set_active)
         MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 885, 26))
-        self.menubar.setObjectName("menubar")
-        self.menuFile = QtWidgets.QMenu(self.menubar)
-        self.menuFile.setObjectName("menuFile")
-        MainWindow.setMenuBar(self.menubar)
         self.actionFilters = QtWidgets.QAction(MainWindow)
         self.actionFilters.setObjectName("actionFilters")
         self.actionQuit = QtWidgets.QAction(MainWindow)
         self.actionQuit.setObjectName("actionQuit")
         self.actionQuit_2 = QtWidgets.QAction(MainWindow)
         self.actionQuit_2.setObjectName("actionQuit_2")
-        self.menuFile.addAction(self.actionFilters)
-        self.menuFile.addSeparator()
-        self.menuFile.addAction(self.actionQuit_2)
-        self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -210,10 +217,67 @@ class Accounts_gui(object):
         self.edit_btn.setText(_translate("MainWindow", "Edit"))
         self.delete_btn.setText(_translate("MainWindow", "Delete"))
         self.set_active_btn.setText(_translate("MainWindow", "Set as active"))
-        self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionFilters.setText(_translate("MainWindow", "Axie Filters"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
         self.actionQuit_2.setText(_translate("MainWindow", "Quit"))
+
+    def get_ron_list(self):
+        """Get the list of ronin address"""
+        ron_list = create_filter.ron_list()
+        self.model.removeRows(0, self.model.rowCount())
+        for i in ron_list:
+            item = QtGui.QStandardItem(str(i[1]))
+            self.model.appendRow(item)
+
+    def clear_inputs(self):
+        """Clear GUI Inputs"""
+        self.private_key_input.clear()
+        self.ronin_add_input.clear()
+        self.gas_price_input.clear()
+        
+    def save_ron_accunt(self):
+        """Save ronin account to DB"""
+        pvt_key = self.private_key_input.toPlainText()
+        ronin_add = self.ronin_add_input.toPlainText()
+        gas_price = self.gas_price_input.toPlainText()
+        ronin_account = create_filter.get_ron_by_add(ronin_add)
+
+        if len(ronin_account) < 1:
+
+            save_key_ronin.add_key_address(1, pvt_key, ronin_add, gas_price)
+            self.clear_inputs()
+            self.get_ron_list()
+
+        else:
+            print("Account already exist.")
+    def delete_acount(self):
+        """Delte ronin account"""
+        for index in self.account_list_view.selectedIndexes():
+            item = self.model.itemFromIndex(index)
+            ronin_acc = item.text()
+        create_filter.delete_ronin(ronin_acc)
+        print(f"Account {ronin_acc} is now deleted.")
+        self.get_ron_list()
+
+    def set_active(self):
+        """Set active account"""
+        for index in self.account_list_view.selectedIndexes():
+            item = self.model.itemFromIndex(index)
+            ronin_acc = item.text()
+        
+        save_key_ronin.set_active(ronin_acc)
+
+    def edit_account(self):
+        """Edit ronin account"""
+
+        for index in self.account_list_view.selectedIndexes():
+            item = self.model.itemFromIndex(index)
+            ronin_acc = item.text()
+
+        ron_data = create_filter.get_ron_by_add(ronin_acc)
+        self.private_key_input.setText("Not Editable!")
+        self.ronin_add_input.setText(str(ron_data[0][1]))
+        self.gas_price_input.setText(str(ron_data[0][2]))
 
 
 if __name__ == "__main__":
