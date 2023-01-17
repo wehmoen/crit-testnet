@@ -170,7 +170,6 @@ def create_filter(
                 raise SystemExit
 
     else:
-        print("GUI Saved")
         parsed_filter = add_new_filter(input_mode, "", gui_filter)
         db.execute(
             "INSERT INTO snipe_list(name,pur_price,filter,num_asset,link,buy_count) VALUES(?,?,?,?,?,?)",
@@ -228,7 +227,6 @@ def gui_update(gui_name, pur_price, gui_filt, num):
     )
 
     db.commit()
-    print("GUI update success!")
 
 
 def update_filter_name(name_edit, filter_index):

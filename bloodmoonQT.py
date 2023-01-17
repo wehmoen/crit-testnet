@@ -359,6 +359,7 @@ class Ui_MainWindow(object):
             self.clear_inputs()
         else:
             print(f"Filter {filter_name} is added...")
+            self.clear_inputs()
             return (create_filter.create_filter(
                 1, filter_name, buy_price, num_axie, axie_filter
             ),self.get_list())
