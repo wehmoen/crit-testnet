@@ -11,6 +11,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import modules.create_filter as create_filter
 from modules import main
+from ronin_accounts import Accounts_gui
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -238,9 +239,13 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.actionRonin_Accounts = QtWidgets.QAction(MainWindow)
         self.actionRonin_Accounts.setObjectName("actionRonin_Accounts")
+        self.actionRonin_Accounts.triggered.connect(lambda:self.ronin_window())
+
         self.actionQuit = QtWidgets.QAction(MainWindow)
         self.actionQuit.setObjectName("actionQuit")
+        self.actionQuit.triggered.connect(lambda:self.quit_app())
         self.menuFIle.addAction(self.actionRonin_Accounts)
+
         self.menuFIle.addSeparator()
         self.menuFIle.addAction(self.actionQuit)
         self.menubar.addAction(self.menuFIle.menuAction())
@@ -389,6 +394,17 @@ class Ui_MainWindow(object):
     def start_bot(self):
         """Start BOT on GUI"""
         main.init()
+    
+    def ronin_window(self):
+        """Open Ronin Accounts Window"""
+        self.MainWindow = QtWidgets.QMainWindow()
+        self.ui = Accounts_gui()
+        self.ui.setupUi(self.MainWindow)
+        self.MainWindow.show()
+    
+    def quit_app(self):
+        """Exits the application"""
+        SystemExit
 
 if __name__ == "__main__":
     import sys
