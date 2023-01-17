@@ -242,44 +242,56 @@ class Accounts_gui(object):
         pvt_key = self.private_key_input.toPlainText()
         ronin_add = self.ronin_add_input.toPlainText()
         gas_price = self.gas_price_input.toPlainText()
-        ronin_account = create_filter.get_ron_by_add(ronin_add)
-
-        if len(ronin_account) < 1:
-
-            save_key_ronin.add_key_address(1, pvt_key, ronin_add, gas_price)
-            self.clear_inputs()
-            self.get_ron_list()
-
+        if pvt_key=="" or ronin_add=="" or gas_price=="":
+            print("Please enter a valid data...")
         else:
-            print("Account already exist.")
+            ronin_account = create_filter.get_ron_by_add(ronin_add)
+
+            if len(ronin_account) < 1:
+
+                save_key_ronin.add_key_address(1, pvt_key, ronin_add, gas_price)
+                self.clear_inputs()
+                self.get_ron_list()
+
+            else:
+                print("Account already exist.")
+
     def delete_acount(self):
         """Delte ronin account"""
-        for index in self.account_list_view.selectedIndexes():
-            item = self.model.itemFromIndex(index)
-            ronin_acc = item.text()
-        create_filter.delete_ronin(ronin_acc)
-        print(f"Account {ronin_acc} is now deleted.")
-        self.get_ron_list()
+        try:
+            for index in self.account_list_view.selectedIndexes():
+                item = self.model.itemFromIndex(index)
+                ronin_acc = item.text()
+            create_filter.delete_ronin(ronin_acc)
+            print(f"Account {ronin_acc} is now deleted.")
+            self.get_ron_list()
+        except:
+            print("Please select an account you want to delete from the list above...")
 
     def set_active(self):
         """Set active account"""
-        for index in self.account_list_view.selectedIndexes():
-            item = self.model.itemFromIndex(index)
-            ronin_acc = item.text()
-        
-        save_key_ronin.set_active(ronin_acc)
+        try:
+            for index in self.account_list_view.selectedIndexes():
+                item = self.model.itemFromIndex(index)
+                ronin_acc = item.text()
+            
+            save_key_ronin.set_active(ronin_acc)
+        except:
+            print("Please select an item from the list above...")
 
     def edit_account(self):
         """Edit ronin account"""
+        try:
+            for index in self.account_list_view.selectedIndexes():
+                item = self.model.itemFromIndex(index)
+                ronin_acc = item.text()
 
-        for index in self.account_list_view.selectedIndexes():
-            item = self.model.itemFromIndex(index)
-            ronin_acc = item.text()
-
-        ron_data = create_filter.get_ron_by_add(ronin_acc)
-        self.private_key_input.setText("Not Editable!")
-        self.ronin_add_input.setText(str(ron_data[0][1]))
-        self.gas_price_input.setText(str(ron_data[0][2]))
+            ron_data = create_filter.get_ron_by_add(ronin_acc)
+            self.private_key_input.setText("Not Editable!")
+            self.ronin_add_input.setText(str(ron_data[0][1]))
+            self.gas_price_input.setText(str(ron_data[0][2]))
+        except:
+            print("Please select an account that you want to edit from the list above...")
 
 
 if __name__ == "__main__":
