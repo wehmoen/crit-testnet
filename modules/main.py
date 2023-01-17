@@ -8,7 +8,6 @@ from cryptography.fernet import Fernet
 import base64
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-import tkinter.messagebox
 import threading
 
 
@@ -160,10 +159,6 @@ def check_filter_limit(filter_name):
     num_asset = db.field("SELECT num_asset FROM snipe_list WHERE name = ?", filter_name)
     if buy_count >= num_asset:
         print("The filter buy limit has been reached.")
-        tkinter.messagebox.showinfo(
-            "Bloodmoon Sniper Bot",
-            f"Filter limit reached for {filter_name}.",
-        )
         return True
     else:
         return False
@@ -388,10 +383,6 @@ def check_can_afford(axie_price, balance, can_afford, cheapest_filter):
 
     if not can_afford:
         print(f"You do not have enough ETH to buy anything.")
-        tkinter.messagebox.showinfo(
-            "Bloodmoon Sniper",
-            f"You do not have enough ETH to buy anything.",
-        )
 
 
 def print_list(axie_filter):
@@ -425,6 +416,7 @@ def init():
 
     check_can_afford(axie_price, balance, can_afford, cheapest_filter)
 
+    print_list(axie_filter)
     try:
         run_loop(axie_filter)
     except Exception as e:

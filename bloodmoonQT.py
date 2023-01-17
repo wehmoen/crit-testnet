@@ -16,7 +16,9 @@ from ronin_accounts import Accounts_gui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1010, 736)
+        MainWindow.setFixedSize(1010, 736)
+        MainWindow.setWindowIcon(QtGui.QIcon('image\QUEST_logo_sword_RGB-1.ico'))
+        MainWindow.setWindowFlags(QtCore.Qt.WindowCloseButtonHint)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
         )
@@ -243,7 +245,7 @@ class Ui_MainWindow(object):
 
         self.actionQuit = QtWidgets.QAction(MainWindow)
         self.actionQuit.setObjectName("actionQuit")
-        self.actionQuit.triggered.connect(lambda:self.quit_app())
+        self.actionQuit.triggered.connect(QtWidgets.qApp.quit)
         self.menuFIle.addAction(self.actionRonin_Accounts)
 
         self.menuFIle.addSeparator()
@@ -394,7 +396,7 @@ class Ui_MainWindow(object):
 
     def start_bot(self):
         """Start BOT on GUI"""
-        main.init()
+        main.start_threading()
     
     def ronin_window(self):
         """Open Ronin Accounts Window"""
@@ -405,7 +407,7 @@ class Ui_MainWindow(object):
     
     def quit_app(self):
         """Exits the application"""
-        SystemExit
+        self.close()
 
 if __name__ == "__main__":
     import sys

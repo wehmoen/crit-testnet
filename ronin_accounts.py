@@ -6,7 +6,9 @@ from modules import save_key_ronin
 class Accounts_gui(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(885, 694)
+        MainWindow.setFixedSize(885, 694)
+        MainWindow.setWindowIcon(QtGui.QIcon('image\QUEST_logo_sword_RGB-1.ico'))
+        MainWindow.setWindowFlags(QtCore.Qt.WindowCloseButtonHint)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.frame = QtWidgets.QFrame(self.centralwidget)
@@ -281,7 +283,7 @@ class Accounts_gui(object):
 
 
 if __name__ == "__main__":
-        
+
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
