@@ -54,6 +54,7 @@ def fetch_market(access_token, my_filter,filter_name,attempts=0):
             print(traceback.format_exc())
             raise SystemExit
         return fetch_market(access_token, my_filter, attempts + 1)
+        
     try:
         temp = json.loads(response.text)["data"]["axies"]["total"]
         if temp >= 0:

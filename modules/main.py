@@ -198,19 +198,6 @@ def verify_transactions(txns, attempted_txns, axie_filter, filter_index):
     return txns
 
 
-def check_num_to_buy(axie_filter, filter_index):
-    """Check if you still need to buy another axie with this filter"""
-    filter_name = axie_filter[filter_index][0]
-    buy_count = db.field("SELECT buy_count FROM snipe_list WHERE name = ?", filter_name)
-    num_asset = db.field("SELECT num_asset FROM snipe_list WHERE name = ?", filter_name)
-    if num_asset <= buy_count:
-        print(f"Bought {num_asset} axie/s. This is the limit.")
-        try:
-            return run_loop(axie_filter, filter_index + 1)
-        except:
-            print("Bought all of the axie's on your list.\nBot will not exit...")
-            SystemExit
-
 
 def check_balance(balance, price):
     """Check if you still have a balance to buy another axie"""
@@ -220,8 +207,12 @@ def check_balance(balance, price):
         )
         raise SystemExit
 
-
-
+def switch_filter(filter_index,axie_filter):
+    """Switch among filter in DB"""
+    if filter_index < len(axie_filter)-1:
+        return run_loop(axie_filter,filter_index+1)
+    else:
+        return run_loop(axie_filter,0)
 
 def run_loop(axie_filter, filter_index=0):
     """Running the loop to check if the axie is available"""
@@ -231,8 +222,9 @@ def run_loop(axie_filter, filter_index=0):
         try:
          run_loop(axie_filter, filter_index + 1)
         except:
-            print("All axies in your list is bought.\nThe bot will now exit.")
-            SystemExit
+            run_loop(axie_filter,0)
+            # print("All axies in your list is bought.\nThe bot will now exit.")
+            # SystemExit
     else:
         """Variable declarations"""
         my_filter = eval(axie_filter[filter_index][2])
@@ -241,15 +233,20 @@ def run_loop(axie_filter, filter_index=0):
         txns = []
         attempted_assets = []
         attempted_txns = {}
-        count = 0
         num_to_buy = axie_filter[filter_index][3]
         balance = eth_contract.functions.balanceOf(address).call()
+        loop_counter = 0
+        
+
+
         """Loop trough all the filters saved"""
         try:
             while True:
+                if loop_counter == 3:
+                    switch_filter(filter_index,axie_filter)
+                    loop_counter = 0
 
                 spend_amount = 0
-
                 market = axie_functions.fetch_market(token, my_filter, filter_name)
 
                 for asset in market["data"]["axies"]["results"]:
@@ -305,6 +302,7 @@ def run_loop(axie_filter, filter_index=0):
                                 Web3.toHex(Web3.keccak(tx.rawTransaction))
                             ] = asset["tokenId"]
                             attempted_assets.append(asset["tokenId"])
+
                         num_to_buy -= 1
                         if num_to_buy <= 0:
                             break
@@ -314,18 +312,12 @@ def run_loop(axie_filter, filter_index=0):
                     txns, attempted_txns, axie_filter, filter_index
                 )
 
-                """Check if you reached the limit to buy"""
-                check_num_to_buy(axie_filter, filter_index)
-
                 """Check if you still have balance to buy the axie"""
                 balance = eth_contract.functions.balanceOf(address).call()
                 check_balance(balance, price)
 
-                count += 1
+                loop_counter+=1
 
-                if count % 120 == 0:
-                    print("Still searching marketplace.")
-                time.sleep(1)
         except Exception as e:
             print(f"Mainloop Error {e}")
             return run_loop(axie_filter,filter_index)
@@ -398,6 +390,7 @@ def print_list(axie_filter):
 def init():
     """Bot Initialization"""
     print("Initializing bot...")
+    print(f"Your active ronin address is: {address}")
     check_available_ron()
 
     check_allowance()
