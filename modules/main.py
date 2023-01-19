@@ -221,13 +221,6 @@ def check_balance(balance, price):
         raise SystemExit
 
 
-def keep_thread_running():
-    """Keeping the thread running"""
-    if thread_running:
-        if main_module_thread.is_alive:
-            pass
-        else:
-            main_module_thread.start()
 
 
 def run_loop(axie_filter, filter_index=0):
@@ -254,7 +247,6 @@ def run_loop(axie_filter, filter_index=0):
         """Loop trough all the filters saved"""
         try:
             while True:
-                keep_thread_running()
 
                 spend_amount = 0
 
@@ -417,19 +409,7 @@ def init():
     check_can_afford(axie_price, balance, can_afford, cheapest_filter)
 
     print_list(axie_filter)
-    try:
-        run_loop(axie_filter)
-    except Exception as e:
-        print(e)
+
+    run_loop(axie_filter)
 
 
-thread_running = bool()
-
-
-def start_threading():
-    """Start separate threading for main module"""
-    global main_module_thread
-    main_module_thread = threading.Thread(target=init, args=())
-    main_module_thread.start()
-    thread_running = True
-    return thread_running

@@ -2,7 +2,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import modules.create_filter as create_filter
 from modules import main
 from modules.ronin_accounts import Accounts_gui
-
+from PyQt5.QtCore import QThread
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -398,7 +398,8 @@ class Ui_MainWindow(object):
 
     def start_bot(self):
         """Start BOT on GUI"""
-        main.start_threading()
+        self.search_axie = WorkerThread()
+        self.search_axie.start()
 
     def ronin_window(self):
         """Open Ronin Accounts Window"""
@@ -407,10 +408,9 @@ class Ui_MainWindow(object):
         self.ui.setupUi(self.MainWindow)
         self.MainWindow.show()
 
-    def quit_app(self):
-        """Exits the application"""
-        self.close()
-
+class WorkerThread(QThread):
+    def run_main_loop(self):
+        main.init()
 
 if __name__ == "__main__":
     import sys
