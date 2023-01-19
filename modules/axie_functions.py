@@ -17,27 +17,27 @@ def fetch_market(access_token, my_filter,filter_name,attempts=0):
         print("current time:-",datetime.datetime.now())
     except:
         print(f"\nSearching for {filter_name}...")
-        print("Non Special Collection")
         print("current time:-",datetime.datetime.now())
 
-
-    payload = {
-        "query": "query GetAxieBriefList($auctionType:AuctionType,$criteria:AxieSearchCriteria,$from:Int,$sort:SortBy,$size:Int,$owner:String){axies(auctionType:$auctionType,criteria:$criteria,from:$from,sort:$sort,size:$size,owner:$owner,){total,results{id,order{...on Order{id,maker,kind,assets{...on Asset{erc,address,id,quantity,orderId}}expiredAt,paymentToken,startedAt,basePrice,endedAt,endedPrice,expectedState,nonce,marketFeePercentage,signature,hash,duration,timeLeft,currentPrice,suggestedPrice,currentPriceUsd}}}}}",
-        "variables": {
-            "from": 0,
-            "size": 100,
-            "sort": "PriceAsc",
-            "auctionType": "Sale",
-            "owner": None,
-            "criteria": my_filter,
-        },
-    }
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + access_token,
-        "User-Agent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)",
-    }
     try:
+        payload = {
+            "query": "query GetAxieBriefList($auctionType:AuctionType,$criteria:AxieSearchCriteria,$from:Int,$sort:SortBy,$size:Int,$owner:String){axies(auctionType:$auctionType,criteria:$criteria,from:$from,sort:$sort,size:$size,owner:$owner,){total,results{id,order{...on Order{id,maker,kind,assets{...on Asset{erc,address,id,quantity,orderId}}expiredAt,paymentToken,startedAt,basePrice,endedAt,endedPrice,expectedState,nonce,marketFeePercentage,signature,hash,duration,timeLeft,currentPrice,suggestedPrice,currentPriceUsd}}}}}",
+            "variables": {
+                "from": 0,
+                "size": 100,
+                "sort": "PriceAsc",
+                "auctionType": "Sale",
+                "owner": None,
+                "criteria": my_filter,
+            },
+        }
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + access_token,
+            "User-Agent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)",
+        }
+
+    
         # this block of code is to prevent from timeout on the request
         session = requests.Session()
         retry = Retry(connect=3, backoff_factor=0.5)

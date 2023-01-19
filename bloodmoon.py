@@ -409,7 +409,7 @@ class Ui_MainWindow(object):
         self.MainWindow.show()
 
 class WorkerThread(QThread):
-    def run_main_loop(self):
+    def run(self):
         main.init()
 
 if __name__ == "__main__":

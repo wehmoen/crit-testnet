@@ -326,8 +326,10 @@ def run_loop(axie_filter, filter_index=0):
                 if count % 120 == 0:
                     print("Still searching marketplace.")
                 time.sleep(1)
-        except:
-            pass
+        except Exception as e:
+            print(f"Mainloop Error {e}")
+            return run_loop(axie_filter,filter_index)
+            
 
 
 def check_available_ron():
@@ -409,7 +411,7 @@ def init():
     check_can_afford(axie_price, balance, can_afford, cheapest_filter)
 
     print_list(axie_filter)
-
+    print("Running Loop...")
     run_loop(axie_filter)
 
 
