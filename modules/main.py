@@ -158,7 +158,9 @@ def check_filter_limit(filter_name):
     buy_count = db.field("SELECT buy_count FROM snipe_list WHERE name = ?", filter_name)
     num_asset = db.field("SELECT num_asset FROM snipe_list WHERE name = ?", filter_name)
     if buy_count >= num_asset:
-        print("The filter buy limit has been reached.")
+        print(
+            f"The filter buy limit has been reached for {filter_name}. You can delete or re-build this filter..."
+        )
         return True
     else:
         return False
@@ -198,7 +200,6 @@ def verify_transactions(txns, attempted_txns, axie_filter, filter_index):
     return txns
 
 
-
 def check_balance(balance, price):
     """Check if you still have a balance to buy another axie"""
     if balance <= price:
@@ -207,12 +208,14 @@ def check_balance(balance, price):
         )
         raise SystemExit
 
-def switch_filter(filter_index,axie_filter):
+
+def switch_filter(filter_index, axie_filter):
     """Switch among filter in DB"""
-    if filter_index < len(axie_filter)-1:
-        return run_loop(axie_filter,filter_index+1)
+    if filter_index < len(axie_filter) - 1:
+        return run_loop(axie_filter, filter_index + 1)
     else:
-        return run_loop(axie_filter,0)
+        return run_loop(axie_filter, 0)
+
 
 def run_loop(axie_filter, filter_index=0):
     """Running the loop to check if the axie is available"""
@@ -220,11 +223,9 @@ def run_loop(axie_filter, filter_index=0):
     """If statement to see if the filter number to purchase is met If yes, skip"""
     if check_filter_limit(axie_filter[filter_index][0]):
         try:
-         run_loop(axie_filter, filter_index + 1)
+            run_loop(axie_filter, filter_index + 1)
         except:
-            run_loop(axie_filter,0)
-            # print("All axies in your list is bought.\nThe bot will now exit.")
-            # SystemExit
+            run_loop(axie_filter, 0)
     else:
         """Variable declarations"""
         my_filter = eval(axie_filter[filter_index][2])
@@ -236,16 +237,19 @@ def run_loop(axie_filter, filter_index=0):
         num_to_buy = axie_filter[filter_index][3]
         balance = eth_contract.functions.balanceOf(address).call()
         loop_counter = 0
-        
-
 
         """Loop trough all the filters saved"""
         try:
             while True:
                 if loop_counter == 3:
-                    switch_filter(filter_index,axie_filter)
-                    loop_counter = 0
-
+                    if filter_index < len(axie_filter) - 1:
+                        loop_counter=0
+                        return run_loop(axie_filter, filter_index + 1)
+                        
+                    else:
+                        loop_counter=0
+                        return run_loop(axie_filter, 0)
+                        
                 spend_amount = 0
                 market = axie_functions.fetch_market(token, my_filter, filter_name)
 
@@ -316,12 +320,11 @@ def run_loop(axie_filter, filter_index=0):
                 balance = eth_contract.functions.balanceOf(address).call()
                 check_balance(balance, price)
 
-                loop_counter+=1
+                loop_counter += 1
 
         except Exception as e:
             print(f"Mainloop Error {e}")
-            return run_loop(axie_filter,filter_index)
-            
+            return run_loop(axie_filter, filter_index)
 
 
 def check_available_ron():
@@ -406,5 +409,3 @@ def init():
     print_list(axie_filter)
     print("Running Loop...")
     run_loop(axie_filter)
-
-
