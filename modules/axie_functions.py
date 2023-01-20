@@ -13,7 +13,7 @@ def fetch_market(access_token, my_filter,filter_name,attempts=0):
     
     try:
         del my_filter['specialCollection']
-        print(f"Searching for {filter_name}...")
+        print(f"\nSearching for {filter_name}...")
         print("current time:-",datetime.datetime.now())
     except:
         print(f"\nSearching for {filter_name}...")

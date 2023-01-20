@@ -8,7 +8,9 @@ from cryptography.fernet import Fernet
 import base64
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-import threading
+import sys
+
+sys.setrecursionlimit(10000)
 
 
 MRKT_CONTRACT = Web3.toChecksumAddress("0xfff9ce5f71ca6178d3beecedb61e7eff1602950e")
@@ -159,7 +161,7 @@ def check_filter_limit(filter_name):
     num_asset = db.field("SELECT num_asset FROM snipe_list WHERE name = ?", filter_name)
     if buy_count >= num_asset:
         print(
-            f"The filter buy limit has been reached for {filter_name}. You can delete or re-build this filter..."
+            f"\nThe filter buy limit has been reached for {filter_name}. You can delete or re-build this filter..."
         )
         return True
     else:
@@ -244,12 +246,12 @@ def run_loop(axie_filter, filter_index=0):
                 if loop_counter == 3:
                     if filter_index < len(axie_filter) - 1:
                         loop_counter=0
-                        return run_loop(axie_filter, filter_index + 1)
+                        run_loop(axie_filter, filter_index + 1)
                         
                     else:
                         loop_counter=0
-                        return run_loop(axie_filter, 0)
-                        
+                        run_loop(axie_filter, 0)
+
                 spend_amount = 0
                 market = axie_functions.fetch_market(token, my_filter, filter_name)
 
@@ -324,7 +326,7 @@ def run_loop(axie_filter, filter_index=0):
 
         except Exception as e:
             print(f"Mainloop Error {e}")
-            return run_loop(axie_filter, filter_index)
+            run_loop(axie_filter, filter_index)
 
 
 def check_available_ron():
