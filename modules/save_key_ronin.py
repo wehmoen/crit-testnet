@@ -1,7 +1,7 @@
 from . import db
 from cryptography.fernet import Fernet
 import os
-from  modules.main import read_KEK,get_decryption_key
+from modules import main
 
 def generate_salt():
     return os.urandom(16)
@@ -10,12 +10,12 @@ def generate_salt():
 def encrypt_pvt_key(pvt_key):
     """Encrypt private key"""
     """Using KEK to encrypt key"""
-    password,salt= read_KEK()
+    password,salt= main.read_KEK()
     if salt ==b'':
        salt = generate_salt()
        print(f"Generated salt is:{salt}")
 
-    decryption_key = get_decryption_key(password,salt)
+    decryption_key = main.get_decryption_key(password,salt)
     
     f = Fernet(decryption_key)
     fernet_token = f.encrypt(bytes(pvt_key, "utf-8"))

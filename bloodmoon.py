@@ -122,7 +122,7 @@ class Ui_MainWindow(object):
         self.frame_2 = QtWidgets.QFrame(self.frame)
         self.frame_2.setGeometry(QtCore.QRect(30, 30, 511, 621))
         self.frame_2.setStyleSheet(
-            "background-color:rgb(89, 79, 108);border-radius:5px;"
+            "background-color:rgb(81, 79, 108);border-radius:5px;"
         )
         self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -225,9 +225,6 @@ class Ui_MainWindow(object):
         self.menuHelp = QtWidgets.QMenu(self.menubar)
         self.menuHelp.setObjectName("menuHelp")
         MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
         self.actionRonin_Accounts = QtWidgets.QAction(MainWindow)
         self.actionRonin_Accounts.setObjectName("actionRonin_Accounts")
         self.actionRonin_Accounts.triggered.connect(lambda: self.ronin_window())

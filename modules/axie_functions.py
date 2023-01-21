@@ -4,7 +4,7 @@ import traceback
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 import datetime
-
+from bloodmoon import Ui_MainWindow
 
 
 def fetch_market(access_token, my_filter,filter_name,attempts=0):
