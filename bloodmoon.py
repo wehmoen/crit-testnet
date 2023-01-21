@@ -3,13 +3,13 @@ import modules.create_filter as create_filter
 from modules import main
 from modules.ronin_accounts import Accounts_gui
 from PyQt5.QtCore import QThread
+from PyQt5.QtGui import QIntValidator
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setFixedSize(1010, 736)
         MainWindow.setWindowIcon(QtGui.QIcon("image\QUEST_logo_sword_RGB-1.ico"))
-        MainWindow.setWindowFlags(QtCore.Qt.WindowCloseButtonHint)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
         )
@@ -28,48 +28,44 @@ class Ui_MainWindow(object):
         self.frame_left.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_left.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_left.setObjectName("frame_left")
-        self.name_input = QtWidgets.QTextEdit(self.frame_left)
-        self.name_input.setGeometry(QtCore.QRect(30, 100, 371, 41))
+        self.name_input = QtWidgets.QLineEdit(self.frame_left)
+        self.name_input.setGeometry(QtCore.QRect(30, 100, 371, 31))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.name_input.setFont(font)
         self.name_input.setStyleSheet("background-color:rgb(255, 255, 255)")
-        self.name_input.setMarkdown("")
         self.name_input.setObjectName("name_input")
-        self.name_input.setTabChangesFocus(True)
-        self.buy_price_input = QtWidgets.QTextEdit(self.frame_left)
-        self.buy_price_input.setGeometry(QtCore.QRect(30, 160, 371, 41))
+        self.buy_price_input = QtWidgets.QLineEdit(self.frame_left)
+        self.buy_price_input.setGeometry(QtCore.QRect(30, 150, 371, 31))
+        onlyInt = QIntValidator()
+        onlyInt.setRange(0, 1000)
+        self.buy_price_input.setValidator(onlyInt)
         font = QtGui.QFont()
         font.setPointSize(10)
         self.buy_price_input.setFont(font)
         self.buy_price_input.setStyleSheet("background-color:rgb(255, 255, 255)")
-        self.buy_price_input.setMarkdown("")
         self.buy_price_input.setObjectName("buy_price_input")
-        self.buy_price_input.setTabChangesFocus(True)
 
-        self.num_axie_input = QtWidgets.QTextEdit(self.frame_left)
-        self.num_axie_input.setGeometry(QtCore.QRect(30, 220, 371, 41))
+        self.num_axie_input = QtWidgets.QLineEdit(self.frame_left)
+        self.num_axie_input.setGeometry(QtCore.QRect(30, 200, 371, 31))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.num_axie_input.setFont(font)
         self.num_axie_input.setStyleSheet("background-color:rgb(255, 255, 255)")
-        self.num_axie_input.setMarkdown("")
         self.num_axie_input.setObjectName("num_axie_input")
-        self.num_axie_input.setTabChangesFocus(True)
-        self.marketplace_link_input = QtWidgets.QTextEdit(self.frame_left)
-        self.marketplace_link_input.setGeometry(QtCore.QRect(30, 280, 371, 41))
+        self.num_axie_input.setValidator(onlyInt)
+        self.marketplace_link_input = QtWidgets.QLineEdit(self.frame_left)
+        self.marketplace_link_input.setGeometry(QtCore.QRect(30, 250, 371, 31))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.marketplace_link_input.setFont(font)
         self.marketplace_link_input.setStyleSheet("background-color:rgb(255, 255, 255)")
-        self.marketplace_link_input.setMarkdown("")
         self.marketplace_link_input.setObjectName("marketplace_link_input")
-        self.marketplace_link_input.setTabChangesFocus(True)
         self.bot_name = QtWidgets.QLabel(self.frame_left)
         self.bot_name.setGeometry(QtCore.QRect(50, 20, 321, 61))
         self.bot_name.setObjectName("bot_name")
         self.save_filter_btn = QtWidgets.QPushButton(self.frame_left)
-        self.save_filter_btn.setGeometry(QtCore.QRect(30, 340, 181, 41))
+        self.save_filter_btn.setGeometry(QtCore.QRect(30, 300, 181, 41))
         font = QtGui.QFont()
         font.setPointSize(9)
         font.setBold(True)
@@ -92,7 +88,7 @@ class Ui_MainWindow(object):
         self.save_filter_btn.clicked.connect(self.save_filter)
 
         self.cancel_btn = QtWidgets.QPushButton(self.frame_left)
-        self.cancel_btn.setGeometry(QtCore.QRect(220, 340, 181, 41))
+        self.cancel_btn.setGeometry(QtCore.QRect(220, 300, 181, 41))
         font = QtGui.QFont()
         font.setPointSize(9)
         font.setBold(True)
@@ -251,57 +247,21 @@ class Ui_MainWindow(object):
                 "<html><head/><body><p>Name your axie sniper...</p></body></html>",
             )
         )
-        self.name_input.setHtml(
-            _translate(
-                "MainWindow",
-                '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">\n'
-                '<html><head><meta name="qrichtext" content="1" /><style type="text/css">\n'
-                "p, li { white-space: pre-wrap; }\n"
-                "</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-                '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p></body></html>',
-            )
-        )
+
         self.name_input.setPlaceholderText(
             _translate("MainWindow", "Name your axie sniper...  ")
         )
-        self.buy_price_input.setHtml(
-            _translate(
-                "MainWindow",
-                '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">\n'
-                '<html><head><meta name="qrichtext" content="1" /><style type="text/css">\n'
-                "p, li { white-space: pre-wrap; }\n"
-                "</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-                '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p></body></html>',
-            )
-        )
+
         self.buy_price_input.setPlaceholderText(
             _translate("MainWindow", "Set the buy price...  ")
         )
-        self.num_axie_input.setHtml(
-            _translate(
-                "MainWindow",
-                '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">\n'
-                '<html><head><meta name="qrichtext" content="1" /><style type="text/css">\n'
-                "p, li { white-space: pre-wrap; }\n"
-                "</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-                '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p></body></html>',
-            )
-        )
+
         self.num_axie_input.setPlaceholderText(
             _translate(
                 "MainWindow", "How many axie's should it buy before stopping...  "
             )
         )
-        self.marketplace_link_input.setHtml(
-            _translate(
-                "MainWindow",
-                '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">\n'
-                '<html><head><meta name="qrichtext" content="1" /><style type="text/css">\n'
-                "p, li { white-space: pre-wrap; }\n"
-                "</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-                '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p></body></html>',
-            )
-        )
+
         self.marketplace_link_input.setPlaceholderText(
             _translate("MainWindow", "Paste the marketplace filter link here...  ")
         )
@@ -337,11 +297,11 @@ class Ui_MainWindow(object):
     def save_filter(self):
         """Save filter from GUI"""
 
-        filter_name = self.name_input.toPlainText()
+        filter_name = self.name_input.text()
         check_name = create_filter.get_filter_by_name(filter_name)
-        buy_price = self.buy_price_input.toPlainText()
-        num_axie = self.num_axie_input.toPlainText()
-        axie_filter = self.marketplace_link_input.toPlainText()
+        buy_price = self.buy_price_input.text()
+        num_axie = self.num_axie_input.text()
+        axie_filter = self.marketplace_link_input.text()
         if filter_name =="" or check_name == "" or buy_price =="" or num_axie=="" or axie_filter=="":
             print("Please add a valid data...")
         else:

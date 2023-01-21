@@ -1,14 +1,13 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from modules import create_filter
 from modules import save_key_ronin
-
+from PyQt5.QtGui import QIntValidator
 
 class Accounts_gui(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setFixedSize(885, 694)
         MainWindow.setWindowIcon(QtGui.QIcon('image\QUEST_logo_sword_RGB-1.ico'))
-        MainWindow.setWindowFlags(QtCore.Qt.WindowCloseButtonHint)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.frame = QtWidgets.QFrame(self.centralwidget)
@@ -42,6 +41,9 @@ class Accounts_gui(object):
         self.gas_price_input.setFont(font)
         self.gas_price_input.setStyleSheet("background-color:rgb(255, 255, 255)")
         self.gas_price_input.setObjectName("gas_price_input")
+        onlyInt = QIntValidator()
+        onlyInt.setRange(0, 1000)
+        self.gas_price_input.setValidator(onlyInt)
         self.save_ronin_btn = QtWidgets.QPushButton(self.frame)
         self.save_ronin_btn.setGeometry(QtCore.QRect(20, 230, 151, 31))
         font = QtGui.QFont()
