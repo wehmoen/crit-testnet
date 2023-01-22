@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from modules import create_filter
 from modules import save_key_ronin
-from PyQt5.QtGui import QIntValidator
+from PyQt5.QtGui import QDoubleValidator
 
 class Accounts_gui(object):
     def setupUi(self, MainWindow):
@@ -41,8 +41,8 @@ class Accounts_gui(object):
         self.gas_price_input.setFont(font)
         self.gas_price_input.setStyleSheet("background-color:rgb(255, 255, 255)")
         self.gas_price_input.setObjectName("gas_price_input")
-        onlyInt = QIntValidator()
-        onlyInt.setRange(0, 1000)
+        onlyInt = QDoubleValidator()
+        onlyInt.setRange(0.0, 1000,4)
         self.gas_price_input.setValidator(onlyInt)
         self.save_ronin_btn = QtWidgets.QPushButton(self.frame)
         self.save_ronin_btn.setGeometry(QtCore.QRect(20, 230, 151, 31))

@@ -3,7 +3,7 @@ import modules.create_filter as create_filter
 from modules import main
 from modules.ronin_accounts import Accounts_gui
 from PyQt5.QtCore import QThread
-from PyQt5.QtGui import QIntValidator
+from PyQt5.QtGui import QDoubleValidator
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -37,8 +37,8 @@ class Ui_MainWindow(object):
         self.name_input.setObjectName("name_input")
         self.buy_price_input = QtWidgets.QLineEdit(self.frame_left)
         self.buy_price_input.setGeometry(QtCore.QRect(30, 150, 371, 31))
-        onlyInt = QIntValidator()
-        onlyInt.setRange(0, 1000)
+        onlyInt = QDoubleValidator()
+        onlyInt.setRange(0.0, 1000,4)
         self.buy_price_input.setValidator(onlyInt)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -245,7 +245,7 @@ class Ui_MainWindow(object):
             _translate(
                 "MainWindow",
                 "<html><head/><body><p>Name your axie sniper...</p></body></html>",
-            )
+            ) 
         )
 
         self.name_input.setPlaceholderText(
@@ -303,7 +303,7 @@ class Ui_MainWindow(object):
         num_axie = self.num_axie_input.text()
         axie_filter = self.marketplace_link_input.text()
         if filter_name =="" or check_name == "" or buy_price =="" or num_axie=="" or axie_filter=="":
-            print("Please add a valid data...")
+            print("Please add a valid data...") 
         else:
             if len(check_name) >= 1:
                 create_filter.gui_update(filter_name, buy_price, axie_filter, num_axie)

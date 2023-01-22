@@ -208,50 +208,46 @@ def check_balance(balance, price):
         print(
             f'You do not have enough ETH to buy anything. The lowest price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH.\nTo continue, please complete the following steps: (1) deposit a sufficient amount of ETH, (2) restart the application (close and re-open), (3) click "Run Bot" for the desired filter.'
         )
-        raise SystemExit
-
-
-def switch_filter(filter_index, axie_filter):
-    """Switch among filter in DB"""
-    if filter_index < len(axie_filter) - 1:
-        return run_loop(axie_filter, filter_index + 1)
-    else:
-        return run_loop(axie_filter, 0)
-
+        SystemExit
 
 def run_loop(axie_filter, filter_index=0):
     """Running the loop to check if the axie is available"""
+    loop_counter = 0
+    try:
+        while True:
+            """If statement to see if the filter number to purchase is met If yes, skip"""
+            if check_filter_limit(axie_filter[filter_index][0]):
+                filter_index += 1
+                if filter_index > len(axie_filter)-1:
+                    filter_index = 0
+                continue
+            else:
+                if loop_counter == 1:
+                    filter_index += 1
 
-    """If statement to see if the filter number to purchase is met If yes, skip"""
-    if check_filter_limit(axie_filter[filter_index][0]):
-        try:
-            run_loop(axie_filter, filter_index + 1)
-        except:
-            run_loop(axie_filter, 0)
-    else:
-        """Variable declarations"""
-        my_filter = eval(axie_filter[filter_index][2])
-        filter_name = axie_filter[filter_index][0]
-        price = Web3.toWei(axie_filter[filter_index][1], "ether")
-        txns = []
-        attempted_assets = []
-        attempted_txns = {}
-        num_to_buy = axie_filter[filter_index][3]
-        balance = eth_contract.functions.balanceOf(address).call()
-        loop_counter = 0
-
-        """Loop trough all the filters saved"""
-        try:
-            while True:
-                if loop_counter == 3:
-                    if filter_index < len(axie_filter) - 1:
-                        loop_counter=0
-                        run_loop(axie_filter, filter_index + 1)
+                    if filter_index > len(axie_filter)-1:
+                        filter_index = 0
                         
-                    else:
-                        loop_counter=0
-                        run_loop(axie_filter, 0)
+                    loop_counter = 0
 
+                """Variable declarations"""
+                my_filter = eval(axie_filter[filter_index][2])
+                filter_name = axie_filter[filter_index][0]
+                price = Web3.toWei(axie_filter[filter_index][1], "ether")
+                txns = []
+                attempted_assets = []
+                attempted_txns = {}
+                balance = eth_contract.functions.balanceOf(address).call()
+
+                """Check if you still have balance to buy the axie"""
+                """Check if you still have a balance to buy another axie"""
+                if balance <= price:
+                    print(
+                        f'You do not have enough ETH to buy anything. The lowest price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH.\nTo continue, please complete the following steps: (1) deposit a sufficient amount of ETH, (2) restart the application (close and re-open), (3) click "Run Bot" for the desired filter.'
+                    )
+                    break
+
+                """Loop trough all the filters saved"""
                 spend_amount = 0
                 market = axie_functions.fetch_market(token, my_filter, filter_name)
 
@@ -271,10 +267,7 @@ def run_loop(axie_filter, filter_index=0):
                                 int(asset["order"]["endedPrice"])
                                 - int(asset["order"]["basePrice"])
                             ) / int(asset["order"]["duration"])
-                        # this is to check if they are doing a sale from 0 -> 10000 over 1 day in attempt to fool bots.
-                        # worst case, a tx takes 10 seconds from when it was pulled from marketplace to when it goes through
-                        # i doubt it will ever take 10s, but would rather be safe.
-                        # feel free to change the 10 to something less if you want to (at your own risk)
+
                         if (
                             int(asset["order"]["currentPrice"]) + (price_change * 10)
                             > price
@@ -308,25 +301,19 @@ def run_loop(axie_filter, filter_index=0):
                                 Web3.toHex(Web3.keccak(tx.rawTransaction))
                             ] = asset["tokenId"]
                             attempted_assets.append(asset["tokenId"])
-
-                        num_to_buy -= 1
-                        if num_to_buy <= 0:
-                            break
-
+                
                 """Verify Transactions"""
                 txns = verify_transactions(
                     txns, attempted_txns, axie_filter, filter_index
                 )
 
-                """Check if you still have balance to buy the axie"""
-                balance = eth_contract.functions.balanceOf(address).call()
-                check_balance(balance, price)
-
                 loop_counter += 1
 
-        except Exception as e:
-            print(f"Mainloop Error {e}")
-            run_loop(axie_filter, filter_index)
+
+    except Exception as e:
+        print(f"Mainloop Error {e}")
+        run_loop(axie_filter, filter_index)
+
 
 
 def check_available_ron():
@@ -385,7 +372,7 @@ def print_list(axie_filter):
     print("***************************")
     for filter_list in axie_filter:
         to_buy = filter_list[3] - filter_list[5]
-        if to_buy == 0:
+        if to_buy < 1 :
             print(f"{filter_list[0]} | Rebuild to run again")
         else:
             print(f"{filter_list[0]} | {to_buy}")
