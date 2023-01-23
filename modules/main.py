@@ -201,9 +201,8 @@ def run_loop(axie_filter, filter_index=0):
 
                     if filter_index > len(axie_filter)-1:
                         filter_index = 0
-                        
                     loop_counter = 0
-
+                    continue
                 """Variable declarations"""
                 my_filter = eval(axie_filter[filter_index][2])
                 filter_name = axie_filter[filter_index][0]

@@ -96,15 +96,19 @@ def add_key_address(input_mode=0, pvt="", ron="", gas=0):
             db.commit()
             print("Save Successfully!")
     else:
-        if Web3.isAddress(ron):
+        
+        address = ron.replace("ronin:", "0x")
+
+        if Web3.isAddress(address):
             encrypted_pvt_key = fn_pvt_key(input_mode, pvt)
             if gas == "":
                 gas = 20
             db.execute(
-                "INSERT INTO keys(pvt_key,ron_add,gas) VALUES(?,?,?)",
+                "INSERT INTO keys(pvt_key,ron_add,gas,status) VALUES(?,?,?,?)",
                 encrypted_pvt_key,
                 ron,
-                gas
+                gas,
+                "active"
             )
             db.commit()
             print("Ronin account is added to database.")
