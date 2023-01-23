@@ -5,10 +5,8 @@ import modules.generate_access_token as generate_access_token
 import modules.txn_utils as txn_utils
 from modules.sub_modules import axie_functions
 from cryptography.fernet import Fernet
-import base64
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import sys
+from modules.sub_modules import save_key_ronin
 
 sys.setrecursionlimit(10000)
 
@@ -22,30 +20,6 @@ CHAIN_ID = 2020
 GAS = 481337
 
 
-def get_decryption_key(password, salt):
-    """Get decryption key from the KEK using PBKDF2"""
-    kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=350000)
-    decryption_key = base64.urlsafe_b64encode(kdf.derive(password))
-
-    return decryption_key
-
-
-def find_value(line):
-    """Find value for password and salt"""
-    line_value = line.rstrip("\n")
-    value = line_value[line_value.index("=") + 1 :]
-    return value
-
-
-def read_KEK():
-    """Read KEK from a file stored on disk"""
-    with open("data\kek.txt", "r") as f:
-        for line in f:
-            if line.startswith("password"):
-                password = bytes(find_value(line), "utf-8")
-            if line.startswith("salt"):
-                salt = bytes(find_value(line), "utf-8")
-    return password, salt
 
 
 def get_list_of_keys():
@@ -64,8 +38,8 @@ def get_list_of_keys():
         pvt_key = ""
     else:
         """Decrypt the private key"""
-        password, salt = read_KEK()
-        decryption_key = get_decryption_key(password, salt)
+        password, salt = save_key_ronin.read_KEK()
+        decryption_key = save_key_ronin.get_decryption_key(password, salt)
         f = Fernet(decryption_key)
 
         pvt_key_bytes = f.decrypt(key_data[0][0])
