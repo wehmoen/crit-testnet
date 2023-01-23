@@ -2,6 +2,33 @@ from modules.sub_modules import db
 from cryptography.fernet import Fernet
 import os
 from modules import main
+import base64
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from web3 import Web3
+
+def get_decryption_key(password, salt):
+    """Get decryption key from the KEK using PBKDF2"""
+    kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=350000)
+    decryption_key = base64.urlsafe_b64encode(kdf.derive(password))
+
+    return decryption_key
+def find_value(line):
+    """Find value for password and salt"""
+    line_value = line.rstrip("\n")
+    value = line_value[line_value.index("=") + 1 :]
+    return value
+
+
+def read_KEK():
+    """Read KEK from a file stored on disk"""
+    with open("data\kek.txt", "r") as f:
+        for line in f:
+            if line.startswith("password"):
+                password = bytes(find_value(line), "utf-8")
+            if line.startswith("salt"):
+                salt = bytes(find_value(line), "utf-8")
+    return password, salt
 
 def generate_salt():
     return os.urandom(16)
@@ -10,12 +37,12 @@ def generate_salt():
 def encrypt_pvt_key(pvt_key):
     """Encrypt private key"""
     """Using KEK to encrypt key"""
-    password,salt= main.read_KEK()
+    password,salt= read_KEK()
     if salt ==b'':
        salt = generate_salt()
        print(f"Generated salt is:{salt}")
 
-    decryption_key = main.get_decryption_key(password,salt)
+    decryption_key = get_decryption_key(password,salt)
     
     f = Fernet(decryption_key)
     fernet_token = f.encrypt(bytes(pvt_key, "utf-8"))
@@ -69,17 +96,20 @@ def add_key_address(input_mode=0, pvt="", ron="", gas=0):
             db.commit()
             print("Save Successfully!")
     else:
-        encrypted_pvt_key = fn_pvt_key(input_mode, pvt)
-        if gas == "":
-            gas = 20
-        db.execute(
-            "INSERT INTO keys(pvt_key,ron_add,gas) VALUES(?,?,?)",
-            encrypted_pvt_key,
-            ron,
-            gas
-        )
-        db.commit()
-        print("Ronin account is added to database.")
+        if Web3.isAddress(ron):
+            encrypted_pvt_key = fn_pvt_key(input_mode, pvt)
+            if gas == "":
+                gas = 20
+            db.execute(
+                "INSERT INTO keys(pvt_key,ron_add,gas) VALUES(?,?,?)",
+                encrypted_pvt_key,
+                ron,
+                gas
+            )
+            db.commit()
+            print("Ronin account is added to database.")
+        else:
+            print("Please enter a valid ronin address...")
 
 def set_active(ron_add):
     """Set ronin account as active"""
