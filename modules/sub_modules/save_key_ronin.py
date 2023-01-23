@@ -1,4 +1,4 @@
-from . import db
+from modules.sub_modules import db
 from cryptography.fernet import Fernet
 import os
 from modules import main

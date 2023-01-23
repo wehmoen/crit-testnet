@@ -1,4 +1,4 @@
-from . import db
+from modules.sub_modules import db
 import os
 
 

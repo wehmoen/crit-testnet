@@ -1,9 +1,9 @@
 import time
-from . import db
+from modules.sub_modules import db
 from web3 import Web3
 import modules.generate_access_token as generate_access_token
 import modules.txn_utils as txn_utils
-from . import axie_functions
+from modules.sub_modules import axie_functions
 from cryptography.fernet import Fernet
 import base64
 from cryptography.hazmat.primitives import hashes
@@ -329,19 +329,20 @@ def check_available_ron():
 
 def check_allowance():
     """Check allowance. If 0 continue to approve"""
-    allowance = eth_contract.functions.allowance(address, MRKT_CONTRACT).call()
-
-    if allowance == 0:
-        print("Approving ETH to spend...")
-        sent_txn = approve()
+    try:
         allowance = eth_contract.functions.allowance(address, MRKT_CONTRACT).call()
-
         if allowance == 0:
-            print("Something went wrong, approval didnt work. Exiting.")
-            raise SystemExit
-        else:
-            print(f"Approved at txn: {sent_txn}")
+            print("Approving ETH to spend...")
+            sent_txn = approve()
+            allowance = eth_contract.functions.allowance(address, MRKT_CONTRACT).call()
 
+            if allowance == 0:
+                print("Something went wrong, approval didnt work. Exiting.")
+                raise SystemExit
+            else:
+                print(f"Approved at txn: {sent_txn}")
+    except: 
+        pass
 
 def get_filterdata():
     """Get filter data from DB"""

@@ -40,9 +40,3 @@ def field(command, *values):
 
 	if (fetch := cur.fetchone()) is not None:
 		return fetch[0]
-
-# cur.execute("UPDATE snipe_list SET buy_count = 1 WHERE name = 'Beast Axie'")
-# cur.execute("SELECT * from snipe_list")
-# print(cur.fetchall())
-# cxn.commit()
-# cxn.close()
