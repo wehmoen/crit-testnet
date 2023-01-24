@@ -250,6 +250,10 @@ def run_loop(axie_filter, filter_index=0):
                                 Web3.toHex(Web3.keccak(tx.rawTransaction))
                             ] = asset["tokenId"]
                             attempted_assets.append(asset["tokenId"])
+                        num_to_buy[filter_index] -= 1
+                        
+                        if num_to_buy[filter_index] <= 0:
+                                break
                 
                 """Verify Transactions"""
                 if len(txns) > 0:
@@ -264,7 +268,7 @@ def run_loop(axie_filter, filter_index=0):
                                 f"You successfully bought 1 {axie_filter[filter_index][0]} with {attempted_txns[sent_txn]} axie ID!"
                             )
                             update_buy_count(axie_filter, filter_index)
-                            buy_count[filter_index]+=1
+                            buy_count[filter_index]=buy_count[filter_index]+1
 
                     txns = []
 
