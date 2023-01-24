@@ -129,17 +129,6 @@ def buy_asset(asset):
     return signed_txn
 
 
-def check_filter_limit(filter_name):
-    """Check if you reached the filter limit"""
-    buy_count = db.field("SELECT buy_count FROM snipe_list WHERE name = ?", filter_name)
-    num_asset = db.field("SELECT num_asset FROM snipe_list WHERE name = ?", filter_name)
-    if buy_count >= num_asset:
-        print(
-            f"\nThe filter buy limit has been reached for {filter_name}. You can delete or re-build this filter..."
-        )
-        return True
-    else:
-        return False
 
 
 def update_buy_count(axie_filter, filter_index):
@@ -155,26 +144,6 @@ def update_buy_count(axie_filter, filter_index):
     db.commit()
 
 
-def verify_transactions(txns, attempted_txns, axie_filter, filter_index):
-    """Verify if the transaction succeded"""
-    if len(txns) > 0:
-        txn_utils.send_txn_threads(txns)
-        for tx in txns:
-            sent_txn = Web3.toHex(Web3.keccak(tx.rawTransaction))
-            receipt = txn_utils.w3.eth.get_transaction_receipt(sent_txn)
-            if not receipt.status == 1:
-                num_to_buy += 1
-                print(f"Failed to buy {attempted_txns[sent_txn]}.")
-            else:
-                print(
-                    f"You successfully bought 1 {axie_filter[filter_index][0]} with {attempted_txns[sent_txn]} axie ID!"
-                )
-                update_buy_count(axie_filter, filter_index)
-
-        txns = []
-
-    return txns
-
 
 def check_balance(balance, price):
     """Check if you still have a balance to buy another axie"""
@@ -187,10 +156,17 @@ def check_balance(balance, price):
 def run_loop(axie_filter, filter_index=0):
     """Running the loop to check if the axie is available"""
     loop_counter = 0
+    num_to_buy=[]
+    buy_count=[]
+
+    for filter in axie_filter:
+        num_to_buy.append(filter[3])
+        buy_count.append(filter[5])
+
     try:
         while True:
             """If statement to see if the filter number to purchase is met If yes, skip"""
-            if check_filter_limit(axie_filter[filter_index][0]):
+            if buy_count[filter_index]>=num_to_buy[filter_index]:
                 filter_index += 1
                 if filter_index > len(axie_filter)-1:
                     filter_index = 0
@@ -203,6 +179,7 @@ def run_loop(axie_filter, filter_index=0):
                         filter_index = 0
                     loop_counter = 0
                     continue
+                
                 """Variable declarations"""
                 my_filter = eval(axie_filter[filter_index][2])
                 filter_name = axie_filter[filter_index][0]
@@ -276,9 +253,21 @@ def run_loop(axie_filter, filter_index=0):
                             attempted_assets.append(asset["tokenId"])
                 
                 """Verify Transactions"""
-                txns = verify_transactions(
-                    txns, attempted_txns, axie_filter, filter_index
-                )
+                if len(txns) > 0:
+                    txn_utils.send_txn_threads(txns)
+                    for tx in txns:
+                        sent_txn = Web3.toHex(Web3.keccak(tx.rawTransaction))
+                        receipt = txn_utils.w3.eth.get_transaction_receipt(sent_txn)
+                        if not receipt.status == 1:
+                            print(f"Failed to buy {attempted_txns[sent_txn]}.")
+                        else:
+                            print(
+                                f"You successfully bought 1 {axie_filter[filter_index][0]} with {attempted_txns[sent_txn]} axie ID!"
+                            )
+                            update_buy_count(axie_filter, filter_index)
+                            buy_count[filter_index]+=1
+
+                    txns = []
 
                 loop_counter += 1
 
@@ -368,7 +357,8 @@ def init():
     axie_filter, axie_price = get_filterdata()
 
     check_can_afford(axie_price, balance, can_afford, cheapest_filter)
-
+    
     print_list(axie_filter)
     print("Running Loop...")
     run_loop(axie_filter)
+

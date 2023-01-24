@@ -204,7 +204,7 @@ class Ui_MainWindow(object):
             "  border: 1px solid rgb(231, 109, 109);\n"
             "  background-color:rgb(255, 255, 255);\n"
             "  color: rgb(231, 109, 109);\n"
-            "}\n"
+            "}\n"   
             "QPushButton{\n"
             "background-color:rgb(231, 109, 109); color: rgb(255, 255, 255);border-radius: 5px;\n"
             "}"
