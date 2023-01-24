@@ -189,7 +189,6 @@ def run_loop(axie_filter, filter_index=0):
                 attempted_txns = {}
                 balance = eth_contract.functions.balanceOf(address).call()
 
-                """Check if you still have balance to buy the axie"""
                 """Check if you still have a balance to buy another axie"""
                 if balance <= price:
                     print(
