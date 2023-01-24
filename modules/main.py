@@ -251,7 +251,7 @@ def run_loop(axie_filter, filter_index=0):
                             ] = asset["tokenId"]
                             attempted_assets.append(asset["tokenId"])
                         num_to_buy[filter_index] -= 1
-                        
+
                         if num_to_buy[filter_index] <= 0:
                                 break
                 
@@ -263,6 +263,7 @@ def run_loop(axie_filter, filter_index=0):
                         receipt = txn_utils.w3.eth.get_transaction_receipt(sent_txn)
                         if not receipt.status == 1:
                             print(f"Failed to buy {attempted_txns[sent_txn]}.")
+                            num_to_buy[filter_index]+=1
                         else:
                             print(
                                 f"You successfully bought 1 {axie_filter[filter_index][0]} with {attempted_txns[sent_txn]} axie ID!"
