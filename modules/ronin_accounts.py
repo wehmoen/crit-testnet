@@ -194,7 +194,7 @@ class Accounts_gui(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Bloodmoon"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "CRIT"))
         self.label.setText(
             _translate(
                 "MainWindow",
