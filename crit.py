@@ -240,7 +240,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Bloodmoon"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "CRIT"))
         self.name_input.setWhatsThis(
             _translate(
                 "MainWindow",

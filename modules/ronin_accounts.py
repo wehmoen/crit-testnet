@@ -2,6 +2,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from modules import create_filter
 from modules.sub_modules import save_key_ronin
 from PyQt5.QtGui import QDoubleValidator
+from modules.sub_modules import db
 
 class Accounts_gui(object):
     def setupUi(self, MainWindow):
@@ -255,7 +256,10 @@ class Accounts_gui(object):
                 self.get_ron_list()
 
             else:
-                print("Account already exist.")
+                db.execute("UPDATE keys SET gas = ? WHERE ron_add = ?",gas_price,ronin_add)
+                db.commit()
+                print("Account updated...")
+                
 
     def delete_acount(self):
         """Delte ronin account"""

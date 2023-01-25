@@ -1,16 +1,16 @@
-# BloodMoon Sniper Bot
+# Crit: the marketplace bot
 
 ### Description
 
-Bloodmoon Sniper Bot is an automatic buying application for axies on the marketplace that lets you add
+_Crit Bot_ is an automatic buying application for axies on the marketplace that lets you add
 sniper listing and also add multiple ronin accounts for your every transaction.
 
 ### Installation
 
 - Download the application using this [link](https://ln5.sync.com/dl/d55ae3d20/xjz7nbws-5ryxagw3-jjuyw4hr-tgrain2c).
 - Once downloaded extract all the files.
-- Once extracted you will get the folder `bloodmoon_main` folder. On the `data\kek.txt` enter your desired password and salt for encrypting your private keys.(Note:You can move this file anywhere you want if you are not using the bot for security purposes).
-- Run the bot by double clicking the bloodmoon_main.exe file.
+- Once extracted you will get the folder `crit` folder. On the `data\kek.txt` enter your desired password and salt for encrypting your private keys.(Note:You can move this file anywhere you want if you are not using the bot for security purposes).
+- Run the bot by double clicking the crit.exe file.
 
 ---
 
@@ -22,8 +22,8 @@ sniper listing and also add multiple ronin accounts for your every transaction.
 - You should see the Ronin Accounts option.
 - Click on it and another window will pop up.
 - You can now setup your ronin accounts by supplying the needed information.
-(Note: All of the data stored are encrypted using fernet cryptography module.)
-If you want to learn more about fernet crytography you can check out this [link](https://cryptography.io/en/latest/fernet/).
+  (Note: All of the data stored are encrypted using fernet cryptography module.)
+  If you want to learn more about fernet crytography you can check out this [link](https://cryptography.io/en/latest/fernet/).
 - Once done you can set your active account by clicking the Set as Active button on the right frame of the window.
 - You can now close the window to setup your filters.
 - Restart the bot to save the changes you made
@@ -41,7 +41,7 @@ If you want to learn more about fernet crytography you can check out this [link]
 
 ### Contact
 
-John Paul Serdan(Ghost🤖#8342)
+Paul Serdan(Ghost※#8342)
 
 ### License
 
