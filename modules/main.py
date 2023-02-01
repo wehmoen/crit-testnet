@@ -1,15 +1,11 @@
-import time
 from modules.sub_modules import db
 from web3 import Web3
 import modules.generate_access_token as generate_access_token
 import modules.txn_utils as txn_utils
 from modules.sub_modules import axie_functions
 from cryptography.fernet import Fernet
-import sys
 from modules.sub_modules import save_key_ronin
-
-sys.setrecursionlimit(10000)
-
+import os
 
 MRKT_CONTRACT = Web3.toChecksumAddress("0xfff9ce5f71ca6178d3beecedb61e7eff1602950e")
 WETH_CONTRACT = Web3.toChecksumAddress("0xc99a6A985eD2Cac1ef41640596C5A5f9F4E19Ef5")
@@ -18,7 +14,6 @@ VALUE_TO_SPEND = (
 )
 CHAIN_ID = 2020
 GAS = 481337
-
 
 
 
@@ -38,18 +33,28 @@ def get_list_of_keys():
         pvt_key = ""
     else:
         """Decrypt the private key"""
-        password, salt = save_key_ronin.read_KEK()
-        decryption_key = save_key_ronin.get_decryption_key(password, salt)
-        f = Fernet(decryption_key)
+        try:
+            salt = save_key_ronin.read_KEK()
+            password =  bytes( os.environ['user_pass'], "utf-8")
+            decryption_key = save_key_ronin.get_decryption_key(password, salt)
+            f = Fernet(decryption_key)
 
-        pvt_key_bytes = f.decrypt(key_data[0][0])
-        pvt_key = pvt_key_bytes.decode("utf-8")
-        ron_add = key_data[0][1]
-        address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
-        token = generate_access_token.generate_access_token(pvt_key, address)
-        gas_price = key_data[0][2]
-        eth_contract = txn_utils.eth()
-        mp_contract = txn_utils.marketplace()
+            pvt_key_bytes = f.decrypt(key_data[0][0])
+            pvt_key = pvt_key_bytes.decode("utf-8")
+            ron_add = key_data[0][1]
+            address = Web3.toChecksumAddress(ron_add.replace("ronin:", "0x"))
+            token = generate_access_token.generate_access_token(pvt_key, address)
+            gas_price = key_data[0][2]
+            eth_contract = txn_utils.eth()
+            mp_contract = txn_utils.marketplace()
+        except Exception as e:
+            print(e)
+            address = ""
+            token = ""
+            gas_price = ""
+            eth_contract = ""
+            mp_contract = ""
+            pvt_key = ""
 
     return address, token, gas_price, eth_contract, mp_contract, pvt_key
 
@@ -255,7 +260,7 @@ def run_loop(axie_filter, filter_index=0):
                         if num_to_buy[filter_index] == 0:
                             break
                         break
-                    
+
                 """Verify Transactions"""
                 if len(txns) > 0:
                     txn_utils.send_txn_threads(txns)
@@ -350,6 +355,10 @@ def print_list(axie_filter):
 def init():
     """Bot Initialization"""
     print("Initializing bot...")
+    global address, token, gas_price, eth_contract, mp_contract, pvt_key
+    address, token, gas_price, eth_contract, mp_contract, pvt_key = get_list_of_keys()
+    print(address)
+    
     print(f"Your active ronin address is: {address}")
     check_available_ron()
 

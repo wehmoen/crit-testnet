@@ -43,6 +43,6 @@ def field(command, *values):
 
 # cur.execute("UPDATE snipe_list SET buy_count = 1 WHERE name = 'Beast Axie'")
 # cur.execute("DELETE  from keys")
-# print(cur.fetchall())
+# # print(cur.fetchall())
 # cxn.commit()
 # cxn.close()

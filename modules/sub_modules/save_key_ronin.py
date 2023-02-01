@@ -25,11 +25,9 @@ def read_KEK():
     """Read KEK from a file stored on disk"""
     with open("data\kek.txt", "r") as f:
         for line in f:
-            if line.startswith("password"):
-                password = bytes(find_value(line), "utf-8")
             if line.startswith("salt"):
                 salt = bytes(find_value(line), "utf-8")
-    return password, salt
+    return salt
 
 def generate_salt():
     return os.urandom(16)
@@ -38,10 +36,12 @@ def generate_salt():
 def encrypt_pvt_key(pvt_key):
     """Encrypt private key"""
     """Using KEK to encrypt key"""
-    password,salt= read_KEK()
+    salt= read_KEK()
     if salt ==b'':
        salt = generate_salt()
        print(f"Generated salt is:{salt}")
+
+    password = bytes(os.environ['user_pass'], "utf-8")
 
     decryption_key = get_decryption_key(password,salt)
     
