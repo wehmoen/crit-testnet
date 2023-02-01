@@ -357,8 +357,6 @@ def init():
     print("Initializing bot...")
     global address, token, gas_price, eth_contract, mp_contract, pvt_key
     address, token, gas_price, eth_contract, mp_contract, pvt_key = get_list_of_keys()
-    print(address)
-    
     print(f"Your active ronin address is: {address}")
     check_available_ron()
 
