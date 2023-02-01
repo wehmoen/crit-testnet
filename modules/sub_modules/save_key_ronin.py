@@ -13,6 +13,7 @@ def get_decryption_key(password, salt):
     decryption_key = base64.urlsafe_b64encode(kdf.derive(password))
 
     return decryption_key
+    
 def find_value(line):
     """Find value for password and salt"""
     line_value = line.rstrip("\n")

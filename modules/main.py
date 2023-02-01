@@ -252,9 +252,10 @@ def run_loop(axie_filter, filter_index=0):
                             attempted_assets.append(asset["tokenId"])
                         num_to_buy[filter_index] -= 1
 
-                        if num_to_buy[filter_index] <= 0:
-                                break
-                
+                        if num_to_buy[filter_index] == 0:
+                            break
+                        break
+                    
                 """Verify Transactions"""
                 if len(txns) > 0:
                     txn_utils.send_txn_threads(txns)
