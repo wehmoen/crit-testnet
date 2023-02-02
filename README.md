@@ -9,7 +9,7 @@ sniper listing and also add multiple ronin accounts for your every transaction.
 
 - Download the application using this [link](https://github.com/QU3STio/crit/releases).
 - Once downloaded extract all the files.
-- Once extracted you will get the folder `crit` folder. On the `data\kek.txt` enter your desired password and salt for encrypting your private keys.(Note:You can move this file anywhere you want if you are not using the bot for security purposes).
+- Once extracted you will get the folder `crit` folder. On the `data\kek.txt` enter your desired salt for encrypting your private keys.(Note:You can move this file anywhere you want if you are not using the bot for security purposes).
 - Run the bot by double clicking the crit.exe file.
 
 ---
@@ -18,6 +18,8 @@ sniper listing and also add multiple ronin accounts for your every transaction.
 
 ### Setting up your account/s
 
+- After running the bot you will be prompted to set your password. This password will also be used to encrypt your private key.
+(Note: Make sure to keep it somewhere safe. The bot will not save the password and there is no way to retrieve it.)
 - On the bot’s landing page you’ll see the File menu bar on the upper left corner.
 - You should see the Ronin Accounts option.
 - Click on it and another window will pop up.
