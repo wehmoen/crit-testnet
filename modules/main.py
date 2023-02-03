@@ -197,7 +197,7 @@ def run_loop(axie_filter, filter_index=0):
                 """Check if you still have a balance to buy another axie"""
                 if balance <= price:
                     print(
-                        f'You do not have enough ETH to buy anything. The lowest price you have set is {price / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH.\nTo continue, please complete the following steps: (1) deposit a sufficient amount of ETH, (2) restart the application (close and re-open), (3) click "Run Bot" for the desired filter.'
+                        f'You do not have enough ETH to buy anything. The lowest price you have set is {price / (10**18)} ETH and you only have {balance / (10**18)} ETH.\nTo continue, please complete the following steps: (1) deposit a sufficient amount of ETH, (2) restart the application (close and re-open), (3) click "Run Bot" for the desired filter.'
                     )
                     break
 
