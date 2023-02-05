@@ -44,8 +44,7 @@
 
 ### Contact
 
-Please join our Discord if you have questions:  [https://discord.gg/yAbkmfc8Ry] Using this link will give you access to our exclusive channel for Crit Marketplace Bot.
-QU3ST Discord: https://discord.gg/qu3st-878296318919999540
+Please join our [Discord](https://discord.gg/qu3st-878296318919999540) if you have questions: Using this [link] (https://discord.gg/yAbkmfc8Ry) will give you access to our exclusive channel for Crit Marketplace Bot.
 
 Paul Serdan(Ghost※#8342)
 
