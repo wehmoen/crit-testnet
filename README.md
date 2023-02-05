@@ -2,15 +2,15 @@
 
 ### Description
 
-_Crit Bot_ is an automatic buying application for axies on the marketplace that lets you add
-sniper listing and also add multiple ronin accounts for your every transaction.
+*Crit* is an automated marketplace bot for purchasing axies. Crit allows you to snipe specific axies as soon as they are listed, as well as sweeping the floor for future events. All with a 5 minute setup.
 
 ### Installation
 
-- Download the application using this [link](https://github.com/QU3STio/crit/releases).
-- Once downloaded extract all the files.
-- Once extracted you will get the folder `crit` folder. On the `data\kek.txt` enter your desired salt for encrypting your private keys.(Note:You can move this file anywhere you want if you are not using the bot for security purposes).
+- Download Crit.rar using this [link](https://github.com/QU3STio/crit/releases).
+- Extract the files to a folder of your choice.
+- On the data\kek.txt file in the data folder, enter your desired salt for encrypting your private keys.(Note:You can move this file anywhere you want if you are not using the bot for security purposes).
 - Run the bot by double clicking the crit.exe file.
+
 
 ---
 
@@ -33,15 +33,19 @@ sniper listing and also add multiple ronin accounts for your every transaction.
 ### Setting up filters
 
 - To setup filters just supply the needed data on the left frame of the application.
-- Filter link can be found at Axie Infinity [Marketplace](https://app.axieinfinity.com/marketplace/axies/).
+- Filter link can be found at [Axie Infinity Marketplace](https://app.axieinfinity.com/marketplace/axies/).
 - Once done click Save button.
 - You’ll see the list of your filters on the right frame of the window.
+- You may put in multiple filters and the bot will cycle through them.
 
 ### Running the Bot
 
 - On the landing page you’ll see a Run Bot Button. Click on it and the bot will start to loop and buy the axies on you filters list.
 
 ### Contact
+
+Please join our Discord if you have questions:  [https://discord.gg/yAbkmfc8Ry] Using this link will give you access to our exclusive channel for Crit Marketplace Bot.
+QU3ST Discord: https://discord.gg/qu3st-878296318919999540
 
 Paul Serdan(Ghost※#8342)
 
