@@ -8,7 +8,7 @@
 
 - Download Crit.rar using this [link](https://github.com/QU3STio/crit/releases).
 - Extract the files to a folder of your choice.
-- On the data\kek.txt file in the data folder, enter your desired salt for encrypting your private keys.(Note:You can move this file anywhere you want if you are not using the bot for security purposes).
+- On the data/kek.txt file in the data folder, enter your desired salt for encrypting your private keys.(Note: You can move this file anywhere you want if you are not using the bot for security purposes).
 - Run the bot by double clicking the crit.exe file.
 
 
@@ -16,7 +16,7 @@
 
 ## Usage
 
-### Setting up your account/s
+### Setting up your account
 
 - After running the bot you will be prompted to set your password. This password will also be used to encrypt your private key.
 (Note: Make sure to keep it somewhere safe. The bot will not save the password and there is no way to retrieve it.)
