@@ -2,7 +2,7 @@
 
 ### Description
 
-*Crit* is an automated marketplace bot for purchasing axies. Crit allows you to snipe specific axies as soon as they are listed, as well as sweeping the floor for future events. All with a 5 minute setup.
+_Crit_ is an automated marketplace bot for purchasing axies. Crit allows you to snipe specific axies as soon as they are listed, as well as sweeping the floor for future events. All with a 5 minute setup.
 
 ### Installation
 
@@ -11,7 +11,6 @@
 - On the data/kek.txt file in the data folder, enter your desired salt for encrypting your private keys.(Note: You can move this file anywhere you want if you are not using the bot for security purposes).
 - Run the bot by double clicking the crit.exe file.
 
-
 ---
 
 ## Usage
@@ -19,7 +18,7 @@
 ### Setting up your account
 
 - After running the bot you will be prompted to set your password. This password will also be used to encrypt your private key.
-(Note: Make sure to keep it somewhere safe. The bot will not save the password and there is no way to retrieve it.)
+  (Note: Make sure to keep it somewhere safe. The bot will not save the password and there is no way to retrieve it.)
 - On the bot’s landing page you’ll see the File menu bar on the upper left corner.
 - You should see the Ronin Accounts option.
 - Click on it and another window will pop up.
@@ -47,7 +46,3 @@
 Please join our Discord if you have questions: Using this [link](https://discord.gg/yAbkmfc8Ry) will give you access to our exclusive channel for Crit Marketplace Bot.
 
 Paul Serdan(Ghost※#8342)
-
-### License
-
-All intellectual property is assigned to QU3ST and should remain confidential
