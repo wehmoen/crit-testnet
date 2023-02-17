@@ -93,7 +93,7 @@ def buy_asset(asset):
             args=[
                 0,
                 int(order["currentPrice"]),
-                Web3.toChecksumAddress("0x949e9da76e917dd5548ee9125c1facd49867d7c5"),
+                Web3.toChecksumAddress("0xbd0e5d5240afd1c2f087069609fc980ed5425569"),
                 order["signature"],
                 [
                     Web3.toChecksumAddress(order["maker"]),
