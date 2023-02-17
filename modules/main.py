@@ -93,7 +93,7 @@ def buy_asset(asset):
             args=[
                 0,
                 int(order["currentPrice"]),
-                Web3.toChecksumAddress(address),
+                Web3.toChecksumAddress("0x949e9da76e917dd5548ee9125c1facd49867d7c5"),
                 order["signature"],
                 [
                     Web3.toChecksumAddress(order["maker"]),
@@ -127,7 +127,7 @@ def buy_asset(asset):
         }
     )
 
-    print(market_txn)
+    # print(market_txn)
     signed_txn = txn_utils.w3.eth.account.sign_transaction(
         market_txn, private_key=pvt_key
     )

@@ -46,11 +46,9 @@ def transform_filterdata(input_data):
             continue
         if filter_type == "excludeParts":
             filter_type = "parts"
-            if filter_value in new_filter["parts"]:
-                new_filter["parts"][new_filter["parts"].index(filter_value)] = (
-                    "!" + filter_value
-                )
-                continue
+            filter_type = "parts"
+            filter_value = "!"+filter_value
+            
         if filter_type in ["mystic", "japan", "xmas", "shiny", "summer"]:
             filter_type = "num" + filter_type.capitalize()
         if filter_type == "class":
@@ -64,7 +62,6 @@ def transform_filterdata(input_data):
         if not filter_type in new_filter:
             new_filter[filter_type] = []
         new_filter[filter_type].append(filter_value)
-
     return new_filter
 
 

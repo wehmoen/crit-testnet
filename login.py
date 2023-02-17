@@ -96,7 +96,7 @@ class Ui_MainWindow(object):
             self.label.setText(
                 _translate(
                     "MainWindow",
-                    '<html><head/><body><p align="center"><span style=" font-size:22pt; font-weight:600; color:#ffffff;">Set your password</span></p></body></html>',
+                    '<html><head/><body><p align="center"><span style=" font-size:20pt; font-weight:600; color:#ffffff;">Set your password</span></p></body></html>',
                 )
             )
             self.password_input.setPlaceholderText(
