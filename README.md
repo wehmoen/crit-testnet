@@ -2,7 +2,7 @@
 
 ### Description
 
-_Crit_ is an automated marketplace bot for purchasing axies. Crit allows you to snipe specific axies as soon as they are listed, as well as sweeping the floor for future events. All with a 5 minute setup.
+_Crit_ is an automated marketplace bot for purchasing axies. Crit allows you to snipe specific axies as soon as they are listed, as well as sweeping the floor for future events. All with a 5 minute setup. Check out [our source code](https://github.com/QU3STio/crit) (feel free to contribute!)
 
 ### Installation
 
